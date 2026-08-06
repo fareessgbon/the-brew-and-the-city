@@ -23,6 +23,19 @@ export interface ValidatedCsvRow extends CsvRowResult {
   payload?: CafeInsert;
 }
 
+// Return shape of importCafesCsv (app/admin/actions.ts). Defined here, not
+// there — a 'use server' file's named exports must all be async functions
+// (Turbopack's server-actions transform statically enumerates every export
+// of such a file expecting exactly that; even a type-only export trips it,
+// despite being erased at compile time — see the CsvRowResult re-export
+// this replaced, and the build error it produced).
+export interface CsvImportResult {
+  created: number;
+  updated: number;
+  rejected: number;
+  errors: string[];
+}
+
 const CSV_SCORE_FIELDS: [string, string][] = [
   ['drink', 'Drink'],
   ['energy', 'Energy'],

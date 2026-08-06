@@ -9,16 +9,11 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { DIMS, PRIMARY_DRINK_CATEGORIES } from '@/lib/matching';
 import { logAdminAction } from '@/lib/server/auditLog';
 import { trackServerEvent } from '@/lib/server/trackEvent';
-import { PARTNER_STATUSES, validateCsvRows, type CsvRowResult, type ValidatedCsvRow } from '@/lib/admin/csvImport';
+import { PARTNER_STATUSES, validateCsvRows, type CsvImportResult, type CsvRowResult, type ValidatedCsvRow } from '@/lib/admin/csvImport';
 import { MAX_REWARD_ITEMS_PER_CAFE, rewardItemFieldsFromForm } from '@/lib/admin/rewardItems';
 import { cafeDeletionBlockerMessage, rewardItemDeletionBlockerMessage } from '@/lib/admin/deletionGuards';
 import { generatePortalCredential, planApplicationApproval, slugify } from '@/lib/admin/partnerOnboarding';
 import type { DrinkCategory, FeatureFlagKey, MenuItemCategory, NoiseLevel, PartnerLifecycleStatus, PartnerStatus, PriceBand } from '@/lib/supabase/types';
-
-// Re-exported so components (e.g. CsvUploadForm) importing this type from
-// the actions module — where the rest of the CSV import API lives — don't
-// need to know the validation logic moved to lib/admin/csvImport.ts.
-export type { CsvRowResult };
 
 const SCORE_FIELDS = ['drink_score', 'energy_score', 'aesthetic_score', 'pace_score', 'adventure_score', 'price_score', 'food_score'] as const;
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
@@ -449,13 +444,6 @@ export async function previewCafesCsv(formData: FormData): Promise<CsvRowResult[
   await requireAdmin();
   const results = await validateCsvFile(formData);
   return results.map(({ row, name, slug, action, errors }) => ({ row, name, slug, action, errors }));
-}
-
-export interface CsvImportResult {
-  created: number;
-  updated: number;
-  rejected: number;
-  errors: string[];
 }
 
 export async function importCafesCsv(formData: FormData): Promise<CsvImportResult> {

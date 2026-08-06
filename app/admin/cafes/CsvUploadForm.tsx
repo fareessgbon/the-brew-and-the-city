@@ -1,7 +1,8 @@
 'use client';
 
 import { Fragment, useRef, useState, type FormEvent } from 'react';
-import { importCafesCsv, previewCafesCsv, type CsvImportResult, type CsvRowResult } from '@/app/admin/actions';
+import { importCafesCsv, previewCafesCsv } from '@/app/admin/actions';
+import type { CsvImportResult, CsvRowResult } from '@/lib/admin/csvImport';
 
 // Rendered as an array (not a hardcoded string) so each field can get a
 // <wbr /> after its comma below — the string has no spaces, matching the
