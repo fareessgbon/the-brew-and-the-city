@@ -614,12 +614,11 @@ section {
 
 .how-grid {
   display: grid;
-  /* 3 columns: the marketing "how it works" section has 3 real, implemented
-     factors (context/taste/proximity — no social feature, see
-     components/HowItWorksSection.tsx), and the admin dashboard's 9 quick
-     links (app/admin/page.tsx) divide evenly into 3 clean rows this way
-     instead of an awkward trailing row of 1 under 4 columns. */
-  grid-template-columns: repeat(3, 1fr);
+  /* 4 columns: components/HowItWorksSection.tsx has 4 cards — context fit,
+     taste fit, proximity, and social proof. Was 3 (no social-proof card
+     existed yet) — trailing 4th card wrapped onto its own row until this
+     was updated to match. */
+  grid-template-columns: repeat(4, 1fr);
   gap: 18px;
 }
 .how-card {
