@@ -38,8 +38,11 @@ export default async function AdminCafesPage() {
             <table className="legal" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
                 <tr>
-                  {['Name', 'Slug', 'Neighbourhood', 'Status', 'Ready', 'Drink', 'Energy', 'Aesthetic', 'Pace', 'Adventure', 'Price', 'Food'].map((h) => (
-                    <th key={h} style={{ textAlign: 'left', padding: '8px 10px', borderBottom: '1px solid var(--paper-2)', fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--whisk)' }}>
+                  {['Name', 'Slug', 'Neighbourhood', 'Status', 'Ready', 'Drink', 'Energy', 'Aesthetic', 'Pace', 'Adventure', 'Price', 'Food', ''].map((h, i) => (
+                    <th
+                      key={h || `col-${i}`}
+                      style={{ textAlign: 'left', padding: '8px 10px', borderBottom: '1px solid var(--paper-2)', fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--whisk)' }}
+                    >
                       {h}
                     </th>
                   ))}
@@ -64,6 +67,11 @@ export default async function AdminCafesPage() {
                     <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)' }}>{c.adventure_score}</td>
                     <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)' }}>{c.price_score}</td>
                     <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)' }}>{c.food_score}</td>
+                    <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)', textAlign: 'right' }}>
+                      <Link href={`/admin/cafes/${c.id}`} className="btn btn-ghost" style={{ padding: '4px 12px', fontSize: 12 }}>
+                        Edit
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>
