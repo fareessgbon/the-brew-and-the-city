@@ -2,6 +2,10 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { updateCafe, addMenuItem, deleteMenuItem } from '@/app/admin/actions';
 import { CafeForm } from '../CafeForm';
+import { RewardItemRow } from '../RewardItemRow';
+import { AddRewardItemForm } from '../AddRewardItemForm';
+
+const MAX_REWARD_ITEMS_PER_CAFE = 5;
 
 export default async function EditCafePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -10,9 +14,10 @@ export default async function EditCafePage({ params }: { params: Promise<{ id: s
   const { data: cafe } = await supabase.from('cafes').select('*').eq('id', id).maybeSingle();
   if (!cafe) notFound();
 
-  const [{ data: menuItems }, { data: attributes }] = await Promise.all([
+  const [{ data: menuItems }, { data: attributes }, { data: rewardItems }] = await Promise.all([
     supabase.from('menu_items').select('*').eq('cafe_id', id).order('created_at'),
     supabase.from('cafe_attributes').select('*').eq('cafe_id', id).maybeSingle(),
+    supabase.from('reward_items').select('*').eq('cafe_id', id).order('created_at'),
   ]);
 
   return (
@@ -77,6 +82,26 @@ export default async function EditCafePage({ params }: { params: Promise<{ id: s
             Add menu item
           </button>
         </form>
+
+        <div className="label" style={{ margin: '40px 0 10px' }}>
+          Reward items ({(rewardItems ?? []).length}/{MAX_REWARD_ITEMS_PER_CAFE})
+        </div>
+        <p style={{ fontSize: 13, color: 'var(--whisk)', marginBottom: 16 }}>
+          What members can redeem for free on their 5th City Card visit here. Reimbursement is what this café is owed per
+          redemption — cafés can add items and toggle availability from their own portal, but only admins set the reimbursement
+          amount and monthly cap.
+        </p>
+        <div style={{ marginBottom: 16 }}>
+          {(rewardItems ?? []).map((item) => (
+            <RewardItemRow key={item.id} item={item} cafeId={id} />
+          ))}
+          {(rewardItems ?? []).length === 0 ? <p style={{ color: 'var(--whisk)', fontSize: 14 }}>No reward items yet.</p> : null}
+        </div>
+        {(rewardItems ?? []).length < MAX_REWARD_ITEMS_PER_CAFE ? (
+          <AddRewardItemForm cafeId={id} />
+        ) : (
+          <p style={{ color: 'var(--whisk)', fontSize: 13 }}>At the {MAX_REWARD_ITEMS_PER_CAFE}-item limit — remove one to add another.</p>
+        )}
       </div>
     </section>
   );

@@ -8,6 +8,9 @@ const ACTION_LABELS: Record<string, string> = {
   'cafe.csv_import': 'CSV import',
   'menu_item.create': 'Menu item added',
   'menu_item.delete': 'Menu item deleted',
+  'reward_item.create': 'Reward item added',
+  'reward_item.update': 'Reward item updated',
+  'reward_item.delete': 'Reward item deleted',
   'application.approve': 'Application approved',
   'application.reject': 'Application rejected',
   'visit.review': 'Visit reviewed (backup)',
@@ -34,9 +37,10 @@ export default async function AdminAuditPage() {
       <div className="wrap">
         <h1 style={{ fontSize: 30, marginBottom: 8 }}>Audit log</h1>
         <p style={{ color: 'var(--whisk)', fontSize: 14, marginBottom: 24 }}>
-          Every admin action across cafés, CSV import, menu items, partner applications, receipt review, merchant
-          strings, partner administration, reimbursements, and feature flags — most recent first, last 200. Actions
-          on a specific record show its type and id, with a Details toggle for the previous/new value.
+          Every admin action across cafés, CSV import, menu items, reward items, partner applications, receipt
+          review, merchant strings, partner administration, reimbursements, and feature flags — most recent first,
+          last 200. Actions on a specific record show its type and id, with a Details toggle for the previous/new
+          value.
         </p>
 
         {error ? (

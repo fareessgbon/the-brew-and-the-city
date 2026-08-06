@@ -8,13 +8,18 @@ import { requireAdmin } from '@/lib/admin';
 import { createAdminClient } from '@/lib/supabase/server';
 import { DIMS, PRIMARY_DRINK_CATEGORIES } from '@/lib/matching';
 import { logAdminAction } from '@/lib/server/auditLog';
-import type { Database, DrinkCategory, FeatureFlagKey, MenuItemCategory, NoiseLevel, PartnerLifecycleStatus, PartnerStatus, PriceBand } from '@/lib/supabase/types';
+import { PARTNER_STATUSES, validateCsvRows, type CsvRowResult, type ValidatedCsvRow } from '@/lib/admin/csvImport';
+import { MAX_REWARD_ITEMS_PER_CAFE, rewardItemFieldsFromForm } from '@/lib/admin/rewardItems';
+import { cafeDeletionBlockerMessage, rewardItemDeletionBlockerMessage } from '@/lib/admin/deletionGuards';
+import type { DrinkCategory, FeatureFlagKey, MenuItemCategory, NoiseLevel, PartnerLifecycleStatus, PartnerStatus, PriceBand } from '@/lib/supabase/types';
 
-type CafeInsert = Database['public']['Tables']['cafes']['Insert'];
+// Re-exported so components (e.g. CsvUploadForm) importing this type from
+// the actions module — where the rest of the CSV import API lives — don't
+// need to know the validation logic moved to lib/admin/csvImport.ts.
+export type { CsvRowResult };
 
 const SCORE_FIELDS = ['drink_score', 'energy_score', 'aesthetic_score', 'pace_score', 'adventure_score', 'price_score', 'food_score'] as const;
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
-const PARTNER_STATUSES: PartnerStatus[] = ['listed', 'partner', 'featured', 'founding_partner'];
 const MENU_CATEGORIES: MenuItemCategory[] = ['matcha', 'coffee', 'tea', 'food', 'other'];
 
 // §3.0.1 / §3.1b — launch capacity: first 15 approved cafés for Founding
@@ -263,10 +268,43 @@ export async function updateCafe(id: string, formData: FormData) {
   redirect('/admin/cafes');
 }
 
+// Not exposed in the admin UI (see CafeForm's "Active" checkbox for the
+// normal, reversible way to hide a café) — kept as a guarded server action
+// rather than removed outright, for the rare case of a café created by
+// mistake with zero real activity. cafes.id cascades into visits/menu_items/
+// reward_items/saved_cafes on delete, and rewards.redeemed_at_cafe_id /
+// pending_cafe_id have no ON DELETE at all (a stray redemption would throw a
+// raw FK error instead of a friendly one) — so anything with real history
+// must be deactivated, never deleted.
+async function assertCafeHasNoHistory(supabase: ReturnType<typeof createAdminClient>, cafeId: string) {
+  const [visits, redeemedRewards, pendingRewards, menuItems, rewardItems, savedCafes] = await Promise.all([
+    supabase.from('visits').select('id', { count: 'exact', head: true }).eq('cafe_id', cafeId),
+    supabase.from('rewards').select('id', { count: 'exact', head: true }).eq('redeemed_at_cafe_id', cafeId),
+    supabase.from('rewards').select('id', { count: 'exact', head: true }).eq('pending_cafe_id', cafeId),
+    supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('cafe_id', cafeId),
+    supabase.from('reward_items').select('id', { count: 'exact', head: true }).eq('cafe_id', cafeId),
+    supabase.from('saved_cafes').select('id', { count: 'exact', head: true }).eq('cafe_id', cafeId),
+  ]);
+
+  const message = cafeDeletionBlockerMessage({
+    visits: visits.count ?? 0,
+    redeemedRewards: redeemedRewards.count ?? 0,
+    pendingRewards: pendingRewards.count ?? 0,
+    menuItems: menuItems.count ?? 0,
+    rewardItems: rewardItems.count ?? 0,
+    savedCafes: savedCafes.count ?? 0,
+  });
+  if (message) throw new Error(message);
+}
+
 export async function deleteCafe(id: string) {
   const admin = await requireAdmin();
   const supabase = createAdminClient();
   const { data: cafe } = await supabase.from('cafes').select('name, slug').eq('id', id).maybeSingle();
+  if (!cafe) throw new Error('Café not found.');
+
+  await assertCafeHasNoHistory(supabase, id);
+
   const { error } = await supabase.from('cafes').delete().eq('id', id);
   if (error) throw new Error(error.message);
 
@@ -341,104 +379,6 @@ export async function updatePartnerAdmin(cafeId: string, formData: FormData) {
   redirect(`/admin/partners/${cafeId}`);
 }
 
-export interface CsvRowResult {
-  row: number;
-  name: string;
-  slug: string;
-  action: 'create' | 'update' | 'reject';
-  errors: string[];
-}
-
-interface ValidatedCsvRow extends CsvRowResult {
-  payload?: CafeInsert;
-}
-
-const CSV_SCORE_FIELDS: [string, string][] = [
-  ['drink', 'Drink'],
-  ['energy', 'Energy'],
-  ['aesthetic', 'Aesthetic'],
-  ['pace', 'Pace'],
-  ['adventure', 'Adventure'],
-  ['price', 'Price'],
-  ['food', 'Food'],
-];
-
-// Shared by previewCafesCsv (dry run) and importCafesCsv (the real write) so
-// a row that previews as valid always imports the same way. Flags, per row:
-// missing name/slug, a slug repeated earlier in the same file, out-of-range
-// or non-numeric scores, and unrecognized partner_status/drink_categories
-// values — rather than silently coercing bad data like the old importer did.
-function validateCsvRows(records: Record<string, string>[], existingSlugs: Set<string>): ValidatedCsvRow[] {
-  const seenSlugs = new Map<string, number>();
-
-  return records.map((row, i) => {
-    const rowNum = i + 2; // header is row 1
-    const errors: string[] = [];
-    const name = row.name?.trim() ?? '';
-    const slug = (row.slug ?? '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-    if (!name) errors.push('Missing name.');
-    if (!slug) errors.push('Missing slug.');
-    if (slug) {
-      const firstSeenAt = seenSlugs.get(slug);
-      if (firstSeenAt) errors.push(`Duplicate slug "${slug}" — already used by row ${firstSeenAt} in this file.`);
-      else seenSlugs.set(slug, rowNum);
-    }
-
-    const scores: Record<string, number> = {};
-    for (const [key, label] of CSV_SCORE_FIELDS) {
-      const raw = row[key]?.trim();
-      if (!raw) {
-        errors.push(`Missing ${label} score.`);
-        continue;
-      }
-      const num = Number(raw);
-      if (!Number.isFinite(num) || num < 0 || num > 100) {
-        errors.push(`${label} score must be a number from 0-100 (got "${raw}").`);
-        continue;
-      }
-      scores[`${key}_score`] = Math.round(num);
-    }
-
-    let partnerStatus: PartnerStatus = 'listed';
-    const rawStatus = row.partner_status?.trim();
-    if (rawStatus) {
-      if (!PARTNER_STATUSES.includes(rawStatus as PartnerStatus)) {
-        errors.push(`Unknown partner_status "${rawStatus}" — must be one of ${PARTNER_STATUSES.join(', ')}.`);
-      } else {
-        partnerStatus = rawStatus as PartnerStatus;
-      }
-    }
-
-    let drinkCategories: DrinkCategory[] = [...PRIMARY_DRINK_CATEGORIES];
-    const rawCategories = row.drink_categories?.trim();
-    if (rawCategories) {
-      const tokens = rawCategories.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
-      const invalid = tokens.filter((t) => !PRIMARY_DRINK_CATEGORIES.includes(t as DrinkCategory));
-      if (invalid.length > 0) {
-        errors.push(`Unknown drink category "${invalid.join(', ')}" — must be from ${PRIMARY_DRINK_CATEGORIES.join(', ')}.`);
-      } else {
-        drinkCategories = tokens as DrinkCategory[];
-      }
-    }
-
-    const action: CsvRowResult['action'] = errors.length > 0 ? 'reject' : existingSlugs.has(slug) ? 'update' : 'create';
-    const payload =
-      errors.length === 0
-        ? {
-            name,
-            slug,
-            neighbourhood: row.neighbourhood?.trim() || null,
-            partner_status: partnerStatus,
-            drink_categories: drinkCategories,
-            ...scores,
-          }
-        : undefined;
-
-    return { row: rowNum, name, slug, action, errors, payload };
-  });
-}
-
 async function parseCsvFile(formData: FormData): Promise<{ records: Record<string, string>[] } | { errors: string[] }> {
   const file = formData.get('file');
   if (!(file instanceof File)) return { errors: ['No file uploaded.'] };
@@ -465,8 +405,11 @@ async function validateCsvFile(formData: FormData): Promise<ValidatedCsvRow[]> {
   return validateCsvRows(parsed.records, existingSlugs);
 }
 
-// Expected header row: name,slug,neighbourhood,drink,energy,aesthetic,pace,adventure,price,food,partner_status,drink_categories
+// Expected header row: name,slug,neighbourhood,drink,energy,aesthetic,pace,adventure,price,food,partner_status,drink_categories,latitude,longitude
 // drink_categories is optional, semicolon- or comma-separated (coffee;matcha;tea_chai;refreshers_other) — defaults to all four.
+// latitude/longitude are optional too — provide both or leave both blank; a
+// lone coordinate is rejected, and omitting both leaves an existing café's
+// coordinates untouched on update rather than clearing them.
 // Dry run — validates every row and reports what importCafesCsv would do,
 // without writing anything, so the admin can review and correct before committing.
 export async function previewCafesCsv(formData: FormData): Promise<CsvRowResult[]> {
@@ -569,6 +512,121 @@ export async function deleteMenuItem(id: string, cafeId: string) {
     `Deleted menu item "${item?.name ?? id}"`,
     { cafeId },
     { recordType: 'menu_item', recordId: id, previousValue: item ? { name: item.name } : null, newValue: null },
+  );
+
+  revalidatePath(`/admin/cafes/${cafeId}`);
+}
+
+// Not exposed anywhere but here (see deleteRewardItem below) — rewards.reward_item_id
+// has no ON DELETE clause, so deleting an item ever activated/redeemed would
+// otherwise throw a raw FK error instead of a friendly one.
+async function assertRewardItemHasNoRedemptions(supabase: ReturnType<typeof createAdminClient>, itemId: string) {
+  const { count } = await supabase.from('rewards').select('id', { count: 'exact', head: true }).eq('reward_item_id', itemId);
+  const message = rewardItemDeletionBlockerMessage(count ?? 0);
+  if (message) throw new Error(message);
+}
+
+export async function addRewardItem(cafeId: string, formData: FormData) {
+  const admin = await requireAdmin();
+  const supabase = createAdminClient();
+
+  const { count } = await supabase.from('reward_items').select('id', { count: 'exact', head: true }).eq('cafe_id', cafeId);
+  if ((count ?? 0) >= MAX_REWARD_ITEMS_PER_CAFE) {
+    throw new Error(`This café already has ${MAX_REWARD_ITEMS_PER_CAFE} eligible items — remove one before adding another.`);
+  }
+
+  const result = rewardItemFieldsFromForm(formData);
+  if ('error' in result) throw new Error(result.error);
+
+  const { data: created, error } = await supabase
+    .from('reward_items')
+    .insert({ cafe_id: cafeId, ...result.fields })
+    .select('id')
+    .single();
+  if (error) throw new Error(error.message);
+
+  await logAdminAction(
+    admin.email ?? 'unknown',
+    'reward_item.create',
+    `Added reward item "${result.fields.name}"`,
+    { cafeId },
+    { recordType: 'reward_item', recordId: created.id, previousValue: null, newValue: { ...result.fields } },
+  );
+
+  revalidatePath(`/admin/cafes/${cafeId}`);
+}
+
+export async function updateRewardItem(id: string, cafeId: string, formData: FormData) {
+  const admin = await requireAdmin();
+  const supabase = createAdminClient();
+
+  const { data: existing } = await supabase.from('reward_items').select('*').eq('id', id).maybeSingle();
+  if (!existing) throw new Error('Reward item not found.');
+
+  const result = rewardItemFieldsFromForm(formData);
+  if ('error' in result) throw new Error(result.error);
+
+  const { error } = await supabase
+    .from('reward_items')
+    .update({ ...result.fields, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) throw new Error(error.message);
+
+  await logAdminAction(
+    admin.email ?? 'unknown',
+    'reward_item.update',
+    `Updated reward item "${result.fields.name}"`,
+    { cafeId },
+    {
+      recordType: 'reward_item',
+      recordId: id,
+      previousValue: {
+        name: existing.name,
+        description: existing.description,
+        category: existing.category,
+        price_cents: existing.price_cents,
+        reimbursement_cents: existing.reimbursement_cents,
+        monthly_cap: existing.monthly_cap,
+        is_available: existing.is_available,
+      },
+      newValue: { ...result.fields },
+    },
+  );
+
+  revalidatePath(`/admin/cafes/${cafeId}`);
+}
+
+export async function deleteRewardItem(id: string, cafeId: string) {
+  const admin = await requireAdmin();
+  const supabase = createAdminClient();
+
+  const { data: existing } = await supabase.from('reward_items').select('*').eq('id', id).maybeSingle();
+  if (!existing) throw new Error('Reward item not found.');
+
+  await assertRewardItemHasNoRedemptions(supabase, id);
+
+  const { error } = await supabase.from('reward_items').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+
+  await logAdminAction(
+    admin.email ?? 'unknown',
+    'reward_item.delete',
+    `Deleted reward item "${existing.name}"`,
+    { cafeId },
+    {
+      recordType: 'reward_item',
+      recordId: id,
+      previousValue: {
+        name: existing.name,
+        description: existing.description,
+        category: existing.category,
+        price_cents: existing.price_cents,
+        reimbursement_cents: existing.reimbursement_cents,
+        monthly_cap: existing.monthly_cap,
+        is_available: existing.is_available,
+      },
+      newValue: null,
+    },
   );
 
   revalidatePath(`/admin/cafes/${cafeId}`);

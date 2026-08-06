@@ -59,9 +59,11 @@ export function CsvUploadForm() {
         ) : null}
       </form>
       <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 10 }}>
-        Header row: <code>name,slug,neighbourhood,drink,energy,aesthetic,pace,adventure,price,food,partner_status,drink_categories</code>.
-        Matches on slug — re-importing the same slug updates that café. Preview checks every row before anything is written; fix and
-        re-upload to retry rejected rows.
+        Header row:{' '}
+        <code>name,slug,neighbourhood,drink,energy,aesthetic,pace,adventure,price,food,partner_status,drink_categories,latitude,longitude</code>.
+        Matches on slug — re-importing the same slug updates that café. <code>latitude</code>/<code>longitude</code> are optional —
+        provide both or leave both blank; a lone coordinate is rejected, and leaving both blank keeps a café&apos;s existing
+        coordinates untouched. Preview checks every row before anything is written; fix and re-upload to retry rejected rows.
       </div>
 
       {preview ? (
