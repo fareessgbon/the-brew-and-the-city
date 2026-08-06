@@ -64,6 +64,7 @@ export function HeroQuiz({ cafes, userVector, answeredDims, primaryDrinkCategory
 
   useEffect(() => {
     if (phase !== 'results') return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- replays the dot-reveal CSS transition post-commit; can't run during render.
     setDotsVisible(false);
     const raf = requestAnimationFrame(() => setDotsVisible(true));
     return () => cancelAnimationFrame(raf);
@@ -74,6 +75,7 @@ export function HeroQuiz({ cafes, userVector, answeredDims, primaryDrinkCategory
   // something that should reset or re-trigger the localStorage view-counter.
   useEffect(() => {
     if (phase === 'results' && !trustLine) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time, client-only localStorage view-counter read.
       setTrustLine(mapsTestLine('top3', 'Three, not thirty. Ranked by what you told us, not by review count.'));
     }
   }, [phase, trustLine]);

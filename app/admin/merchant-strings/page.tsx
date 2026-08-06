@@ -49,7 +49,7 @@ export default async function MerchantStringsPage() {
         <h1 style={{ fontSize: 30, marginBottom: 8 }}>Merchant strings</h1>
         <p style={{ color: 'var(--whisk)', fontSize: 14, marginBottom: 24 }}>
           Maps the merchant names that show up on receipts to the café they belong to — the lookup a future OCR step would read
-          from. No OCR pipeline writes here yet, so entries are added by hand as they're spotted.
+          from. No OCR pipeline writes here yet, so entries are added by hand as they&apos;re spotted.
         </p>
 
         <AddMerchantStringForm cafes={cafeOptions} />

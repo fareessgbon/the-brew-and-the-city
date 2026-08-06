@@ -20,6 +20,7 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
   const [sixthRoundLine, setSixthRoundLine] = useState('');
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time, client-only localStorage view-counter read.
     setSixthRoundLine(
       mapsTestLine('sixth', 'Five visits anywhere in the network. One card, not six punch cards in your wallet.'),
     );

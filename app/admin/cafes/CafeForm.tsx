@@ -206,7 +206,7 @@ export function CafeForm({
       </div>
 
       <div className="label" style={{ margin: '20px 0 10px' }}>
-        Drink categories served (§7.2 — hard filter on the quiz's Q1)
+        Drink categories served (§7.2 — hard filter on the quiz&apos;s Q1)
       </div>
       <div className="ratio-box" style={{ marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 16 }}>
         {PRIMARY_DRINK_CATEGORIES.map((category) => (

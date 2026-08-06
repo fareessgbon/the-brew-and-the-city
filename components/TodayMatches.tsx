@@ -31,6 +31,7 @@ export function TodayMatches() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marks the context-keyed fetch below as in flight.
     setLoading(true);
     const query = context ? `?context=${context}` : '';
     fetch(`/api/matches${query}`)

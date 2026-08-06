@@ -22,6 +22,7 @@ export function MobileMenu() {
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- gates the portal render until after client mount; document.body doesn't exist during SSR.
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {

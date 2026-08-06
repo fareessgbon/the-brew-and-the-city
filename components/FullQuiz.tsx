@@ -36,6 +36,7 @@ export function FullQuiz() {
   useEffect(() => {
     const stored = readQuizProgress();
     if (stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe, client-only localStorage read; gated by `ready` below.
       setVector((prev) => ({ ...prev, ...stored.vector }));
       setResumedDims(stored.answeredDims);
       if (stored.primaryDrinkCategory) {
