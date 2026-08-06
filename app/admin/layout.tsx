@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin';
-import { SignOutButton } from '@/app/profile/SignOutButton';
+import { AdminNav } from '@/components/admin/AdminNav';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireAdmin();
@@ -15,21 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               admin
             </span>
           </Link>
-          <nav style={{ flexWrap: 'wrap', rowGap: 8 }}>
-            <Link href="/admin/cafes">Cafés</Link>
-            <Link href="/admin/visits">Receipts</Link>
-            <Link href="/admin/vector-tester">Vector tester</Link>
-            <Link href="/admin/merchant-strings">Merchant strings</Link>
-            <Link href="/admin/partners">Partners</Link>
-            <Link href="/admin/reimbursements">Reimbursements</Link>
-            <Link href="/admin/flags">Feature flags</Link>
-            <Link href="/admin/applications">Applications</Link>
-            <Link href="/admin/audit">Audit log</Link>
-            <span className="label" style={{ color: 'var(--whisk)' }}>
-              {user.email}
-            </span>
-            <SignOutButton />
-          </nav>
+          <AdminNav email={user.email ?? ''} />
         </div>
       </header>
       <div style={{ flex: 1 }}>{children}</div>
