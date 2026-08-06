@@ -82,14 +82,18 @@ export function VectorTesterClient() {
         {DIMS.map((dim) => (
           <div key={dim}>
             <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--whisk)', marginBottom: 4 }}>
-              {dim}: {vector[dim]}
+              {/* Displayed on a friendlier 0–10 scale — calculateMatch() still gets the
+                  real 0–100 value (vector[dim] itself, never changed), scaled back up in
+                  setDim below. */}
+              {dim}: {(vector[dim] / 10).toFixed(1)}
             </label>
             <input
               type="range"
               min={0}
-              max={100}
-              value={vector[dim]}
-              onChange={(e) => setDim(dim, Number(e.target.value))}
+              max={10}
+              step={0.1}
+              value={vector[dim] / 10}
+              onChange={(e) => setDim(dim, Number(e.target.value) * 10)}
               style={{ width: '100%' }}
             />
           </div>
