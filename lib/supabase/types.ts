@@ -1,13 +1,63 @@
-// Minimal — this build only ever touches two tables (see migration 0021).
-// The full product's schema lives in the real app's copy of this file;
-// duplicating it here would describe dozens of tables this codebase never
-// reads or writes.
+// Minimal — this build only ever writes to two tables (waitlist,
+// survey_responses — see migration 0021) and reads one more (cafes, for the
+// homepage's real quiz preview, restored from the full product's own
+// seeded data). The full product's complete schema lives in the real app's
+// copy of this file; duplicating all of it here would describe dozens of
+// tables this codebase never touches.
 
 export type SurveyType = 'cafe_partner' | 'consumer';
 
 export interface Database {
   public: {
     Tables: {
+      // Read-only from here — this build only ever selects from cafes
+      // (app/page.tsx), never writes. Row covers exactly the columns that
+      // query uses; Insert/Update are typed but unused.
+      cafes: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          neighbourhood: string | null;
+          verified_at: string | null;
+          drink_score: number;
+          energy_score: number;
+          aesthetic_score: number;
+          pace_score: number;
+          adventure_score: number;
+          price_score: number;
+          food_score: number;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          neighbourhood?: string | null;
+          verified_at?: string | null;
+          drink_score?: number;
+          energy_score?: number;
+          aesthetic_score?: number;
+          pace_score?: number;
+          adventure_score?: number;
+          price_score?: number;
+          food_score?: number;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          neighbourhood?: string | null;
+          verified_at?: string | null;
+          drink_score?: number;
+          energy_score?: number;
+          aesthetic_score?: number;
+          pace_score?: number;
+          adventure_score?: number;
+          price_score?: number;
+          food_score?: number;
+        };
+        Relationships: [];
+      };
       waitlist: {
         Row: {
           id: string;
