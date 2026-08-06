@@ -130,6 +130,70 @@ function startOfMonthIso(): string {
 
 export class ActivationError extends Error {}
 
+// How many of a café's (or item's) monthly slots are already spoken for.
+// Counts by `activated_at`, not `redeemed_at` — deliberately. `redeemed_at`
+// only gets set at the counter, up to 10 minutes after activation, so a cap
+// check that only counts completed redemptions leaves a window where
+// several members can each activate against the same "last slot" before
+// any of them has actually redeemed — no concurrency required, just two
+// activations in the same 10-minute window. `pending_cafe_id` and
+// `reward_item_id` are set at activation and never cleared by redemption
+// (see app/api/portal/redeem/route.ts), so counting from them also covers
+// completed redemptions for free.
+//
+// Trade-off, chosen deliberately: an activation that's abandoned (code
+// expires, never redeemed) still counts against the month's cap under this
+// query, where the old redeemed_at-only count would have quietly freed it
+// back up. Undercounting availability is a retryable UX inconvenience;
+// overcounting is real reimbursement liability — the direction this cap
+// exists to guard.
+async function countCafeSlotsUsed(admin: ReturnType<typeof createAdminClient>, cafeId: string, monthStart: string): Promise<number> {
+  const { count } = await admin
+    .from('rewards')
+    .select('id', { count: 'exact', head: true })
+    .eq('pending_cafe_id', cafeId)
+    .gte('activated_at', monthStart);
+  return count ?? 0;
+}
+
+async function countItemSlotsUsed(admin: ReturnType<typeof createAdminClient>, itemId: string, monthStart: string): Promise<number> {
+  const { count } = await admin
+    .from('rewards')
+    .select('id', { count: 'exact', head: true })
+    .eq('reward_item_id', itemId)
+    .gte('activated_at', monthStart);
+  return count ?? 0;
+}
+
+// This reward's 1-indexed rank among every activation at this café (or for
+// this item) this month, ordered by activation time — `id` is a stable
+// tiebreak for two activations landing in the same millisecond. Used only
+// for the post-activation recheck below, and deliberately not a raw count:
+// once two racing activations have both committed, a raw count is the same
+// shared number for both requests' rechecks, so both would independently
+// see "over cap" and both roll themselves back, wasting a slot neither
+// needed to give up. Rank is different per reward, so exactly the
+// activation(s) beyond the cap roll back — never zero, never more than
+// necessary — because both requests compute the same ranking from the same
+// committed rows and agree on which one(s) lose.
+function rankById<T extends { id: string; activated_at: string | null }>(rows: T[], id: string): number {
+  const sorted = [...rows].sort((a, b) => {
+    if (a.activated_at !== b.activated_at) return (a.activated_at ?? '') < (b.activated_at ?? '') ? -1 : 1;
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+  });
+  return sorted.findIndex((r) => r.id === id) + 1;
+}
+
+async function cafeActivationRank(admin: ReturnType<typeof createAdminClient>, cafeId: string, monthStart: string, rewardId: string): Promise<number> {
+  const { data } = await admin.from('rewards').select('id, activated_at').eq('pending_cafe_id', cafeId).gte('activated_at', monthStart);
+  return rankById((data ?? []) as { id: string; activated_at: string | null }[], rewardId);
+}
+
+async function itemActivationRank(admin: ReturnType<typeof createAdminClient>, itemId: string, monthStart: string, rewardId: string): Promise<number> {
+  const { data } = await admin.from('rewards').select('id, activated_at').eq('reward_item_id', itemId).gte('activated_at', monthStart);
+  return rankById((data ?? []) as { id: string; activated_at: string | null }[], rewardId);
+}
+
 // §8.11 — activation is what generates the redeemable code and starts the
 // 10-minute window; §3.0.5's monthly caps are enforced here, at the moment
 // a member commits to a specific café and item, not earlier.
@@ -146,24 +210,14 @@ export async function activateReward(userId: string, cafeId: string, itemId: str
   if (!item || !item.is_available) throw new ActivationError('That item isn’t available right now — pick another.');
 
   const monthStart = startOfMonthIso();
-  const { count: cafeRedemptions } = await admin
-    .from('rewards')
-    .select('id', { count: 'exact', head: true })
-    .eq('redeemed_at_cafe_id', cafeId)
-    .gte('redeemed_at', monthStart);
-  if ((cafeRedemptions ?? 0) >= cafe.monthly_redemption_cap) {
-    throw new ActivationError('This café has reached its redemption cap for the month — try another café or come back next month.');
-  }
+  const cafeCapMessage = 'This café has reached its redemption cap for the month — try another café or come back next month.';
+  const itemCapMessage = 'That item has reached its redemption cap for the month — pick another.';
 
-  if (item.monthly_cap !== null) {
-    const { count: itemRedemptions } = await admin
-      .from('rewards')
-      .select('id', { count: 'exact', head: true })
-      .eq('reward_item_id', itemId)
-      .gte('redeemed_at', monthStart);
-    if ((itemRedemptions ?? 0) >= item.monthly_cap) {
-      throw new ActivationError('That item has reached its redemption cap for the month — pick another.');
-    }
+  if ((await countCafeSlotsUsed(admin, cafeId, monthStart)) >= cafe.monthly_redemption_cap) {
+    throw new ActivationError(cafeCapMessage);
+  }
+  if (item.monthly_cap !== null && (await countItemSlotsUsed(admin, itemId, monthStart)) >= item.monthly_cap) {
+    throw new ActivationError(itemCapMessage);
   }
 
   const expiresAt = new Date(Date.now() + ACTIVATION_TTL_MS).toISOString();
@@ -175,7 +229,26 @@ export async function activateReward(userId: string, cafeId: string, itemId: str
       .eq('status', 'active')
       .select()
       .single();
-    if (!error && activated) return { reward: activated, item, cafeName: cafe.name };
+    if (!error && activated) {
+      // Re-check now that this activation is actually committed — closes
+      // the window where two concurrent activations could both pass the
+      // count above and jointly exceed the cap. Rank-based (see
+      // cafeActivationRank), not a raw recount, so exactly the
+      // activation(s) beyond the cap roll back rather than every racing
+      // request rolling back together.
+      const cafeRank = await cafeActivationRank(admin, cafeId, monthStart, reward.id);
+      const itemRank = item.monthly_cap !== null ? await itemActivationRank(admin, itemId, monthStart, reward.id) : null;
+      const overCafeCap = cafeRank > cafe.monthly_redemption_cap;
+      const overItemCap = itemRank !== null && item.monthly_cap !== null && itemRank > item.monthly_cap;
+      if (overCafeCap || overItemCap) {
+        await admin
+          .from('rewards')
+          .update({ code: null, pending_cafe_id: null, reward_item_id: null, activated_at: null, expires_at: null })
+          .eq('id', reward.id);
+        throw new ActivationError(overCafeCap ? cafeCapMessage : itemCapMessage);
+      }
+      return { reward: activated, item, cafeName: cafe.name };
+    }
     if (error?.code !== '23505') throw new Error(error?.message ?? 'Could not activate reward.');
     // 23505 = code collision — retry with a fresh code.
   }
