@@ -1,7 +1,28 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { Fragment, useRef, useState, type FormEvent } from 'react';
 import { importCafesCsv, previewCafesCsv, type CsvImportResult, type CsvRowResult } from '@/app/admin/actions';
+
+// Rendered as an array (not a hardcoded string) so each field can get a
+// <wbr /> after its comma below — the string has no spaces, matching the
+// real CSV format, so without a wrap opportunity the browser can't break
+// it and it overflows the "Bulk import" box instead of reflowing.
+const CSV_HEADER_FIELDS = [
+  'name',
+  'slug',
+  'neighbourhood',
+  'drink',
+  'energy',
+  'aesthetic',
+  'pace',
+  'adventure',
+  'price',
+  'food',
+  'partner_status',
+  'drink_categories',
+  'latitude',
+  'longitude',
+];
 
 export function CsvUploadForm() {
   const [preview, setPreview] = useState<CsvRowResult[] | null>(null);
@@ -60,7 +81,18 @@ export function CsvUploadForm() {
       </form>
       <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 10 }}>
         Header row:{' '}
-        <code>name,slug,neighbourhood,drink,energy,aesthetic,pace,adventure,price,food,partner_status,drink_categories,latitude,longitude</code>.
+        <code>
+          {CSV_HEADER_FIELDS.map((field, i) => (
+            <Fragment key={field}>
+              {field}
+              {i < CSV_HEADER_FIELDS.length - 1 ? (
+                <>
+                  ,<wbr />
+                </>
+              ) : null}
+            </Fragment>
+          ))}
+        </code>.
         Matches on slug — re-importing the same slug updates that café. <code>latitude</code>/<code>longitude</code> are optional —
         provide both or leave both blank; a lone coordinate is rejected, and leaving both blank keeps a café&apos;s existing
         coordinates untouched. Preview checks every row before anything is written; fix and re-upload to retry rejected rows.
