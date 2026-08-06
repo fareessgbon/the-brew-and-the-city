@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
   return (
     <>
       <form className="inline-form" onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
-        <input type="email" name="email" placeholder="Email" required autoComplete="email" />
+        <input type="email" name="email" placeholder="Email" aria-label="Email" required autoComplete="email" />
         <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
           {status === 'sending' ? 'Sending…' : 'Send reset link'}
         </button>

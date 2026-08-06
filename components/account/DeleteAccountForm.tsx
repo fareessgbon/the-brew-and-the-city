@@ -54,6 +54,7 @@ export function DeleteAccountForm() {
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
           placeholder="DELETE"
+          aria-label="Type DELETE to confirm account deletion"
           disabled={status === 'deleting'}
           style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--whisk-10)' }}
         />

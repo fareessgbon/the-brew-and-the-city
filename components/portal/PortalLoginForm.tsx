@@ -41,6 +41,7 @@ export function PortalLoginForm({ slug, cafeName }: { slug: string; cafeName: st
           inputMode="numeric"
           name="pin"
           placeholder="PIN"
+          aria-label="Café portal PIN"
           autoFocus
           style={{
             width: '100%',

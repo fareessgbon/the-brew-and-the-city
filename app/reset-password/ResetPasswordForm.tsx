@@ -40,8 +40,24 @@ export function ResetPasswordForm() {
   return (
     <>
       <form className="inline-form" onSubmit={handleSubmit} style={{ maxWidth: 400, flexDirection: 'column', alignItems: 'stretch', gap: 10 }}>
-        <input type="password" name="password" placeholder="New password (6+ characters)" required minLength={6} autoComplete="new-password" />
-        <input type="password" name="confirm" placeholder="Confirm new password" required minLength={6} autoComplete="new-password" />
+        <input
+          type="password"
+          name="password"
+          placeholder="New password (6+ characters)"
+          aria-label="New password (6+ characters)"
+          required
+          minLength={6}
+          autoComplete="new-password"
+        />
+        <input
+          type="password"
+          name="confirm"
+          placeholder="Confirm new password"
+          aria-label="Confirm new password"
+          required
+          minLength={6}
+          autoComplete="new-password"
+        />
         <button type="submit" className="btn btn-primary" disabled={status === 'saving'}>
           {status === 'saving' ? 'Saving…' : 'Save new password'}
         </button>

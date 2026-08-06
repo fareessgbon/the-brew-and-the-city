@@ -21,6 +21,7 @@ export function PortalSlugForm() {
         value={slug}
         onChange={(e) => setSlug(e.target.value)}
         placeholder="your-cafe-slug"
+        aria-label="Café slug"
         style={{
           flex: 1,
           padding: '10px 14px',

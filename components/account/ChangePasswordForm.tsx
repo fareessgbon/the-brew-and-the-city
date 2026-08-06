@@ -49,9 +49,17 @@ export function ChangePasswordForm({ email }: { email: string }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 360 }}>
-      <input type="password" name="current" placeholder="Current password" required autoComplete="current-password" />
-      <input type="password" name="new" placeholder="New password (6+ characters)" required minLength={6} autoComplete="new-password" />
-      <input type="password" name="confirm" placeholder="Confirm new password" required minLength={6} autoComplete="new-password" />
+      <input type="password" name="current" placeholder="Current password" aria-label="Current password" required autoComplete="current-password" />
+      <input
+        type="password"
+        name="new"
+        placeholder="New password (6+ characters)"
+        aria-label="New password (6+ characters)"
+        required
+        minLength={6}
+        autoComplete="new-password"
+      />
+      <input type="password" name="confirm" placeholder="Confirm new password" aria-label="Confirm new password" required minLength={6} autoComplete="new-password" />
       <button type="submit" className="btn btn-primary" disabled={status === 'saving'} style={{ padding: '8px 18px', fontSize: 13, alignSelf: 'flex-start' }}>
         {status === 'saving' ? 'Saving…' : 'Change password'}
       </button>

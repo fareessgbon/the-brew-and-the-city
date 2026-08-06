@@ -51,9 +51,17 @@ export function SignupForm({ nextPath }: { nextPath: string }) {
   return (
     <>
       <form className="inline-form" onSubmit={handleSubmit} style={{ maxWidth: 400, flexDirection: 'column', alignItems: 'stretch', gap: 10 }}>
-        <input type="email" name="email" placeholder="Email" required autoComplete="email" />
-        <input type="password" name="password" placeholder="Password (6+ characters)" required minLength={6} autoComplete="new-password" />
-        <input type="password" name="confirm" placeholder="Confirm password" required minLength={6} autoComplete="new-password" />
+        <input type="email" name="email" placeholder="Email" aria-label="Email" required autoComplete="email" />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password (6+ characters)"
+          aria-label="Password (6+ characters)"
+          required
+          minLength={6}
+          autoComplete="new-password"
+        />
+        <input type="password" name="confirm" placeholder="Confirm password" aria-label="Confirm password" required minLength={6} autoComplete="new-password" />
         <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
           {status === 'sending' ? 'Creating account…' : 'Create account'}
         </button>

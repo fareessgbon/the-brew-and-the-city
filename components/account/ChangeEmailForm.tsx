@@ -40,7 +40,7 @@ export function ChangeEmailForm({ currentEmail }: { currentEmail: string }) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8, maxWidth: 400 }}>
-      <input type="email" name="email" placeholder="New email address" required style={{ flex: 1 }} />
+      <input type="email" name="email" placeholder="New email address" aria-label="New email address" required style={{ flex: 1 }} />
       <button type="submit" className="btn btn-primary" disabled={status === 'saving'} style={{ padding: '8px 18px', fontSize: 13 }}>
         {status === 'saving' ? 'Sending…' : 'Change email'}
       </button>
