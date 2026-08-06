@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 type Status = 'idle' | 'uploading' | 'success' | 'error';
 
@@ -21,7 +22,7 @@ export function ReceiptUploadForm({ cafeId, cafeName }: { cafeId: string; cafeNa
       const formData = new FormData();
       formData.set('receipt', file);
       formData.set('cafeId', cafeId);
-      const res = await fetch('/api/visits', { method: 'POST', body: formData });
+      const res = await memberFetch('/api/visits', { method: 'POST', body: formData });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not submit the receipt.');
       setStatus('success');

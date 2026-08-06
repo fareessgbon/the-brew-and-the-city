@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 export function SaveCafeButton({ cafeId, initiallySaved, signedIn }: { cafeId: string; initiallySaved: boolean; signedIn: boolean }) {
   const [saved, setSaved] = useState(initiallySaved);
@@ -21,8 +22,8 @@ export function SaveCafeButton({ cafeId, initiallySaved, signedIn }: { cafeId: s
     setError(false);
     try {
       const response = saved
-        ? await fetch(`/api/saved-cafes/${cafeId}`, { method: 'DELETE' })
-        : await fetch('/api/saved-cafes', {
+        ? await memberFetch(`/api/saved-cafes/${cafeId}`, { method: 'DELETE' })
+        : await memberFetch('/api/saved-cafes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cafeId }),

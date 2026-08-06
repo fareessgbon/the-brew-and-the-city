@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 type Status = 'idle' | 'confirming' | 'deleting' | 'error';
 
@@ -16,7 +17,7 @@ export function DeleteAccountForm() {
     setStatus('deleting');
     setMessage('');
     try {
-      const res = await fetch('/api/account/delete', { method: 'POST' });
+      const res = await memberFetch('/api/account/delete', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not delete your account.');
 

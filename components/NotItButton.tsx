@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -11,7 +12,7 @@ export function NotItButton({ cafeId, signedIn }: { cafeId: string; signedIn: bo
   async function submit() {
     setStatus('sending');
     try {
-      const res = await fetch('/api/feedback/not-it', {
+      const res = await memberFetch('/api/feedback/not-it', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cafeId }),

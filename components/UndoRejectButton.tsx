@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 export function UndoRejectButton({ cafeId }: { cafeId: string }) {
   const router = useRouter();
@@ -10,7 +11,7 @@ export function UndoRejectButton({ cafeId }: { cafeId: string }) {
   async function undo() {
     setStatus('sending');
     try {
-      const res = await fetch('/api/feedback/not-it', {
+      const res = await memberFetch('/api/feedback/not-it', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cafeId }),

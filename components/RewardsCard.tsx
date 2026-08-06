@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 interface ParticipatingCafe {
   id: string;
@@ -23,7 +24,7 @@ export function RewardsCard() {
   const [error, setError] = useState('');
 
   function load() {
-    fetch('/api/rewards')
+    memberFetch('/api/rewards')
       .then(async (res) => {
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || 'Could not load your City Card.');
@@ -150,7 +151,7 @@ function ActivatePicker({ cafes, onActivated }: { cafes: ParticipatingCafe[]; on
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/rewards/activate', {
+      const res = await memberFetch('/api/rewards/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cafeId, itemId }),

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CALGARY_NEIGHBOURHOODS } from '@/lib/data/neighbourhoods';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 type Status = 'idle' | 'locating' | 'saving' | 'error';
 
@@ -16,7 +17,7 @@ export function LocationSetup() {
     setStatus('saving');
     setError('');
     try {
-      const res = await fetch('/api/profile/location', {
+      const res = await memberFetch('/api/profile/location', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { ContextKey } from '@/lib/matching';
 import { track } from '@/lib/analytics';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 interface Match {
   id: string;
@@ -34,7 +35,7 @@ export function TodayMatches() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- marks the context-keyed fetch below as in flight.
     setLoading(true);
     const query = context ? `?context=${context}` : '';
-    fetch(`/api/matches${query}`)
+    memberFetch(`/api/matches${query}`)
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Could not load matches.');

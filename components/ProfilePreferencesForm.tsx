@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CALGARY_NEIGHBOURHOODS } from '@/lib/data/neighbourhoods';
 import { PRIMARY_DRINK_CATEGORIES, PRIMARY_DRINK_CATEGORY_LABELS, type PrimaryDrinkCategory } from '@/lib/matching';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 interface ProfilePreferencesFormProps {
   radiusKm: number;
@@ -43,7 +44,7 @@ export function ProfilePreferencesForm({
     setStatus('saving');
     setError('');
     try {
-      const res = await fetch('/api/profile/preferences', {
+      const res = await memberFetch('/api/profile/preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

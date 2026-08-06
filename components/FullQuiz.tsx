@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FULL_QUIZ, tasteOptionsFor, type QuizQuestion } from '@/lib/data/full-quiz';
 import { NEUTRAL_VECTOR, clampDim, type Dim, type PrimaryDrinkCategory, type TasteVector } from '@/lib/matching';
 import { readQuizProgress, clearQuizProgress } from '@/lib/quizProgress';
+import { memberFetch } from '@/lib/client/memberFetch';
 
 const TASTE_DIMS = FULL_QUIZ.filter((q) => q.kind === 'taste').map((q) => (q as { dim: Dim }).dim);
 
@@ -64,7 +65,7 @@ export function FullQuiz() {
     setSaving(true);
     setError('');
     try {
-      const res = await fetch('/api/quiz', {
+      const res = await memberFetch('/api/quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
