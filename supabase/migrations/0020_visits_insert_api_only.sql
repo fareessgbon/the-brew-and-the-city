@@ -1,0 +1,56 @@
+-- ============================================================================
+-- Phase 15 security review — close a stamp-minting hole.
+--
+-- SEVERITY: critical. This is the one migration in this project that should
+-- be applied before the app is exposed to real users with real reimbursement
+-- money behind it.
+--
+-- Migration 0001 shipped:
+--
+--     create policy "users can insert their own visits" on public.visits
+--       for insert with check (auth.uid() = user_id);
+--
+-- At the time `visits` was a plain visit log. 0008 then added `status`
+-- ('pending' | 'approved' | 'rejected') and `stamp_awarded` to the same
+-- table and made it the ledger the City Card counts, but the insert policy
+-- was never narrowed to match. The policy constrains *who* the row belongs
+-- to and nothing else — not `status`, not `stamp_awarded`, not
+-- `receipt_image_path`.
+--
+-- So any signed-in member, using nothing but the public anon key from their
+-- own browser, could insert rows like:
+--
+--     { user_id: <self>, cafe_id: <any partner>, status: 'approved',
+--       stamp_awarded: true }
+--
+-- Five of those across three cafés satisfy every rule getStampCard()
+-- enforces (lib/server/sixthRound.ts) and mint a real reward — skipping the
+-- receipt entirely, and with it the photo upload, the SHA-256 duplicate
+-- check, the per-day caps, the partner_status check, and café review. Once
+-- Founding Partners convert to paid (§3.0.5), every forged reward is an
+-- invoice BREW AND THE CITY pays out at the agreed rate.
+--
+-- The fix is the same one migration 0005 applied to partner_applications
+-- for the same reason: the API route is already the only real write path, so
+-- delete the direct one. POST /api/visits uses the service-role client and
+-- performs every check above; nothing in the codebase inserts into `visits`
+-- with the anon key. Verified by grep before writing this — see
+-- SECURITY_REVIEW.md.
+--
+-- Dropping a policy is reversible: the exact statement to restore it is in
+-- 0001, and it can be re-created in a later migration if a genuine
+-- client-side insert path is ever needed.
+-- ============================================================================
+
+drop policy if exists "users can insert their own visits" on public.visits;
+
+-- Same reasoning for the receipts bucket. Receipt photos are uploaded
+-- server-side by POST /api/visits using the service-role client (which
+-- bypasses RLS), so this policy grants nothing the product uses — it only
+-- lets a signed-in member write unlimited files into a private bucket at
+-- BREW AND THE CITY's expense, with no visit row and no stamp attached.
+--
+-- The matching *select* policy from 0008 is deliberately left in place: it
+-- lets a member read their own receipt back, which is harmless and is the
+-- behaviour the privacy policy describes.
+drop policy if exists "users can upload their own receipts" on storage.objects;

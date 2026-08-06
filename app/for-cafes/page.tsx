@@ -2,14 +2,18 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
-import { CafeApplicationForm } from '@/components/CafeApplicationForm';
 import { FaqAccordion } from '@/components/FaqAccordion';
 
 export const metadata: Metadata = {
   title: 'For Cafés — Brew and the City',
-  description: 'Calgary cafés get the full Featured platform free through July 2027. See the founding terms, the math, and apply as a partner.',
+  description: "The first 15 approved Calgary cafés join free for six months. See the founding terms and tell us you're interested.",
 };
 
+// §12.1a — "discovery is a timeline, not a features table": the free,
+// automatic, ongoing half (map, saves, City Picks, friend activity) comes
+// first, separated from the paid redemption mechanics. Ends in the café
+// survey, never a form that provisions an account — nothing here signs a
+// café up for anything; §0.4 rules that out entirely at this stage.
 export default function ForCafesPage() {
   return (
     <>
@@ -17,19 +21,13 @@ export default function ForCafesPage() {
 
       <section style={{ padding: '56px 0 8px' }}>
         <div className="wrap">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
-            <div className="label eyebrow">For cafés · Calgary is a free trial</div>
-            <Link href="/portal" style={{ fontSize: 13.5 }}>
-              Already a partner? Café login →
-            </Link>
-          </div>
+          <div className="label eyebrow">For cafés · Calgary launch cohort</div>
           <h1 style={{ fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.02em', maxWidth: '22ch' }}>
-            Every Featured perk. $0 through July 2027.
+            The first 15 Calgary cafés join free for six months.
           </h1>
           <p style={{ fontSize: 18, color: 'var(--ink)', maxWidth: '56ch', margin: '20px 0 0' }}>
-            Cafés don&apos;t pay in Calgary — not at any tier, not during the trial. You get the full Featured
-            platform: dedicated content, a quarterly photo shoot, Café Insights, the lot. In exchange, you donate
-            the odd free drink. That&apos;s the whole ask.
+            We&apos;re building Brew and the City before asking any café to pay for it. Tell us about your café below
+            — five minutes, no commitment — and you&apos;ll be first to hear when Founding Partner spots open.
           </p>
         </div>
       </section>
@@ -38,13 +36,66 @@ export default function ForCafesPage() {
         <div className="wrap">
           <div className="section-eyebrow label">Discovery never stops</div>
           <h2 style={{ fontSize: 26, marginBottom: 12 }}>A directory listing goes stale. Matching doesn&apos;t.</h2>
-          <p style={{ fontSize: 15.5, color: 'var(--ink)', maxWidth: '64ch' }}>
+          <p style={{ fontSize: 15.5, color: 'var(--ink)', maxWidth: '64ch', marginBottom: 20 }}>
             A review-site listing is a one-time snapshot — you rank once, then compete for scroll position forever
-            after. Match % works differently: every new sign-up runs the same nine questions, and everyone whose
-            taste actually fits your café gets shown you, today and every day after, not just the week you paid to
-            be seen. You don&apos;t get discovered once — you keep getting discovered, for as long as you&apos;re on
-            the map.
+            after. Match % works differently: every new sign-up runs the same taste quiz, and everyone whose taste
+            actually fits your café gets shown you, today and every day after — not just the week you paid to be
+            seen. You don&apos;t get discovered once — you keep getting discovered, for as long as you&apos;re on the
+            map.
           </p>
+          {/* Illustrative only — no real friend graph or matching exists yet at this stage (§12.1a). */}
+          <div className="ratio-box" style={{ maxWidth: 420 }}>
+            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--whisk)', marginBottom: 10 }}>
+              Mockup — not real data
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13.5 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', background: 'var(--paper-2)', borderRadius: 8 }}>
+                <span>☕ Your Café</span>
+                <span style={{ color: 'var(--ceremony)', fontWeight: 600 }}>91% match</span>
+              </div>
+              <div style={{ paddingLeft: 12, color: 'var(--whisk)' }}>“Maya saved this café”</div>
+              <div style={{ paddingLeft: 12, color: 'var(--whisk)' }}>“Jordan ranked it #2 for Vibe”</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: '40px 0 8px' }}>
+        <div className="wrap">
+          <div className="round-card">
+            <div className="label" style={{ marginBottom: 8 }}>
+              Founding Partner
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  border: '2px solid var(--sky)',
+                  flexShrink: 0,
+                }}
+              />
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600 }}>Your Café</div>
+                <div style={{ fontSize: 13, color: 'var(--whisk)' }}>Part of the first Calgary group</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginTop: 20 }}>
+            {[
+              ['First In The App', 'One of the first 15 cafés real Calgarians see when the product goes live.'],
+              ['Priority Placement', 'Guaranteed inclusion in launch-week features and the Founding Partners page — permanently.'],
+              ['More Local Attention', 'A dedicated launch post, a mini photo session, and rotation in seasonal guides.'],
+              ['Launch Event Opportunity', 'Eligible to host or participate in the launch event itself.'],
+            ].map(([title, body]) => (
+              <div key={title} className="ratio-box">
+                <div style={{ fontWeight: 600, fontSize: 14.5, marginBottom: 6 }}>{title}</div>
+                <div style={{ fontSize: 13, color: 'var(--whisk)' }}>{body}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -67,132 +118,32 @@ export default function ForCafesPage() {
         <div className="wrap">
           <div className="club-band" style={{ margin: '0 0 40px' }}>
             <div className="section-eyebrow label" style={{ color: 'var(--sky)' }}>
-              Your founding terms
+              The founding terms, as planned
             </div>
-            <h2 style={{ fontSize: 26 }}>Price it now. Charge later. In writing.</h2>
+            <h2 style={{ fontSize: 26 }}>Free for the first six months. Full terms if you stay.</h2>
             <div className="club-grid">
               <div>
                 <ul className="club-list">
-                  <li>Full Featured tier, free — dedicated posts, quarterly shoot, Café Insights, rejection reasons</li>
-                  <li>You donate the reward item — your standard 12oz hot or iced drink, your hours, your monthly cap</li>
+                  <li>Full Partner benefits free for the first 6 months — profile, menu matching, portal, promotion</li>
+                  <li>City Card stamps included; monthly free-item redemption is optional, capped, and café-controlled</li>
                   <li>No POS integration, no new hardware — a web page and a PIN</li>
-                  <li>We show you the attach rate — what share of redemptions came with a paid purchase</li>
+                  <li>30 days&apos; notice to leave; no surprise invoice — you choose what happens after six months</li>
                 </ul>
-                <Link href="#cafe-apply" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 8 }}>
-                  Apply as a Founding Partner
+                <Link href="/help-shape-the-app/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 8 }}>
+                  Tell us about your café
                 </Link>
               </div>
               <div className="round-card">
-                <div className="label">One-page agreement</div>
+                <div className="label">Interested? Let&apos;s talk.</div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', fontSize: 14.5 }}>
+                  <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>Free for the first 15 approved cafés, 6 months</li>
                   <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>
-                    Free through <strong>July 31, 2027</strong>
+                    Pricing after that is worked out with you directly — reach out and we&apos;ll walk you through it
                   </li>
-                  <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>
-                    Then <strong>$49/mo</strong>, locked 24 months
-                  </li>
-                  <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>30 days notice before the first invoice</li>
-                  <li style={{ padding: '8px 0' }}>Cancel any time, no penalty, keep all photography</li>
+                  <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>No payment method required to say you&apos;re interested</li>
+                  <li style={{ padding: '8px 0' }}>Nothing is binding yet — this page is the pitch, not the agreement</li>
                 </ul>
               </div>
-            </div>
-          </div>
-
-          <div className="forcafe-band">
-            <div>
-              <div className="ratio-box">
-                <div className="ratio-row">
-                  <span>What Featured tier is worth</span>
-                  <span>$189/mo</span>
-                </div>
-                <div className="ratio-row muted">
-                  <span>What ~15 donated drinks cost you</span>
-                  <span>~$25/mo</span>
-                </div>
-                <div className="ratio-total">
-                  <span>What you actually pay, during the trial</span>
-                  <span>$0</span>
-                </div>
-              </div>
-              <ul className="forcafe-list">
-                <li>Every redeemer matched with you and paying for four drinks elsewhere to get there — not a random deal-hunter</li>
-                <li>You set the monthly cap — required, no nulls. At the cap you&apos;re still matchable, just not reward-eligible until next month</li>
-                <li>
-                  Roughly 8 paying visits for every free item redeemed, network-wide — members earn the City Card by paying for
-                  drinks at cafés across Calgary, not just yours, and it costs you one drink when they cash it in with you
-                </li>
-                <li>
-                  Paying more never moves your Match %. It only gets you found — see §5.1 in our <Link href="/how-it-works">how-it-works</Link> section
-                </li>
-              </ul>
-            </div>
-            <div className="portal-mock">
-              <div className="top">
-                <span>Your Café</span>
-                <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 13, color: 'var(--whisk)' }}>This week</span>
-              </div>
-              <div className="scan">Scan to redeem</div>
-              <div className="item">
-                <strong>14 stamps issued</strong> · 3 first-time customers
-                <br />
-                ~$91 in matched visits
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--whisk)', marginTop: 14 }}>
-                Illustrative portal preview — sample numbers, not a real partner&apos;s data.
-              </div>
-            </div>
-          </div>
-
-          <div className="label" style={{ color: 'var(--whisk)', marginTop: 36 }}>
-            What locks in after July 2027
-          </div>
-          <div className="pricing-grid">
-            <div className="price-card">
-              <div className="tier-name">Listed</div>
-              <div className="tier-price">Free</div>
-              <ul>
-                <li>On the map, fully matchable</li>
-                <li>Real Match % for every user</li>
-                <li>Profile, hours, photos</li>
-              </ul>
-            </div>
-            <div className="price-card featured-tier">
-              <div className="tier-name">Partner</div>
-              <div className="tier-price">
-                $89<span>/mo</span>
-              </div>
-              <ul>
-                <li>Everything in Listed</li>
-                <li>The City Card network</li>
-                <li>Awards eligibility</li>
-                <li>Portal + Café Insights</li>
-                <li>Group content features</li>
-              </ul>
-            </div>
-            <div className="price-card">
-              <div className="tier-name">Featured · capped at 8</div>
-              <div className="tier-price">
-                $189<span>/mo</span>
-              </div>
-              <ul>
-                <li>Everything in Partner</li>
-                <li>Quarterly photo shoot, ~10 images, yours to keep</li>
-                <li>One dedicated Instagram post or reel monthly</li>
-                <li>Homepage placement, 1 week per quarter</li>
-                <li>Rejection reasons — why people passed on you</li>
-              </ul>
-            </div>
-            <div className="price-card">
-              <div className="tier-name">Founding Partner</div>
-              <div className="tier-price">
-                $49<span>/mo</span>
-              </div>
-              <ul>
-                <li>Locked 24 months, first 15 cafés only</li>
-                <li>Everything in Partner</li>
-                <li>Launch-event priority</li>
-                <li>Roadmap input</li>
-              </ul>
             </div>
           </div>
 
@@ -215,11 +166,20 @@ export default function ForCafesPage() {
           </div>
           <FaqAccordion />
 
-          <div id="cafe-apply">
-            <div className="label" style={{ color: 'var(--whisk)', marginTop: 8 }}>
-              Apply as a Founding Partner
+          <div style={{ marginTop: 24 }}>
+            <div className="label" style={{ color: 'var(--whisk)', marginBottom: 8 }}>
+              Not ready to commit to anything? Tell us anyway.
             </div>
-            <CafeApplicationForm />
+            <p style={{ fontSize: 14.5, color: 'var(--ink)', maxWidth: '56ch', marginBottom: 12 }}>
+              A five-minute survey — your name, café, and what you&apos;d actually want from something like this. No
+              account, no obligation.
+            </p>
+            <Link href="/help-shape-the-app/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
+              Take the café survey
+            </Link>{' '}
+            <span style={{ fontSize: 13.5, color: 'var(--whisk)' }}>
+              or email <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>
+            </span>
           </div>
         </div>
       </section>

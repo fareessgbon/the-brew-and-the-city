@@ -1038,7 +1038,8 @@ section {
   margin-bottom: 6px;
 }
 .cafe-signup-form input,
-.cafe-signup-form select {
+.cafe-signup-form select,
+.cafe-signup-form textarea {
   width: 100%;
   padding: 12px 14px;
   border-radius: 10px;
@@ -1051,8 +1052,12 @@ section {
   background: var(--paper);
   color: var(--ink);
 }
+.cafe-signup-form textarea {
+  resize: vertical;
+}
 .cafe-signup-form input:focus,
-.cafe-signup-form select:focus {
+.cafe-signup-form select:focus,
+.cafe-signup-form textarea:focus {
   outline: 2px solid var(--ceremony);
   outline-offset: 1px;
 }

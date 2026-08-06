@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+// §0.4 — footer repeats the nav plus Join the Waitlist, For Cafés, and the
+// legal pages. Nothing here requires an account.
 export function SiteFooter() {
   return (
     <footer>
@@ -10,14 +12,14 @@ export function SiteFooter() {
           </span>
         </Link>
         <div className="footer-links">
-          <Link href="/how-it-works">How it works</Link>
-          <Link href="/#sixth-round">The City Card</Link>
-          <Link href="/for-cafes">For cafés</Link>
-          <Link href="/portal">Café login</Link>
-          <Link href="/#signup">Get started</Link>
+          <Link href="/help-shape-the-app">Help Shape the App</Link>
+          <a href="https://instagram.com/brewandthecity" target="_blank" rel="noopener noreferrer">
+            Catch Us on Instagram
+          </a>
+          <Link href="/#waitlist">Join the Waitlist</Link>
+          <Link href="/for-cafes">For Cafés</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
-          <a href="https://instagram.com/brewandthecity">Instagram</a>
         </div>
         <div className="footer-tag">© 2026 Brew and the City · Calgary, AB</div>
       </div>

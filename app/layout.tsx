@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { Fraunces, Zen_Kaku_Gothic_New, Martian_Mono } from 'next/font/google';
 import './globals.css';
-import { SessionProvider } from '@/components/nav/SessionProvider';
-import { MobileBottomNav } from '@/components/nav/MobileBottomNav';
 
 const fraunces = Fraunces({
   variable: '--font-fraunces',
@@ -23,9 +21,31 @@ const martianMono = Martian_Mono({
   weight: ['500'],
 });
 
+// NEXT_PUBLIC_SITE_URL — set this to the real production domain once one
+// exists (see PRODUCTION_CHECKLIST.md). Falls back to localhost so
+// metadata/OG tags still resolve to *some* absolute URL in dev rather than
+// warning on every build; every page's own metadata inherits this via
+// Next's metadataBase resolution instead of each one hardcoding a host.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+const title = 'Brew and the City — Matched to your next favourite Calgary café';
+const description = "Calgary has 60+ independent cafés. We're building a way to match you to yours — by taste, not by review count. Join the list.";
+
 export const metadata: Metadata = {
-  title: 'Brew and the City — Every good café in Calgary, matched to your taste',
-  description: "Three questions and we'll tell you which of Calgary's independent cafés is yours.",
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    siteName: 'Brew and the City',
+    locale: 'en_CA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title,
+    description,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -39,12 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
         <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-full flex flex-col bg-paper text-ink font-sans relative">
-        <SessionProvider>
-          {children}
-          <MobileBottomNav />
-        </SessionProvider>
-      </body>
+      <body className="min-h-full flex flex-col bg-paper text-ink font-sans relative">{children}</body>
     </html>
   );
 }
