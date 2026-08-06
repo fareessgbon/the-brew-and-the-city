@@ -27,6 +27,31 @@ export default function AdminHomePage() {
             <h3>Receipts</h3>
             <p>Backup receipt review, and purge photos 30+ days after resolution.</p>
           </Link>
+          <Link href="/admin/merchant-strings" className="how-card" style={{ textDecoration: 'none' }}>
+            <div className="label num">Receipts</div>
+            <h3>Merchant strings</h3>
+            <p>Map receipt merchant names to cafés, and watch each café&apos;s approval rate.</p>
+          </Link>
+          <Link href="/admin/partners" className="how-card" style={{ textDecoration: 'none' }}>
+            <div className="label num">Partners</div>
+            <h3>Partner administration</h3>
+            <p>Contract terms, billing, and lifecycle status for every partnered café.</p>
+          </Link>
+          <Link href="/admin/reimbursements" className="how-card" style={{ textDecoration: 'none' }}>
+            <div className="label num">City Card</div>
+            <h3>Reimbursements</h3>
+            <p>What each café is owed for redeemed rewards, grouped and exportable.</p>
+          </Link>
+          <Link href="/admin/flags" className="how-card" style={{ textDecoration: 'none' }}>
+            <div className="label num">Config</div>
+            <h3>Feature flags</h3>
+            <p>Turn matching, receipts, and rewards on or off, checked server-side.</p>
+          </Link>
+          <Link href="/admin/audit" className="how-card" style={{ textDecoration: 'none' }}>
+            <div className="label num">Config</div>
+            <h3>Audit log</h3>
+            <p>Every admin change, with who made it and the before/after values.</p>
+          </Link>
         </div>
       </div>
     </section>

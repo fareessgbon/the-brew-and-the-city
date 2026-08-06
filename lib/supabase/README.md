@@ -1,15 +1,8 @@
-# Supabase — not yet connected
+# Supabase setup
 
-There is no live Supabase project behind this app yet. `lib/data/cafes.ts` is
-a hardcoded placeholder standing in for the `cafes` table until one exists.
-
-## Why it's not set up already
-
-Setting this up needs either Docker (for a local Supabase stack) or a
-Supabase account (for a hosted project) — the dev environment this was built
-in has neither, and doesn't have the admin/sudo access Docker's installer
-needs. Node.js was installed as a user-local binary (no sudo required);
-Docker couldn't be.
+This app reads and writes a real Supabase project — Postgres schema, Auth,
+and Storage. To run it locally you need your own project (local via Docker
+or hosted) and its credentials in `.env.local`.
 
 ## Option A — local Supabase via Docker (recommended for development)
 
@@ -23,25 +16,29 @@ supabase start
 Put them in `.env.local` (copy `.env.local.example`), then apply the schema:
 
 ```bash
-supabase db reset   # runs everything in supabase/migrations/
+supabase db reset   # runs everything in supabase/migrations/, in order
 ```
 
 ## Option B — hosted Supabase project
 
-1. Create a free project at supabase.com (requires an account — this is a
-   step only you can do; nothing here can create it for you).
+1. Create a free project at supabase.com.
 2. Project Settings → API for the URL, anon key, and service-role key →
    `.env.local`.
-3. Run `supabase/migrations/0001_init.sql` against it — either via the SQL
-   editor in the dashboard, or `supabase link` + `supabase db push` with the
-   CLI installed locally.
+3. Apply every file in `supabase/migrations/` in order — either via the SQL
+   editor in the dashboard, `supabase link` + `supabase db push` with the CLI
+   installed locally, or `scripts/run-migration.mjs` (a Docker-free fallback
+   that applies them directly over a raw Postgres connection — see its
+   header comment for usage).
 
 ## Once either is live
 
-- Regenerate `lib/supabase/types.ts`: `supabase gen types typescript --local > lib/supabase/types.ts`
-- Replace `lib/data/cafes.ts`'s export with a query against the `cafes` table.
-- Swap the `formsubmit.co` calls in `components/SignupForm.tsx` and
-  `components/CafeApplicationForm.tsx` for real inserts (`taste_profiles` /
-  `partner_applications`) — both are marked with `TODO(supabase)` comments.
-- Wire up Supabase Auth (magic links) for `/login` and replace the
-  `mm_member` localStorage record with a real session.
+- `ADMIN_EMAILS` (comma-separated, in `.env.local`) controls who can reach
+  `/admin` — see `lib/admin.ts`.
+- `scripts/seed-cafes.mjs` is an optional, hand-run bootstrap for a handful
+  of placeholder café rows — useful for a fresh project, not something to
+  keep running once real cafés exist.
+- If the schema changes, regenerate `lib/supabase/types.ts` with
+  `supabase gen types typescript --local > lib/supabase/types.ts`. That file
+  is otherwise hand-authored (see its own header comment) to work around a
+  Supabase type-inference issue with cross-referenced Row/Insert/Update
+  types — a regenerated file overwrites it entirely, which is expected.

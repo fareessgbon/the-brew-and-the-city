@@ -121,6 +121,7 @@ function ActiveRedemption({
         {itemName ?? 'Your free item'} at {cafeName ?? 'this café'}
       </div>
       {qrDataUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- qrDataUrl is a client-generated data: URI, not a remote image next/image can optimize.
         <img src={qrDataUrl} alt={`Redemption QR code ${code}`} width={180} height={180} style={{ margin: '0 auto 12px', display: 'block' }} />
       ) : null}
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 32, letterSpacing: '0.3em', color: 'var(--ceremony)', marginBottom: 8 }}>{code}</div>

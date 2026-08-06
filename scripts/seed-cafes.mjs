@@ -1,6 +1,6 @@
-// Seeds the `cafes` (+ `cafe_attributes`) tables from the placeholder data in
-// lib/data/cafes.ts. Once this has run, app code should read from Supabase
-// instead — this script is a one-time bridge, not something to keep running.
+// Seeds the `cafes` table from the placeholder CAFES list below. One-time
+// bootstrap for early development against a fresh Supabase project — app
+// code always reads from Supabase directly, never from this file.
 //
 // Deliberately NOT setting latitude/longitude/address/opening_hours: those
 // would be fabricated if invented here, and the whole point of the earlier

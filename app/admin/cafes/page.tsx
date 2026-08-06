@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { isCafeMatchReady } from '@/lib/cafeReadiness';
 import { CsvUploadForm } from './CsvUploadForm';
-import { DeleteCafeButton } from './DeleteCafeButton';
 
 export default async function AdminCafesPage() {
   const supabase = await createClient();
@@ -39,7 +38,7 @@ export default async function AdminCafesPage() {
             <table className="legal" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
                 <tr>
-                  {['Name', 'Slug', 'Neighbourhood', 'Status', 'Ready', 'Drink', 'Energy', 'Aesthetic', 'Pace', 'Adventure', 'Price', 'Food', ''].map((h) => (
+                  {['Name', 'Slug', 'Neighbourhood', 'Status', 'Ready', 'Drink', 'Energy', 'Aesthetic', 'Pace', 'Adventure', 'Price', 'Food'].map((h) => (
                     <th key={h} style={{ textAlign: 'left', padding: '8px 10px', borderBottom: '1px solid var(--paper-2)', fontFamily: 'var(--font-mono)', fontSize: 11, textTransform: 'uppercase', color: 'var(--whisk)' }}>
                       {h}
                     </th>
@@ -65,9 +64,6 @@ export default async function AdminCafesPage() {
                     <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)' }}>{c.adventure_score}</td>
                     <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)' }}>{c.price_score}</td>
                     <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)' }}>{c.food_score}</td>
-                    <td style={{ padding: '8px 10px', borderBottom: '1px solid var(--paper-2)' }}>
-                      <DeleteCafeButton id={c.id} name={c.name} />
-                    </td>
                   </tr>
                 ))}
               </tbody>
