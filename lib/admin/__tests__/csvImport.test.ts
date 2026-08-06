@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseCsvCoordinates, validateCsvRows } from '../csvImport';
+import { validateCsvRows } from '../csvImport';
 
 function baseRow(overrides: Partial<Record<string, string>> = {}): Record<string, string> {
   return {
@@ -110,63 +110,17 @@ describe('validateCsvRows', () => {
     });
   });
 
-  describe('coordinates', () => {
-    it('omits latitude/longitude from the payload when both are blank, without an error', () => {
+  describe('address', () => {
+    it('omits address from the payload when blank, without an error', () => {
       const [result] = validateCsvRows([baseRow()], new Set());
       expect(result.errors).toEqual([]);
-      expect(result.payload).not.toHaveProperty('latitude');
-      expect(result.payload).not.toHaveProperty('longitude');
+      expect(result.payload).not.toHaveProperty('address');
     });
 
-    it('rejects a lone latitude with no longitude', () => {
-      const [result] = validateCsvRows([baseRow({ latitude: '51.0447' })], new Set());
-      expect(result.errors.some((e) => e.includes('must both be provided together'))).toBe(true);
-    });
-
-    it('rejects a lone longitude with no latitude', () => {
-      const [result] = validateCsvRows([baseRow({ longitude: '-114.0719' })], new Set());
-      expect(result.errors.some((e) => e.includes('must both be provided together'))).toBe(true);
-    });
-
-    it('accepts a valid coordinate pair', () => {
-      const [result] = validateCsvRows([baseRow({ latitude: '51.0447', longitude: '-114.0719' })], new Set());
+    it('passes a provided address through untouched — geocoding happens later, in importCafesCsv', () => {
+      const [result] = validateCsvRows([baseRow({ address: '1613 9 St SW, Calgary, AB' })], new Set());
       expect(result.errors).toEqual([]);
-      expect(result.payload).toMatchObject({ latitude: 51.0447, longitude: -114.0719 });
+      expect(result.payload).toMatchObject({ address: '1613 9 St SW, Calgary, AB' });
     });
-
-    it('rejects an out-of-range latitude', () => {
-      const [result] = validateCsvRows([baseRow({ latitude: '200', longitude: '-114.0719' })], new Set());
-      expect(result.errors.some((e) => e.includes('Latitude must be a number from -90 to 90'))).toBe(true);
-    });
-
-    it('rejects an out-of-range longitude', () => {
-      const [result] = validateCsvRows([baseRow({ latitude: '51.0447', longitude: '-200' })], new Set());
-      expect(result.errors.some((e) => e.includes('Longitude must be a number from -180 to 180'))).toBe(true);
-    });
-
-    it('rejects a non-numeric coordinate', () => {
-      const [result] = validateCsvRows([baseRow({ latitude: 'north', longitude: '-114.0719' })], new Set());
-      expect(result.errors.some((e) => e.includes('Latitude must be a number'))).toBe(true);
-    });
-  });
-});
-
-describe('parseCsvCoordinates', () => {
-  it('returns nulls with no error when both fields are absent', () => {
-    const errors: string[] = [];
-    expect(parseCsvCoordinates({}, errors)).toEqual({ latitude: null, longitude: null });
-    expect(errors).toEqual([]);
-  });
-
-  it('returns nulls and an error when only one field is present', () => {
-    const errors: string[] = [];
-    expect(parseCsvCoordinates({ latitude: '51' }, errors)).toEqual({ latitude: null, longitude: null });
-    expect(errors.length).toBe(1);
-  });
-
-  it('returns the parsed pair when both are valid', () => {
-    const errors: string[] = [];
-    expect(parseCsvCoordinates({ latitude: '51.0447', longitude: '-114.0719' }, errors)).toEqual({ latitude: 51.0447, longitude: -114.0719 });
-    expect(errors).toEqual([]);
   });
 });

@@ -76,20 +76,11 @@ export function CafeForm({
         </div>
       </div>
 
-      <div className="field-row">
-        <div>
-          <label htmlFor="address">Address</label>
-          <input type="text" id="address" name="address" defaultValue={cafe?.address ?? ''} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div>
-            <label htmlFor="latitude">Latitude</label>
-            <input type="number" step="any" id="latitude" name="latitude" defaultValue={cafe?.latitude ?? ''} />
-          </div>
-          <div>
-            <label htmlFor="longitude">Longitude</label>
-            <input type="number" step="any" id="longitude" name="longitude" defaultValue={cafe?.longitude ?? ''} />
-          </div>
+      <div style={{ marginBottom: 12 }}>
+        <label htmlFor="address">Address</label>
+        <input type="text" id="address" name="address" defaultValue={cafe?.address ?? ''} />
+        <div style={{ fontSize: 11.5, color: 'var(--whisk)', marginTop: 4 }}>
+          Coordinates are looked up from this automatically when it changes — no need to enter them by hand.
         </div>
       </div>
 

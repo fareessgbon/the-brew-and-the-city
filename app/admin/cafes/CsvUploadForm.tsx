@@ -12,6 +12,7 @@ const CSV_HEADER_FIELDS = [
   'name',
   'slug',
   'neighbourhood',
+  'address',
   'drink',
   'energy',
   'aesthetic',
@@ -21,8 +22,6 @@ const CSV_HEADER_FIELDS = [
   'food',
   'partner_status',
   'drink_categories',
-  'latitude',
-  'longitude',
 ];
 
 export function CsvUploadForm() {
@@ -94,9 +93,9 @@ export function CsvUploadForm() {
             </Fragment>
           ))}
         </code>.
-        Matches on slug — re-importing the same slug updates that café. <code>latitude</code>/<code>longitude</code> are optional —
-        provide both or leave both blank; a lone coordinate is rejected, and leaving both blank keeps a café&apos;s existing
-        coordinates untouched. Preview checks every row before anything is written; fix and re-upload to retry rejected rows.
+        Matches on slug — re-importing the same slug updates that café. <code>address</code> is optional — when provided,
+        coordinates are looked up from it automatically; leaving it blank keeps a café&apos;s existing address and coordinates
+        untouched. Preview checks every row before anything is written; fix and re-upload to retry rejected rows.
       </div>
 
       {preview ? (

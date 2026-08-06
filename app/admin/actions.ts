@@ -9,6 +9,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { DIMS, PRIMARY_DRINK_CATEGORIES } from '@/lib/matching';
 import { logAdminAction } from '@/lib/server/auditLog';
 import { trackServerEvent } from '@/lib/server/trackEvent';
+import { geocodeAddress, geocodeThrottleMs } from '@/lib/server/geocode';
 import { PARTNER_STATUSES, validateCsvRows, type CsvImportResult, type CsvRowResult, type ValidatedCsvRow } from '@/lib/admin/csvImport';
 import { MAX_REWARD_ITEMS_PER_CAFE, rewardItemFieldsFromForm } from '@/lib/admin/rewardItems';
 import { cafeDeletionBlockerMessage, rewardItemDeletionBlockerMessage } from '@/lib/admin/deletionGuards';
@@ -90,8 +91,6 @@ function cafeFieldsFromForm(formData: FormData, previousVerifiedAt: string | nul
     .replace(/(^-|-$)/g, '');
   const neighbourhood = String(formData.get('neighbourhood') ?? '').trim() || null;
   const address = String(formData.get('address') ?? '').trim() || null;
-  const latitude = formData.get('latitude') ? Number(formData.get('latitude')) : null;
-  const longitude = formData.get('longitude') ? Number(formData.get('longitude')) : null;
   const partner_status = parsePartnerStatus(formData.get('partner_status'));
   const isVerifiedNow = formData.get('verified') === 'true';
   const is_match_ready = formData.get('is_match_ready') === 'true';
@@ -117,8 +116,6 @@ function cafeFieldsFromForm(formData: FormData, previousVerifiedAt: string | nul
     slug,
     neighbourhood,
     address,
-    latitude: Number.isFinite(latitude) ? latitude : null,
-    longitude: Number.isFinite(longitude) ? longitude : null,
     partner_status,
     opening_hours: readOpeningHours(formData),
     // Keep the original verification timestamp if it was already verified
@@ -138,6 +135,22 @@ function cafeFieldsFromForm(formData: FormData, previousVerifiedAt: string | nul
     rewards_enabled,
     ...scores,
   };
+}
+
+// Geocodes `address` into latitude/longitude when it's actually changed
+// since the café's last save — never on every unrelated field edit, and
+// never blocking the save itself if the lookup fails or is ambiguous (see
+// lib/server/geocode.ts). Returns {} when there's nothing to (re)geocode,
+// so an update payload that omits latitude/longitude leaves whatever
+// coordinates are already stored untouched, same convention the CSV
+// importer already uses for address itself. Clearing the address clears
+// stale coordinates along with it rather than leaving an address-less café
+// with a phantom location.
+async function geocodedFields(address: string | null, previousAddress: string | null): Promise<{ latitude?: number | null; longitude?: number | null }> {
+  if (address === previousAddress) return {};
+  if (!address) return { latitude: null, longitude: null };
+  const result = await geocodeAddress(address);
+  return { latitude: result?.latitude ?? null, longitude: result?.longitude ?? null };
 }
 
 // §7.2 hard filters — cafe_attributes is a separate 1:1 table (unset until
@@ -209,9 +222,10 @@ export async function createCafe(formData: FormData) {
   await assertTierCapacity(supabase, fields.partner_status);
 
   const founding_partner_started_at = fields.partner_status === 'founding_partner' ? new Date().toISOString() : null;
+  const coordinates = await geocodedFields(fields.address, null);
   const { data: created, error } = await supabase
     .from('cafes')
-    .insert({ ...fields, founding_partner_started_at })
+    .insert({ ...fields, ...coordinates, founding_partner_started_at })
     .select('id')
     .single();
   if (error) throw new Error(error.message);
@@ -264,10 +278,11 @@ export async function updateCafe(id: string, formData: FormData) {
       : null;
 
   const photos = await applyPhotoChanges(supabase, id, formData, existing?.photos ?? []);
+  const coordinates = await geocodedFields(fields.address, existing?.address ?? null);
 
   const { error } = await supabase
     .from('cafes')
-    .update({ ...fields, photos, founding_partner_started_at, updated_at: new Date().toISOString() })
+    .update({ ...fields, ...coordinates, photos, founding_partner_started_at, updated_at: new Date().toISOString() })
     .eq('id', id);
   if (error) throw new Error(error.message);
 
@@ -433,13 +448,16 @@ async function validateCsvFile(formData: FormData): Promise<ValidatedCsvRow[]> {
   return validateCsvRows(parsed.records, existingSlugs);
 }
 
-// Expected header row: name,slug,neighbourhood,drink,energy,aesthetic,pace,adventure,price,food,partner_status,drink_categories,latitude,longitude
+// Expected header row: name,slug,neighbourhood,address,drink,energy,aesthetic,pace,adventure,price,food,partner_status,drink_categories
 // drink_categories is optional, semicolon- or comma-separated (coffee;matcha;tea_chai;refreshers_other) — defaults to all four.
-// latitude/longitude are optional too — provide both or leave both blank; a
-// lone coordinate is rejected, and omitting both leaves an existing café's
-// coordinates untouched on update rather than clearing them.
+// address is optional too — when provided, importCafesCsv geocodes it into
+// latitude/longitude automatically (see lib/server/geocode.ts); omitting it
+// leaves an existing café's address and coordinates untouched on update
+// rather than clearing them.
 // Dry run — validates every row and reports what importCafesCsv would do,
-// without writing anything, so the admin can review and correct before committing.
+// without writing anything, so the admin can review and correct before
+// committing. Deliberately doesn't geocode — that's a real network call per
+// row, worth spending only on rows about to actually be written.
 export async function previewCafesCsv(formData: FormData): Promise<CsvRowResult[]> {
   await requireAdmin();
   const results = await validateCsvFile(formData);
@@ -455,6 +473,7 @@ export async function importCafesCsv(formData: FormData): Promise<CsvImportResul
   let updated = 0;
   let rejected = 0;
   const errors: string[] = [];
+  let geocodedAny = false;
 
   for (const result of results) {
     if (result.action === 'reject' || !result.payload) {
@@ -462,7 +481,19 @@ export async function importCafesCsv(formData: FormData): Promise<CsvImportResul
       if (result.errors.length > 0) errors.push(`Row ${result.row}${result.name ? ` (${result.name})` : ''}: ${result.errors.join(' ')}`);
       continue;
     }
-    const { error } = await supabase.from('cafes').upsert(result.payload, { onConflict: 'slug' });
+
+    let payload = result.payload;
+    if (payload.address) {
+      // Throttled between actual geocode calls (not every row — rejected
+      // rows and rows with no address never call it) to respect Nominatim's
+      // ~1 request/second usage policy across the batch.
+      if (geocodedAny) await new Promise((resolve) => setTimeout(resolve, geocodeThrottleMs()));
+      geocodedAny = true;
+      const coordinates = await geocodeAddress(payload.address);
+      payload = { ...payload, latitude: coordinates?.latitude ?? null, longitude: coordinates?.longitude ?? null };
+    }
+
+    const { error } = await supabase.from('cafes').upsert(payload, { onConflict: 'slug' });
     if (error) {
       rejected++;
       errors.push(`Row ${result.row} (${result.name}): ${error.message}`);

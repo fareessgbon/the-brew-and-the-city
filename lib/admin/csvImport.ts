@@ -46,41 +46,15 @@ const CSV_SCORE_FIELDS: [string, string][] = [
   ['food', 'Food'],
 ];
 
-// latitude/longitude are optional — a row may omit both (coordinates are
-// left untouched on update, unset on create) or provide both, never just
-// one. When both are present they're range-checked like everything else
-// here rather than trusted as-is.
-export function parseCsvCoordinates(row: Record<string, string>, errors: string[]): { latitude: number | null; longitude: number | null } {
-  const rawLat = row.latitude?.trim();
-  const rawLng = row.longitude?.trim();
-
-  if (!rawLat && !rawLng) return { latitude: null, longitude: null };
-  if (!rawLat || !rawLng) {
-    errors.push('Latitude and longitude must both be provided together, or both left blank.');
-    return { latitude: null, longitude: null };
-  }
-
-  const lat = Number(rawLat);
-  const lng = Number(rawLng);
-  let valid = true;
-  if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
-    errors.push(`Latitude must be a number from -90 to 90 (got "${rawLat}").`);
-    valid = false;
-  }
-  if (!Number.isFinite(lng) || lng < -180 || lng > 180) {
-    errors.push(`Longitude must be a number from -180 to 180 (got "${rawLng}").`);
-    valid = false;
-  }
-
-  return valid ? { latitude: lat, longitude: lng } : { latitude: null, longitude: null };
-}
-
 // Shared by previewCafesCsv (dry run) and importCafesCsv (the real write) so
 // a row that previews as valid always imports the same way. Flags, per row:
 // missing name/slug, a slug repeated earlier in the same file, out-of-range
-// or non-numeric scores, unrecognized partner_status/drink_categories
-// values, and invalid or partial coordinates — rather than silently
-// coercing bad data like the old importer did.
+// or non-numeric scores, and unrecognized partner_status/drink_categories
+// values — rather than silently coercing bad data like the old importer
+// did. address is passed through as-is (optional); importCafesCsv geocodes
+// it into latitude/longitude at import time (see lib/server/geocode.ts) —
+// deliberately not done here, since this function stays a pure,
+// network-free function unit-testable without a Supabase/Next.js runtime.
 export function validateCsvRows(records: Record<string, string>[], existingSlugs: Set<string>): ValidatedCsvRow[] {
   const seenSlugs = new Map<string, number>();
 
@@ -135,8 +109,6 @@ export function validateCsvRows(records: Record<string, string>[], existingSlugs
       }
     }
 
-    const coordinates = parseCsvCoordinates(row, errors);
-
     const action: CsvRowResult['action'] = errors.length > 0 ? 'reject' : existingSlugs.has(slug) ? 'update' : 'create';
     const payload =
       errors.length === 0
@@ -144,14 +116,13 @@ export function validateCsvRows(records: Record<string, string>[], existingSlugs
             name,
             slug,
             neighbourhood: row.neighbourhood?.trim() || null,
+            // Omitted entirely (not set to null/empty) when the row leaves
+            // this blank, so upsert leaves an existing café's address (and
+            // the coordinates importCafesCsv geocodes from it) alone
+            // instead of clobbering them back to unset.
+            ...(row.address?.trim() ? { address: row.address.trim() } : {}),
             partner_status: partnerStatus,
             drink_categories: drinkCategories,
-            // Omitted entirely (not set to null) when the row left both
-            // columns blank, so upsert leaves an existing café's coordinates
-            // alone instead of clobbering them back to unset.
-            ...(coordinates.latitude !== null && coordinates.longitude !== null
-              ? { latitude: coordinates.latitude, longitude: coordinates.longitude }
-              : {}),
             ...scores,
           }
         : undefined;
