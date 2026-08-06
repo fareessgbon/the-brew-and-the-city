@@ -4,6 +4,7 @@ import { updateCafe, addMenuItem, deleteMenuItem } from '@/app/admin/actions';
 import { CafeForm } from '../CafeForm';
 import { RewardItemRow } from '../RewardItemRow';
 import { AddRewardItemForm } from '../AddRewardItemForm';
+import { DeleteCafeButton } from '../DeleteCafeButton';
 
 const MAX_REWARD_ITEMS_PER_CAFE = 5;
 
@@ -102,6 +103,11 @@ export default async function EditCafePage({ params }: { params: Promise<{ id: s
         ) : (
           <p style={{ color: 'var(--whisk)', fontSize: 13 }}>At the {MAX_REWARD_ITEMS_PER_CAFE}-item limit — remove one to add another.</p>
         )}
+
+        <div className="label" style={{ margin: '40px 0 10px', color: 'var(--error, #A8503F)' }}>
+          Danger zone
+        </div>
+        <DeleteCafeButton cafeId={id} cafeName={cafe.name} />
       </div>
     </section>
   );
