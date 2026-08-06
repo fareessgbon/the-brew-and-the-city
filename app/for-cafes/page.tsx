@@ -147,6 +147,53 @@ export default function ForCafesPage() {
             </div>
           </div>
 
+          <div className="label" style={{ color: 'var(--whisk)', marginTop: 36 }}>
+            What each tier includes
+          </div>
+          <div className="pricing-grid">
+            <div className="price-card">
+              <div className="tier-name">Listed</div>
+              <div className="tier-price">Free</div>
+              <ul>
+                <li>On the map, fully matchable</li>
+                <li>Real Match % for every user</li>
+                <li>Profile, hours, photos</li>
+              </ul>
+            </div>
+            <div className="price-card featured-tier">
+              <div className="tier-name">Partner</div>
+              <div className="tier-price">Let&apos;s talk</div>
+              <ul>
+                <li>Everything in Listed</li>
+                <li>The City Card network</li>
+                <li>Awards eligibility</li>
+                <li>Portal + Café Insights</li>
+                <li>Group content features</li>
+              </ul>
+            </div>
+            <div className="price-card">
+              <div className="tier-name">Featured · capped at 8</div>
+              <div className="tier-price">Let&apos;s talk</div>
+              <ul>
+                <li>Everything in Partner</li>
+                <li>Quarterly photo shoot, ~10 images, yours to keep</li>
+                <li>One dedicated Instagram post or reel monthly</li>
+                <li>Homepage placement, 1 week per quarter</li>
+                <li>Rejection reasons — why people passed on you</li>
+              </ul>
+            </div>
+            <div className="price-card">
+              <div className="tier-name">Founding Partner</div>
+              <div className="tier-price">Free · 6 mo</div>
+              <ul>
+                <li>Locked-rate continuation, first 15 cafés only</li>
+                <li>Everything in Partner</li>
+                <li>Launch-event priority</li>
+                <li>Roadmap input</li>
+              </ul>
+            </div>
+          </div>
+
           <div className="firewall-banner" style={{ marginBottom: 24 }}>
             <div className="firewall-mark">✕</div>
             <div>
