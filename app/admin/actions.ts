@@ -8,9 +8,11 @@ import { requireAdmin } from '@/lib/admin';
 import { createAdminClient } from '@/lib/supabase/server';
 import { DIMS, PRIMARY_DRINK_CATEGORIES } from '@/lib/matching';
 import { logAdminAction } from '@/lib/server/auditLog';
+import { trackServerEvent } from '@/lib/server/trackEvent';
 import { PARTNER_STATUSES, validateCsvRows, type CsvRowResult, type ValidatedCsvRow } from '@/lib/admin/csvImport';
 import { MAX_REWARD_ITEMS_PER_CAFE, rewardItemFieldsFromForm } from '@/lib/admin/rewardItems';
 import { cafeDeletionBlockerMessage, rewardItemDeletionBlockerMessage } from '@/lib/admin/deletionGuards';
+import { generatePortalCredential, planApplicationApproval, slugify } from '@/lib/admin/partnerOnboarding';
 import type { DrinkCategory, FeatureFlagKey, MenuItemCategory, NoiseLevel, PartnerLifecycleStatus, PartnerStatus, PriceBand } from '@/lib/supabase/types';
 
 // Re-exported so components (e.g. CsvUploadForm) importing this type from
@@ -170,12 +172,28 @@ function cafeAttributesFromForm(cafeId: string, formData: FormData) {
 // returns the resulting photos array to write onto the café row. Runs
 // after the café exists (createCafe) or against its known id (updateCafe)
 // so uploaded paths can be namespaced by café id.
+// Mirrors the cafe-photos bucket's own configured limits (see
+// PRODUCTION_CHECKLIST.md — allowed_mime_types/file_size_limit are already
+// enforced server-side by Supabase Storage regardless of this check, so a
+// disallowed file can never actually land in the bucket either way) —
+// checking here first just turns a raw storage-API error into the same
+// kind of friendly, expected message every other upload path in this app
+// already gives.
+const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_PHOTO_SIZE_BYTES = 8 * 1024 * 1024;
+
 async function applyPhotoChanges(supabase: ReturnType<typeof createAdminClient>, cafeId: string, formData: FormData, existingPhotos: string[]): Promise<string[]> {
   const toRemove = new Set(formData.getAll('remove_photos').map(String));
   let photos = existingPhotos.filter((url) => !toRemove.has(url));
 
   const files = formData.getAll('new_photos').filter((f): f is File => f instanceof File && f.size > 0);
   for (const file of files) {
+    if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+      throw new Error(`"${file.name}" isn't a supported image type — use JPEG, PNG, or WebP.`);
+    }
+    if (file.size > MAX_PHOTO_SIZE_BYTES) {
+      throw new Error(`"${file.name}" is too large (8 MB max).`);
+    }
     const path = `${cafeId}/${randomUUID()}-${file.name}`;
     const bytes = await file.arrayBuffer();
     const { error } = await supabase.storage.from('cafe-photos').upload(path, bytes, { contentType: file.type });
@@ -214,12 +232,17 @@ export async function createCafe(formData: FormData) {
   const { error: attrError } = await supabase.from('cafe_attributes').upsert(cafeAttributesFromForm(created.id, formData), { onConflict: 'cafe_id' });
   if (attrError) throw new Error(attrError.message);
 
+  // portal_pin is a live credential, not a field worth diffing — same
+  // reasoning as approveApplication()'s café-creation audit entry below.
+  const createdCafeForAudit: Record<string, unknown> = { ...fields, photos };
+  delete createdCafeForAudit.portal_pin;
   await logAdminAction(admin.email ?? 'unknown', 'cafe.create', `Created café "${fields.name}" (${fields.slug})`, { cafeId: created.id }, {
     recordType: 'cafe',
     recordId: created.id,
     previousValue: null,
-    newValue: { ...fields, photos },
+    newValue: createdCafeForAudit,
   });
+  await trackServerEvent('cafe_created', null, { cafeId: created.id, source: 'admin_manual' });
 
   revalidatePath('/admin/cafes');
   redirect('/admin/cafes');
@@ -256,11 +279,21 @@ export async function updateCafe(id: string, formData: FormData) {
   const { error: attrError } = await supabase.from('cafe_attributes').upsert(cafeAttributesFromForm(id, formData), { onConflict: 'cafe_id' });
   if (attrError) throw new Error(attrError.message);
 
+  // portal_pin is a live credential, not a field worth diffing — strip it
+  // from both sides so neither the old nor the new PIN ever lands in the
+  // audit log, which is broader-access and longer-retention than an
+  // operational credential should be (same reasoning already applied to
+  // approveApplication()'s café-creation entry).
+  const previousCafeForAudit: Record<string, unknown> | null = existing ? { ...(existing as Record<string, unknown>) } : null;
+  if (previousCafeForAudit) delete previousCafeForAudit.portal_pin;
+  const updatedCafeForAudit: Record<string, unknown> = { ...fields, photos };
+  delete updatedCafeForAudit.portal_pin;
+
   await logAdminAction(admin.email ?? 'unknown', 'cafe.update', `Updated café "${fields.name}" (${fields.slug})`, { cafeId: id }, {
     recordType: 'cafe',
     recordId: id,
-    previousValue: (existing as Record<string, unknown> | null) ?? null,
-    newValue: { ...fields, photos },
+    previousValue: previousCafeForAudit,
+    newValue: updatedCafeForAudit,
   });
 
   revalidatePath('/admin/cafes');
@@ -552,6 +585,7 @@ export async function addRewardItem(cafeId: string, formData: FormData) {
     { cafeId },
     { recordType: 'reward_item', recordId: created.id, previousValue: null, newValue: { ...result.fields } },
   );
+  await trackServerEvent('reward_item_created', null, { cafeId, rewardItemId: created.id, source: 'admin' });
 
   revalidatePath(`/admin/cafes/${cafeId}`);
 }
@@ -632,22 +666,100 @@ export async function deleteRewardItem(id: string, cafeId: string) {
   revalidatePath(`/admin/cafes/${cafeId}`);
 }
 
+// §onboarding — approving creates the café automatically instead of
+// leaving that as a disconnected manual follow-up. planApplicationApproval
+// (lib/admin/partnerOnboarding.ts) decides *what* to do; everything here is
+// the actual reads/writes carrying that plan out.
 export async function approveApplication(id: string) {
   const admin = await requireAdmin();
   const supabase = createAdminClient();
-  const { data: application } = await supabase.from('partner_applications').select('cafe_name').eq('id', id).maybeSingle();
-  const { error } = await supabase.from('partner_applications').update({ status: 'approved' }).eq('id', id);
-  if (error) throw new Error(error.message);
+
+  const { data: application } = await supabase
+    .from('partner_applications')
+    .select('status, cafe_name, email, neighbourhood, instagram')
+    .eq('id', id)
+    .maybeSingle();
+  if (!application) throw new Error('Application not found.');
+
+  const baseSlug = slugify(application.cafe_name);
+  const { data: collidingCafes } = await supabase.from('cafes').select('slug').like('slug', `${baseSlug}%`);
+  const existingSlugs = new Set((collidingCafes ?? []).map((c) => c.slug));
+  const portalCredential = generatePortalCredential();
+
+  const plan = planApplicationApproval(application, existingSlugs, portalCredential);
+
+  if (plan.action === 'skip') {
+    // Already approved/rejected, or a second concurrent approval click —
+    // nothing to do. Idempotent rather than erroring on a double-click.
+    revalidatePath('/admin/applications');
+    return;
+  }
+
+  // Claim the application *before* creating anything — this is the actual
+  // race-safety guarantee, not just a decision made explicit. Two concurrent
+  // approvals can both read 'pending' above; only one of these guarded
+  // updates can match a row, since the first to run flips status away from
+  // 'pending'. Checking `claimed.length` (not just `error`) matters: a
+  // zero-row update returns no error, so a naive error-only check would let
+  // the loser fall through and create a second, orphaned café anyway.
+  const { data: claimed, error: claimError } = await supabase
+    .from('partner_applications')
+    .update({ status: 'approved' })
+    .eq('id', id)
+    .eq('status', 'pending')
+    .select('id');
+  if (claimError) throw new Error(claimError.message);
+  if (!claimed || claimed.length === 0) {
+    // Lost the race to another concurrent approval — nothing to do.
+    revalidatePath('/admin/applications');
+    return;
+  }
+
+  const { data: createdCafe, error: cafeError } = await supabase
+    .from('cafes')
+    .insert(plan.cafeFields)
+    .select('id, name, slug')
+    .single();
+  if (cafeError) {
+    // Roll back the claim so a genuine failure (not a race) leaves the
+    // application retryable instead of stuck 'approved' with no café.
+    await supabase.from('partner_applications').update({ status: 'pending' }).eq('id', id);
+    throw new Error(cafeError.message);
+  }
+
+  const { error: appError } = await supabase.from('partner_applications').update({ cafe_id: createdCafe.id }).eq('id', id);
+  if (appError) throw new Error(appError.message);
 
   await logAdminAction(
     admin.email ?? 'unknown',
     'application.approve',
-    `Approved partner application from "${application?.cafe_name ?? id}"`,
-    { applicationId: id },
-    { recordType: 'partner_application', recordId: id, previousValue: { status: 'pending' }, newValue: { status: 'approved' } },
+    `Approved partner application from "${application.cafe_name}"`,
+    { applicationId: id, cafeId: createdCafe.id },
+    {
+      recordType: 'partner_application',
+      recordId: id,
+      previousValue: { status: 'pending' },
+      newValue: { status: 'approved', cafeId: createdCafe.id },
+    },
   );
 
+  // The generated portal credential is never written into the audit log —
+  // it's a live secret, and audit logs are broader-access and
+  // longer-retention than an operational credential should be. Only its
+  // existence is recorded.
+  const cafeFieldsForAudit: Record<string, unknown> = { ...plan.cafeFields };
+  delete cafeFieldsForAudit.portal_pin;
+  await logAdminAction(
+    admin.email ?? 'unknown',
+    'cafe.create',
+    `Created café "${createdCafe.name}" (${createdCafe.slug}) from partner application`,
+    { applicationId: id, portalCredentialGenerated: true },
+    { recordType: 'cafe', recordId: createdCafe.id, previousValue: null, newValue: cafeFieldsForAudit },
+  );
+  await trackServerEvent('cafe_created', null, { cafeId: createdCafe.id, source: 'partner_application' });
+
   revalidatePath('/admin/applications');
+  revalidatePath('/admin/cafes');
 }
 
 export async function rejectApplication(id: string) {
@@ -680,10 +792,11 @@ export async function reviewVisit(visitId: string, action: 'approve' | 'reject')
     .update({ status, stamp_awarded: action === 'approve', reviewed_at: new Date().toISOString(), reviewed_by: 'admin' })
     .eq('id', visitId)
     .eq('status', 'pending')
-    .select('id');
+    .select('id, user_id, cafe_id');
   if (error) throw new Error(error.message);
 
-  if (updated && updated.length > 0) {
+  const updatedVisit = updated?.[0];
+  if (updatedVisit) {
     await logAdminAction(
       admin.email ?? 'unknown',
       'visit.review',
@@ -691,6 +804,15 @@ export async function reviewVisit(visitId: string, action: 'approve' | 'reject')
       { visitId, action },
       { recordType: 'visit', recordId: visitId, previousValue: { status: 'pending' }, newValue: { status } },
     );
+    // Same event the café-portal review path fires (api/portal/visits/[visitId])
+    // — this is the same product outcome, just reviewed by admin backup
+    // instead of the café, and product metrics on "receipts approved/
+    // rejected" shouldn't undercount whichever path handled it.
+    await trackServerEvent(action === 'approve' ? 'receipt_approved' : 'receipt_rejected', updatedVisit.user_id, {
+      visitId,
+      cafeId: updatedVisit.cafe_id,
+      reviewedBy: 'admin',
+    });
   }
 
   revalidatePath('/admin/visits');
@@ -703,7 +825,7 @@ export async function reviewVisit(visitId: string, action: 'approve' | 'reject')
 export async function forceAddStamp(visitId: string) {
   const admin = await requireAdmin();
   const supabase = createAdminClient();
-  const { data: existing } = await supabase.from('visits').select('status, stamp_awarded').eq('id', visitId).maybeSingle();
+  const { data: existing } = await supabase.from('visits').select('status, stamp_awarded, user_id, cafe_id').eq('id', visitId).maybeSingle();
   if (!existing) throw new Error('Visit not found.');
 
   const { error } = await supabase
@@ -719,6 +841,10 @@ export async function forceAddStamp(visitId: string) {
     { visitId, previousStatus: existing.status },
     { recordType: 'visit', recordId: visitId, previousValue: { status: existing.status, stamp_awarded: existing.stamp_awarded }, newValue: { status: 'approved', stamp_awarded: true } },
   );
+  // Same end state as a normal approval (status: 'approved') — counts the
+  // same way in product metrics; which admin action produced it is already
+  // distinguishable in the audit log above if that distinction matters.
+  await trackServerEvent('receipt_approved', existing.user_id, { visitId, cafeId: existing.cafe_id, reviewedBy: 'admin_force' });
 
   revalidatePath('/admin/visits');
 }
@@ -839,6 +965,7 @@ export async function markReimbursementPaid(rewardId: string) {
     { rewardId },
     { recordType: 'reward', recordId: rewardId, previousValue: { paid: false }, newValue: { paid: true } },
   );
+  await trackServerEvent('reimbursement_marked_paid', null, { rewardId });
 
   revalidatePath('/admin/reimbursements');
 }
