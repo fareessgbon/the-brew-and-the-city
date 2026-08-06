@@ -614,7 +614,12 @@ section {
 
 .how-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 3 columns: the marketing "how it works" section has 3 real, implemented
+     factors (context/taste/proximity — no social feature, see
+     components/HowItWorksSection.tsx), and the admin dashboard's 9 quick
+     links (app/admin/page.tsx) divide evenly into 3 clean rows this way
+     instead of an awkward trailing row of 1 under 4 columns. */
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
 .how-card {
@@ -719,6 +724,17 @@ section {
 }
 .round-card .label {
   color: var(--whisk);
+}
+.motd-pct {
+  color: var(--blush);
+  background: var(--ceremony);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .club-list {
   list-style: none;
@@ -967,7 +983,10 @@ section {
   border-radius: 999px;
   border: 1px solid var(--sky-deep);
   font-family: var(--font-sans);
-  font-size: 15px;
+  /* 16px, not 15 — iOS Safari auto-zooms the page on focus for any input
+     below 16px, and this class covers login/signup/forgot/reset-password:
+     the entire member auth flow. */
+  font-size: 16px;
   background: var(--paper);
   color: var(--ink);
 }
@@ -1025,7 +1044,10 @@ section {
   border-radius: 10px;
   border: 1px solid var(--whisk-10);
   font-family: var(--font-sans);
-  font-size: 15px;
+  /* 16px — same iOS Safari auto-zoom reasoning as .inline-form above. This
+     class also covers the public partner-application form and the café
+     portal's own dashboard, not just admin. */
+  font-size: 16px;
   background: var(--paper);
   color: var(--ink);
 }

@@ -102,7 +102,7 @@ function MatchList({ matches, worthTheTrip, loading }: { matches: Match[]; worth
       {top ? (
         <div className="round-card" style={{ marginBottom: 24 }}>
           <div className="label">Match of the day</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, flexWrap: 'wrap', gap: 8 }}>
             <h2 style={{ fontSize: 26 }}>{top.name}</h2>
             <span className="motd-pct">{top.pct}% match</span>
           </div>
