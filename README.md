@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Brew and the City — pre-launch site
 
-## Getting Started
+The §0.4 pre-launch site from `BREW-AND-THE-CITY-spec-v3_6.md`: a static, no-account site that ships before the real
+product does. Its only jobs are building awareness and collecting two validation surveys — nothing here is the
+actual café-matching app.
 
-First, run the development server:
+## Site map
+
+| Route | What it is |
+| --- | --- |
+| `/` | Hero + waitlist email signup |
+| `/for-cafes` | Founding Partner pitch, FAQ, café survey link |
+| `/help-shape-the-app` | Links to both surveys |
+| `/help-shape-the-app/cafe-partner-survey` | 5-step café survey |
+| `/help-shape-the-app/consumer-survey` | 6-step consumer survey (anonymous) |
+| `/privacy`, `/terms` | Cover only what this site actually collects |
+
+There is no login, signup, quiz, matching engine, admin console, or café portal — none of that ships until the real
+product does.
+
+## Local setup
 
 ```bash
+npm install
+cp .env.local.example .env.local   # fill in Supabase values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See `.env.local.example`. This site shares the full product's Supabase project (deliberate — see the comment in
+`supabase/migrations/0021_prelaunch_waitlist_and_surveys.sql`) but only ever touches two tables: `waitlist` and
+`survey_responses`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Database
 
-## Learn More
+One migration, `supabase/migrations/0021_prelaunch_waitlist_and_surveys.sql` — apply it with:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+DATABASE_URL='postgresql://...' node scripts/run-migration.mjs
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Both tables are insert-only via the service-role client (no public RLS policy); writes only happen through
+`/api/waitlist` and `/api/surveys/*`, which validate and rate-limit every request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Checks
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npx tsc --noEmit
+npx vitest run
+npm run build
+```
