@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { __resetRateLimits, checkRateLimit, clientIp } from '../rateLimit';
+import { __resetRateLimits, checkRateLimit, checkRateLimitPersistent, clientIp, type RateLimitSupabase } from '../rateLimit';
 
 describe('checkRateLimit', () => {
   beforeEach(() => {
@@ -64,5 +64,50 @@ describe('clientIp', () => {
     const b = clientIp(new Request('https://example.com'));
     expect(a).toBe('unknown');
     expect(b).toBe(a);
+  });
+});
+
+describe('checkRateLimitPersistent', () => {
+  beforeEach(() => {
+    __resetRateLimits();
+  });
+
+  function mockSupabase(
+    result: Awaited<ReturnType<RateLimitSupabase['rpc']>>,
+  ): RateLimitSupabase & { rpc: ReturnType<typeof vi.fn> } {
+    return { rpc: vi.fn().mockResolvedValue(result) };
+  }
+
+  it('passes the key/limit/window through as p_key/p_limit/p_window_ms', async () => {
+    const supabase = mockSupabase({ data: [{ allowed: true, remaining: 4, retry_after_seconds: 0 }], error: null });
+    await checkRateLimitPersistent(supabase, 'waitlist:1.2.3.4', 5, 60_000);
+    expect(supabase.rpc).toHaveBeenCalledWith('check_rate_limit', {
+      p_key: 'waitlist:1.2.3.4',
+      p_limit: 5,
+      p_window_ms: 60_000,
+    });
+  });
+
+  it('maps the RPC row to camelCase RateLimitResult', async () => {
+    const supabase = mockSupabase({ data: [{ allowed: false, remaining: 0, retry_after_seconds: 42 }], error: null });
+    const result = await checkRateLimitPersistent(supabase, 'k', 5, 60_000);
+    expect(result).toEqual({ allowed: false, remaining: 0, retryAfterSeconds: 42 });
+  });
+
+  it('falls back to the in-memory limiter when the RPC call errors', async () => {
+    // A DB hiccup should degrade to best-effort, not throw and take the
+    // endpoint down, and not silently allow everything through either.
+    const supabase = mockSupabase({ data: null, error: { message: 'connection reset' } });
+    const first = await checkRateLimitPersistent(supabase, 'fallback-key', 1, 60_000);
+    const second = await checkRateLimitPersistent(supabase, 'fallback-key', 1, 60_000);
+    expect(first.allowed).toBe(true);
+    expect(second.allowed).toBe(false);
+  });
+
+  it('falls back to the in-memory limiter when the RPC returns no rows', async () => {
+    const supabase = mockSupabase({ data: [], error: null });
+    const result = await checkRateLimitPersistent(supabase, 'empty-rows', 3, 60_000);
+    expect(result.allowed).toBe(true);
+    expect(result.remaining).toBe(2);
   });
 });

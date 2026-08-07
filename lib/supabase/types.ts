@@ -117,6 +117,15 @@ export interface Database {
     // inference (every .insert() call ends up typed as `never[]`) rather
     // than raising a clear error about the missing keys.
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    // Leaving this empty has the same silent failure mode as Views/Tables
+    // above, just for .rpc() instead of .insert() — every call's Args
+    // infers as `never`, so any real args object is rejected. Only
+    // function this build actually calls (migration 0022).
+    Functions: {
+      check_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_ms: number };
+        Returns: { allowed: boolean; remaining: number; retry_after_seconds: number }[];
+      };
+    };
   };
 }

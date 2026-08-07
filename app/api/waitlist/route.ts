@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logServerError } from '@/lib/server/logError';
-import { checkRateLimit, clientIp } from '@/lib/server/rateLimit';
+import { checkRateLimitPersistent, clientIp } from '@/lib/server/rateLimit';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_SIGNUPS_PER_HOUR = 5;
@@ -18,12 +18,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'A valid email is required.' }, { status: 400 });
   }
 
-  const tooMany = !checkRateLimit(`waitlist:${clientIp(request)}`, MAX_SIGNUPS_PER_HOUR, WINDOW_MS).allowed;
+  const admin = createAdminClient();
+  const tooMany = !(await checkRateLimitPersistent(admin, `waitlist:${clientIp(request)}`, MAX_SIGNUPS_PER_HOUR, WINDOW_MS))
+    .allowed;
   if (tooMany) {
     return NextResponse.json({ error: 'Too many attempts — please try again later.' }, { status: 429 });
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from('waitlist').insert({ email });
 
   if (error) {

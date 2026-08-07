@@ -37,7 +37,7 @@ const FAQ: { question: string; answer: string }[] = [
   },
   {
     question: 'Can I leave the program?',
-    answer: 'Any time, with 30 days’ notice on the active partner tier. You keep a free Listed profile unless you ask to be removed entirely.',
+    answer: 'Any time, with 30 days’ notice on the active partner tier. You keep a free Starter profile unless you ask to be removed entirely.',
   },
   {
     question: 'Can more than one location join?',
@@ -45,7 +45,7 @@ const FAQ: { question: string; answer: string }[] = [
   },
   {
     question: 'Do I have to give anything away for free?',
-    answer: 'Only if you opt into reward redemption, and even then only the specific items you chose, capped at the limit you set. Listed and Partner status never require it.',
+    answer: 'Only if you opt into reward redemption, and even then only the specific items you chose, capped at the limit you set. Starter and Partner status never require it.',
   },
 ];
 

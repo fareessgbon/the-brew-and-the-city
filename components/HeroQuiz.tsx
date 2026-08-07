@@ -216,7 +216,8 @@ export function HeroQuiz({ cafes, userVector, answeredDims, primaryDrinkCategory
           </div>
 
           <div className="match-disclaimer">
-            Based on flavour alone — the full app adds what you need and how far you&apos;ll go.
+            Based on flavour alone, against placeholder café data — the full app adds real visits, what you need,
+            and how far you&apos;ll go.
           </div>
           {trustLine ? <div className="maps-test-line">{trustLine}</div> : null}
 

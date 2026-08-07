@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logServerError } from '@/lib/server/logError';
-import { checkRateLimit, clientIp } from '@/lib/server/rateLimit';
+import { checkRateLimitPersistent, clientIp } from '@/lib/server/rateLimit';
+import { sendEmail } from '@/lib/server/email';
+import { cafePartnerSurveyConfirmationEmail } from '@/lib/server/emailTemplates';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_SUBMISSIONS_PER_HOUR = 5;
@@ -39,17 +41,29 @@ export async function POST(request: Request) {
   if (!cafeName) return NextResponse.json({ error: 'Café name is required.' }, { status: 400 });
   if (!EMAIL_RE.test(email)) return NextResponse.json({ error: 'A valid email is required.' }, { status: 400 });
 
-  const tooMany = !checkRateLimit(`survey-cafe:${clientIp(request)}`, MAX_SUBMISSIONS_PER_HOUR, WINDOW_MS).allowed;
+  const admin = createAdminClient();
+  const tooMany = !(
+    await checkRateLimitPersistent(admin, `survey-cafe:${clientIp(request)}`, MAX_SUBMISSIONS_PER_HOUR, WINDOW_MS)
+  ).allowed;
   if (tooMany) {
     return NextResponse.json({ error: 'Too many attempts — please try again later.' }, { status: 429 });
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from('survey_responses').insert({ survey: 'cafe_partner', answers: { ...body, email } });
 
   if (error) {
     await logServerError('api.surveys.cafe-partner', error, { cafeName });
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
+  }
+
+  // Best-effort: the survey row is already saved, so an email hiccup is
+  // never a reason to tell the café their submission failed. Logged, not
+  // surfaced.
+  try {
+    const { subject, html } = cafePartnerSurveyConfirmationEmail(cafeName);
+    await sendEmail({ to: email, subject, html });
+  } catch (err) {
+    await logServerError('api.surveys.cafe-partner.confirmation-email', err, { cafeName, email });
   }
 
   return NextResponse.json({ success: true });

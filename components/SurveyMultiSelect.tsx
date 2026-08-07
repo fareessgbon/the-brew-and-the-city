@@ -1,10 +1,11 @@
 'use client';
 
 // Shared by both surveys (§13.6) for their "choose up to N" questions.
-// Built as one scrolling form with labelled sections rather than a
-// stateful step-by-step wizard — same content structure the spec
-// describes ("5 steps, ~3 minutes"), simpler to build and verify
-// correctly than a JS wizard, and no less usable for a one-time survey.
+// Renders as clickable rows, not a visible checkbox list — the checkbox
+// input is still there (keeps native keyboard/screen-reader semantics,
+// since a <label> forwards clicks to it), just visually hidden, with
+// selection state shown by the row's own background/border instead (see
+// chat: "no checkbox, just click the text").
 export function SurveyMultiSelect({
   name,
   options,
@@ -36,9 +37,36 @@ export function SurveyMultiSelect({
         return (
           <label
             key={option}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, textTransform: 'none', opacity: disabled ? 0.5 : 1 }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              position: 'relative',
+              padding: '12px 14px',
+              borderRadius: 10,
+              border: `1.5px solid ${checked ? 'var(--ceremony)' : 'var(--whisk-10)'}`,
+              background: checked ? 'var(--ceremony)' : 'transparent',
+              color: checked ? 'var(--paper)' : 'var(--ink)',
+              fontSize: 14,
+              fontWeight: checked ? 600 : 400,
+              textTransform: 'none',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              opacity: disabled ? 0.5 : 1,
+              transition: 'background 150ms, border-color 150ms, color 150ms',
+            }}
           >
-            <input type="checkbox" name={name} value={option} checked={checked} disabled={disabled} onChange={() => toggle(option)} style={{ width: 'auto' }} />
+            {/* Visually hidden, not display:none — stays in the tab order
+                and keeps its accessible name/state for screen readers and
+                keyboard users, who never see the checkbox glyph either
+                way. */}
+            <input
+              type="checkbox"
+              name={name}
+              value={option}
+              checked={checked}
+              disabled={disabled}
+              onChange={() => toggle(option)}
+              style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', opacity: 0 }}
+            />
             {option}
           </label>
         );

@@ -14,9 +14,12 @@ const ANSWERED_DIMS: Dim[] = ['drink', 'energy'];
 
 // The strip shows the walkable core, once each — not one chip per café
 // (17 chips with heavy repeats) and not every neighbourhood a café happens
-// to be in (a few, like Parkhill or Springbank Hill, are real but outside
-// the six-cluster story the copy above tells). Order is deliberate, not
-// alphabetical.
+// to be in. A few real seeded cafés (Parkhill, Springbank Hill, Varsity NW)
+// sit outside this list entirely — they're real Calgary businesses, just
+// not part of the initial walkable cohort this list is telling the story
+// of. If that set grows, update this list deliberately rather than
+// deriving it from whatever's in the database that day, so the homepage
+// never silently claims a wider cohort than what's actually been curated.
 const CORE_NEIGHBOURHOODS = [
   'Beltline',
   'Downtown',
@@ -141,7 +144,10 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
             <div>
               <ul className="club-list">
                 <li>One personal card, automatic at signup — not tied to any one café</li>
-                <li>Any drink at any partner café earns a visit — the reward is any drink on their menu</li>
+                <li>
+                  One drink purchased at any partner café earns a visit — what you get free is whatever that café
+                  is willing to redeem it for, subject to availability
+                </li>
                 <li>Max 2 visits from the same café per card, so a completed card always touches at least 3 different spots</li>
                 <li>Try for a 3rd visit somewhere you&apos;ve already used twice and we&apos;ll point you to 2 nearby cafés you haven&apos;t tried yet</li>
                 <li>Partner cafés cover it, not you. No subscription, no cost to you, ever</li>
@@ -162,8 +168,8 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
                 <div className="stamp reward">Free</div>
               </div>
               <div style={{ fontSize: 13.5, color: 'var(--ink)', marginTop: 14 }}>
-                5 visits unlocks one free item at any partner café — max 2 visits per café, so it&apos;s always at
-                least 3 spots.
+                5 visits unlocks a free item wherever you redeem — subject to what that café offers and has
+                available. Max 2 visits per café, so it&apos;s always at least 3 spots.
               </div>
               {sixthRoundLine ? <div className="maps-test-line" style={{ marginTop: 12 }}>{sixthRoundLine}</div> : null}
             </div>

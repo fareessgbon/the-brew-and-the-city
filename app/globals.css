@@ -422,7 +422,9 @@ body.mobile-menu-open {
 
 /* Quiz card */
 .quiz-card {
-  background: var(--paper-2);
+  /* Off-white, not the rest of the site's cream/paper tones — the quiz
+     reads as its own clean surface (see chat). */
+  background: #faf8f4;
   border: 1px solid var(--paper-2);
   border-radius: 20px;
   padding: 28px;
@@ -437,7 +439,7 @@ body.mobile-menu-open {
   left: 0;
   right: 0;
   height: 8px;
-  background-image: repeating-linear-gradient(90deg, var(--sky) 0 8px, var(--paper) 8px 16px);
+  background-image: repeating-linear-gradient(90deg, var(--sky) 0 8px, #faf8f4 8px 16px);
 }
 .quiz-step {
   display: none;
@@ -468,7 +470,7 @@ body.mobile-menu-open {
   text-align: center;
   font-family: var(--font-display);
   font-size: 22px;
-  color: var(--ceremony);
+  color: var(--ink);
   margin: 18px 0 22px;
 }
 .pair {
@@ -477,14 +479,14 @@ body.mobile-menu-open {
   gap: 14px;
 }
 .opt {
-  background: var(--paper);
+  background: #faf8f4;
   border: 1.5px solid var(--whisk-10);
   border-radius: 14px;
   padding: 22px 14px;
   text-align: center;
   cursor: pointer;
   font-weight: 600;
-  color: var(--ceremony);
+  color: var(--ink);
   transition:
     border-color 150ms,
     transform 150ms,
@@ -517,7 +519,7 @@ body.mobile-menu-open {
   width: 100%;
   aspect-ratio: 1.3 / 1;
   margin: 18px 0 12px;
-  background: var(--paper);
+  background: #faf8f4;
   border-radius: 14px;
   border: 1px solid var(--whisk-10);
   overflow: hidden;
@@ -578,8 +580,8 @@ body.mobile-menu-open {
   position: absolute;
   font-size: 11px;
   font-weight: 600;
-  color: var(--ceremony);
-  background: var(--paper);
+  color: var(--ink);
+  background: #faf8f4;
   padding: 1px 6px;
   border-radius: 8px;
   transform: translate(-50%, 6px);
@@ -592,7 +594,7 @@ body.mobile-menu-open {
   opacity: 1;
 }
 .match-result {
-  background: var(--paper);
+  background: #faf8f4;
   border: 1px solid var(--whisk-10);
   border-radius: 12px;
   padding: 14px 18px;
@@ -616,7 +618,7 @@ body.mobile-menu-open {
 .match-result .name {
   font-family: var(--font-display);
   font-weight: 600;
-  color: var(--ceremony);
+  color: var(--ink);
   font-size: 17px;
 }
 .match-result .pct {
@@ -883,6 +885,12 @@ section {
   gap: 40px;
   align-items: center;
 }
+.forcafe-intro-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: start;
+}
 .forcafe-list {
   list-style: none;
   padding: 0;
@@ -966,7 +974,10 @@ section {
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 3 columns: Starter / Partner / Premium — was 4 when Founding Partner
+     had its own card here; that moved into the club-band section below
+     instead, so this stayed hardcoded to 4 and left an empty 4th column. */
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin: 40px 0 24px;
 }
@@ -1091,6 +1102,16 @@ section {
   border-radius: 16px;
   padding: 26px;
   margin-top: 8px;
+}
+/* .ratio-box's own background (var(--paper-2), a darker cream) reads as
+   "brown" next to this form's off-white — steps 3/5/6 use it, steps
+   1/2/4 don't, which is why only those three looked different. Scoped
+   here rather than changing .ratio-box itself, since it's shared with
+   other pages (e.g. the /for-cafes mockups) that should keep it. */
+.cafe-signup-form .ratio-box {
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 .cafe-signup-form .field-row {
   display: grid;
@@ -1341,14 +1362,15 @@ footer {
 @media (max-width: 860px) {
   .hero-secondary,
   .club-grid,
-  .forcafe-band {
+  .forcafe-band,
+  .forcafe-intro-grid {
     grid-template-columns: 1fr;
   }
   .how-grid {
     grid-template-columns: 1fr;
   }
   .pricing-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
   .club-band {
     padding: 32px 22px;

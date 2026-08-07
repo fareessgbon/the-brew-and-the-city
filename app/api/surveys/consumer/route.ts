@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { logServerError } from '@/lib/server/logError';
-import { checkRateLimit, clientIp } from '@/lib/server/rateLimit';
+import { checkRateLimitPersistent, clientIp } from '@/lib/server/rateLimit';
 
 const MAX_SUBMISSIONS_PER_HOUR = 10;
 const WINDOW_MS = 60 * 60 * 1000;
@@ -29,12 +29,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid submission.' }, { status: 400 });
   }
 
-  const tooMany = !checkRateLimit(`survey-consumer:${clientIp(request)}`, MAX_SUBMISSIONS_PER_HOUR, WINDOW_MS).allowed;
+  const admin = createAdminClient();
+  const tooMany = !(
+    await checkRateLimitPersistent(admin, `survey-consumer:${clientIp(request)}`, MAX_SUBMISSIONS_PER_HOUR, WINDOW_MS)
+  ).allowed;
   if (tooMany) {
     return NextResponse.json({ error: 'Too many attempts — please try again later.' }, { status: 429 });
   }
 
-  const admin = createAdminClient();
   const { error } = await admin.from('survey_responses').insert({ survey: 'consumer', answers: body });
 
   if (error) {

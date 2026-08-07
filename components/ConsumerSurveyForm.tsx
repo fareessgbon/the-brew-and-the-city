@@ -5,6 +5,25 @@ import { SurveyMultiSelect } from './SurveyMultiSelect';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
+const FIND_CAFES_OPTIONS = [
+  'Friends or word of mouth',
+  'Instagram or TikTok',
+  'Google Maps or search',
+  'Driving past somewhere',
+  'Local events or markets',
+  'Food or coffee creators',
+  'I usually go to the same places',
+  'Other',
+];
+const RETURN_REASON_OPTIONS = [
+  'The quality of the drinks or food',
+  'A unique menu or signature items',
+  'The atmosphere and overall experience',
+  'Friendly staff and great service',
+  'Convenience (location, hours, accessibility)',
+  'Loyalty rewards or special perks',
+  'Other',
+];
 const FRIEND_INFLUENCE_OPTIONS = ['A lot', 'Somewhat', 'Occasionally', 'Not much'];
 const TRY_NEW_OPTIONS = [
   'A selected full-size drink',
@@ -18,29 +37,50 @@ const TRY_NEW_OPTIONS = [
 ];
 const PRICING_OPTIONS = ['Around $10–20', 'Around $20–30', '$30+ if the value was there', 'Would need to see the cafés and benefits first'];
 
-// §13.6.2 — the consumer-side validation survey, 6 steps as labelled
-// sections on one page. Deliberately anonymous — no email field, matching
-// the spec's own shape for this survey.
+const STEP_TITLES = [
+  'How do you usually find new cafés? (Choose up to 3)',
+  'What makes you go back to a café? (Choose up to 3)',
+  'How much do friends influence where you go?',
+  'What would make you try somewhere new? (Choose up to 3)',
+  'Pricing',
+];
+const LAST_STEP = STEP_TITLES.length - 1;
+
+// §13.6.2 — the consumer-side validation survey. Deliberately anonymous —
+// no email field, matching the spec's own shape for this survey, so
+// there's nothing to gate Next on: every step is optional, unlike the
+// café survey's first step. Same step-per-question wizard treatment as
+// CafePartnerSurveyForm (see chat) — one <form>, one submit, just gated.
 export function ConsumerSurveyForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
+  const [step, setStep] = useState(0);
 
+  const [howTheyFindCafes, setHowTheyFindCafes] = useState<string[]>([]);
+  const [whatMakesThemReturn, setWhatMakesThemReturn] = useState<string[]>([]);
   const [friendsInfluence, setFriendsInfluence] = useState('');
   const [tryNewFor, setTryNewFor] = useState<string[]>([]);
   const [pricing, setPricing] = useState('');
+  const [freeText, setFreeText] = useState('');
+
+  function goNext() {
+    setStep((s) => Math.min(s + 1, LAST_STEP));
+  }
+
+  function goBack() {
+    setStep((s) => Math.max(s - 1, 0));
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = e.currentTarget;
-    const field = (name: string) => (form.elements.namedItem(name) as HTMLInputElement | null)?.value.trim() ?? '';
 
     const payload = {
-      howTheyFindCafes: field('howTheyFindCafes'),
-      whatMakesThemReturn: field('whatMakesThemReturn'),
+      howTheyFindCafes,
+      whatMakesThemReturn,
       friendsInfluence,
       tryNewFor,
       pricing,
-      freeText: field('freeText'),
+      freeText: freeText.trim(),
     };
 
     setStatus('sending');
@@ -65,67 +105,101 @@ export function ConsumerSurveyForm() {
   }
 
   return (
-    <form className="cafe-signup-form" onSubmit={handleSubmit} style={{ maxWidth: 640 }}>
-      <div className="label" style={{ marginBottom: 10 }}>
-        1–4. How you find cafés today
+    <form
+      className="cafe-signup-form"
+      onSubmit={handleSubmit}
+      // Same off-white treatment as the café survey — scoped here rather
+      // than the shared .cafe-signup-form class, which CafePartnerSurveyForm
+      // also uses.
+      style={{ maxWidth: 640, background: '#faf8f4' }}
+    >
+      <div className="quiz-progress">
+        Step {step + 1} of {STEP_TITLES.length}
       </div>
-      <div style={{ marginBottom: 16 }}>
-        <label htmlFor="howTheyFindCafes">How do you currently find new cafés?</label>
-        <input type="text" id="howTheyFindCafes" name="howTheyFindCafes" placeholder="e.g. Instagram, word of mouth, walking by" />
-      </div>
-      <div style={{ marginBottom: 16 }}>
-        <label htmlFor="whatMakesThemReturn">What makes you go back to a café?</label>
-        <input type="text" id="whatMakesThemReturn" name="whatMakesThemReturn" />
-      </div>
-      <div className="ratio-box" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 13.5, marginBottom: 8 }}>How much do friends influence where you go?</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {FRIEND_INFLUENCE_OPTIONS.map((option) => (
-            <label key={option} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, textTransform: 'none' }}>
-              <input
-                type="radio"
-                name="friendsInfluence"
-                value={option}
-                checked={friendsInfluence === option}
-                onChange={() => setFriendsInfluence(option)}
-                style={{ width: 'auto' }}
-              />
-              {option}
-            </label>
-          ))}
-        </div>
+      <div className="label" style={{ margin: '10px 0' }}>
+        {step + 1}. {STEP_TITLES[step]}
       </div>
 
-      <div className="label" style={{ margin: '20px 0 10px' }}>
-        5. What would make you try somewhere new — choose up to 3
-      </div>
-      <div className="ratio-box" style={{ marginBottom: 16 }}>
-        <SurveyMultiSelect name="tryNewFor" options={TRY_NEW_OPTIONS} selected={tryNewFor} onChange={setTryNewFor} max={3} />
-      </div>
-
-      <div className="label" style={{ margin: '20px 0 10px' }}>
-        6. Pricing
-      </div>
-      <div className="ratio-box" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 13.5, marginBottom: 8 }}>
-          How much would you realistically spend each month on a coffee membership if it consistently saved you money
-          and helped you discover great cafés?
+      {step === 0 ? (
+        <div className="ratio-box" style={{ marginBottom: 16 }}>
+          <SurveyMultiSelect name="howTheyFindCafes" options={FIND_CAFES_OPTIONS} selected={howTheyFindCafes} onChange={setHowTheyFindCafes} max={3} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-          {PRICING_OPTIONS.map((option) => (
-            <label key={option} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, textTransform: 'none' }}>
-              <input type="radio" name="pricing" value={option} checked={pricing === option} onChange={() => setPricing(option)} style={{ width: 'auto' }} />
-              {option}
-            </label>
-          ))}
-        </div>
-        <label htmlFor="freeText">What would make you genuinely excited to use Brew and the City? (optional)</label>
-        <textarea id="freeText" name="freeText" rows={3} style={{ width: '100%' }} />
-      </div>
+      ) : null}
 
-      <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
-        {status === 'sending' ? 'Sending…' : 'Submit'}
-      </button>
+      {step === 1 ? (
+        <div className="ratio-box" style={{ marginBottom: 16 }}>
+          <SurveyMultiSelect name="whatMakesThemReturn" options={RETURN_REASON_OPTIONS} selected={whatMakesThemReturn} onChange={setWhatMakesThemReturn} max={3} />
+        </div>
+      ) : null}
+
+      {step === 2 ? (
+        <div className="ratio-box" style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {FRIEND_INFLUENCE_OPTIONS.map((option) => (
+              <label key={option} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, textTransform: 'none' }}>
+                <input
+                  type="radio"
+                  name="friendsInfluence"
+                  value={option}
+                  checked={friendsInfluence === option}
+                  onChange={() => setFriendsInfluence(option)}
+                  style={{ width: 'auto' }}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {step === 3 ? (
+        <div className="ratio-box" style={{ marginBottom: 16 }}>
+          <SurveyMultiSelect name="tryNewFor" options={TRY_NEW_OPTIONS} selected={tryNewFor} onChange={setTryNewFor} max={3} />
+        </div>
+      ) : null}
+
+      {step === 4 ? (
+        <div className="ratio-box" style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 13.5, marginBottom: 8 }}>
+            How much would you realistically spend each month on a coffee membership if it consistently saved you money
+            and helped you discover great cafés?
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+            {PRICING_OPTIONS.map((option) => (
+              <label key={option} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, textTransform: 'none' }}>
+                <input type="radio" name="pricing" value={option} checked={pricing === option} onChange={() => setPricing(option)} style={{ width: 'auto' }} />
+                {option}
+              </label>
+            ))}
+          </div>
+          <label htmlFor="freeText">What would make you genuinely excited to use Brew and the City? (optional)</label>
+          <textarea id="freeText" name="freeText" rows={3} style={{ width: '100%' }} value={freeText} onChange={(e) => setFreeText(e.target.value)} />
+        </div>
+      ) : null}
+
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        {step > 0 ? (
+          <button type="button" className="btn btn-ghost" onClick={goBack}>
+            Back
+          </button>
+        ) : null}
+        {step < LAST_STEP ? (
+          // Distinct keys on these two buttons, not just a ternary at the
+          // same position — otherwise React patches the *same* DOM button's
+          // type attribute from "button" to "submit" mid-click when this
+          // branch flips (landing on the last step), and the browser
+          // submits the form as part of that same click before you ever
+          // see the last step's content (see chat — reproduced with
+          // Playwright).
+          <button key="next-btn" type="button" className="btn btn-primary" onClick={goNext}>
+            Next
+          </button>
+        ) : (
+          <button key="submit-btn" type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+            {status === 'sending' ? 'Sending…' : 'Submit'}
+          </button>
+        )}
+      </div>
       {status === 'error' ? <div className="cafe-form-success">{message}</div> : null}
     </form>
   );

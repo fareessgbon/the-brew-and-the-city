@@ -29,7 +29,7 @@ export default function HelpShapeTheAppPage() {
               <div className="label" style={{ marginBottom: 8 }}>
                 I own or run a café
               </div>
-              <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 16 }}>5 steps, about 3 minutes.</p>
+              <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 16 }}>7 steps, about 3 minutes.</p>
               <Link href="/help-shape-the-app/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
                 Take the café survey
               </Link>
@@ -38,7 +38,7 @@ export default function HelpShapeTheAppPage() {
               <div className="label" style={{ marginBottom: 8 }}>
                 I drink coffee or matcha in Calgary
               </div>
-              <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 16 }}>6 steps, about 2 minutes.</p>
+              <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 16 }}>5 steps, about 2 minutes.</p>
               <Link href="/help-shape-the-app/consumer-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
                 Take the consumer survey
               </Link>

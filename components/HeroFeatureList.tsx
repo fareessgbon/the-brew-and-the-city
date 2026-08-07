@@ -21,7 +21,7 @@ const FEATURES = [
   {
     num: '04',
     title: 'One card, every café',
-    body: 'Five visits anywhere in the network unlock a free item — no loyalty app per café.',
+    body: 'Five visits anywhere in the network unlock a free item, subject to what that café offers — no loyalty app per café.',
   },
 ];
 
