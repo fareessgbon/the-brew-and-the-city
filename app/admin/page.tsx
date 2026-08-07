@@ -21,6 +21,11 @@ export const dynamic = 'force-dynamic';
 // list this page is meant to be worked, not just read.
 const STATUS_ORDER: Record<SurveyStatus, number> = { new: 0, contacted: 1, selected: 2, declined: 3 };
 
+// §3.0: "the first 15 approved cafés" — 'selected' status is the proxy for
+// a filled Founding Partner slot, so the overview can show real progress
+// against the actual number that matters, not just a raw submission count.
+const FOUNDING_PARTNER_TARGET = 15;
+
 function formatAnswers(answers: Record<string, unknown>): string {
   return Object.entries(answers)
     .filter(([, v]) => v !== '' && v !== null && !(Array.isArray(v) && v.length === 0))
@@ -33,6 +38,23 @@ function ExportLink({ table }: { table: string }) {
     <a href={`/api/admin/export?table=${table}`} className="btn btn-ghost" style={{ fontSize: 12.5, padding: '4px 0' }}>
       Export CSV
     </a>
+  );
+}
+
+function countSince(items: { created_at: string }[], daysAgo: number): number {
+  const cutoff = Date.now() - daysAgo * 86_400_000;
+  return items.filter((i) => new Date(i.created_at).getTime() >= cutoff).length;
+}
+
+function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="ratio-box" style={{ background: '#faf8f4' }}>
+      <div className="label" style={{ color: 'var(--whisk)', marginBottom: 6, fontSize: 11 }}>
+        {label}
+      </div>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 600 }}>{value}</div>
+      {sub ? <div style={{ fontSize: 12, color: 'var(--whisk)', marginTop: 4 }}>{sub}</div> : null}
+    </div>
   );
 }
 
@@ -54,18 +76,75 @@ export default async function AdminPage() {
       .order('created_at', { ascending: false }),
   ]);
 
-  const cafeSurveys = (surveys ?? [])
-    .filter((s) => s.survey === 'cafe_partner')
-    .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+  const cafeSurveysRaw = (surveys ?? []).filter((s) => s.survey === 'cafe_partner');
+  const cafeSurveys = [...cafeSurveysRaw].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
   const consumerSurveys = (surveys ?? []).filter((s) => s.survey === 'consumer');
+
+  const statusCounts = cafeSurveysRaw.reduce(
+    (acc, s) => ({ ...acc, [s.status]: acc[s.status] + 1 }),
+    { new: 0, contacted: 0, selected: 0, declined: 0 } as Record<SurveyStatus, number>,
+  );
+  const waitlistThisWeek = countSince(waitlist ?? [], 7);
+  const waitlistLastWeek = countSince(waitlist ?? [], 14) - waitlistThisWeek;
+  const cafeSurveysThisWeek = countSince(cafeSurveysRaw, 7);
 
   return (
     <div className="wrap" style={{ padding: '48px 24px 96px', maxWidth: 900 }}>
       <div className="label eyebrow">Admin</div>
       <h1 style={{ fontSize: 28, marginBottom: 8 }}>Submissions</h1>
-      <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 32 }}>
+      <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 24 }}>
         {(waitlist ?? []).length} waitlist · {cafeSurveys.length} café survey · {consumerSurveys.length} consumer survey
       </p>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 12,
+          marginBottom: 16,
+        }}
+      >
+        <div className="ratio-box" style={{ background: '#faf8f4' }}>
+          <div className="label" style={{ color: 'var(--whisk)', marginBottom: 6, fontSize: 11 }}>
+            Founding Partner slots
+          </div>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 600 }}>
+            {statusCounts.selected} / {FOUNDING_PARTNER_TARGET}
+          </div>
+          <div
+            style={{
+              height: 4,
+              borderRadius: 999,
+              background: 'var(--whisk-10)',
+              marginTop: 8,
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                height: '100%',
+                width: `${Math.min(100, (statusCounts.selected / FOUNDING_PARTNER_TARGET) * 100)}%`,
+                background: 'var(--ceremony)',
+              }}
+            />
+          </div>
+        </div>
+        <StatCard
+          label="Café queue"
+          value={String(statusCounts.new)}
+          sub={`new · ${statusCounts.contacted} contacted · ${statusCounts.declined} declined`}
+        />
+        <StatCard
+          label="Waitlist this week"
+          value={String(waitlistThisWeek)}
+          sub={waitlistLastWeek > 0 ? `${waitlistLastWeek} the week before` : 'no signups the week before'}
+        />
+        <StatCard
+          label="Café surveys this week"
+          value={String(cafeSurveysThisWeek)}
+          sub={`${cafeSurveysRaw.length} total`}
+        />
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
         <h2 style={{ fontSize: 20 }}>Café partner survey — {cafeSurveys.length}</h2>
