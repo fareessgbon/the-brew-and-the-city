@@ -333,9 +333,24 @@ body.mobile-menu-open {
   margin-bottom: 14px;
 }
 .hero h1 {
-  font-size: 56px;
   line-height: 1.05;
   letter-spacing: -0.02em;
+}
+/* Two-tier hero headline: a small italic lead-in, then the bold caps line —
+   mirrors the brewandthecity.com prelaunch teaser's hero treatment. Both
+   spans render from the same sentence, just split at the comma. */
+.hero-accent {
+  display: block;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 32px;
+  color: var(--sky-deep);
+  margin-bottom: 6px;
+}
+.hero-caps {
+  display: block;
+  font-size: 56px;
+  text-transform: uppercase;
 }
 .hero p.lede {
   font-size: 18px;
@@ -347,6 +362,26 @@ body.mobile-menu-open {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/* Hero doodle — small decorative bean character tucked at the bottom-right
+   of the quiz card, purely cosmetic (see HomeContent.tsx). */
+.hero-illustration {
+  position: relative;
+}
+.hero-doodle {
+  position: absolute;
+  right: -14px;
+  bottom: -40px;
+  width: 92px;
+  height: auto;
+  opacity: 0.85;
+  pointer-events: none;
+}
+@media (max-width: 860px) {
+  .hero-doodle {
+    display: none;
+  }
 }
 
 /* Quiz card */
@@ -1269,7 +1304,10 @@ footer {
   .forcafe-band {
     grid-template-columns: 1fr;
   }
-  .hero h1 {
+  .hero-accent {
+    font-size: 24px;
+  }
+  .hero-caps {
     font-size: 40px;
   }
   .how-grid {

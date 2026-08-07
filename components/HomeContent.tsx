@@ -11,7 +11,7 @@ import { useSession } from '@/components/nav/SessionProvider';
 
 const ANSWERED_DIMS: Dim[] = ['drink', 'energy'];
 
-export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
+export function HomeContent({ cafes, allVerified }: { cafes: HeroCafe[]; allVerified: boolean }) {
   const { loading, signedIn } = useSession();
   const showSignedIn = !loading && signedIn;
   const [userVector, setUserVector] = useState<TasteVector>(NEUTRAL_VECTOR);
@@ -46,7 +46,10 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
         <div className="wrap hero-grid">
           <div>
             <div className="label eyebrow">Calgary, Alberta · free during our launch trial</div>
-            <h1>Every good café in Calgary, matched to your taste.</h1>
+            <h1>
+              <span className="hero-accent">Every good café in Calgary,</span>
+              <span className="hero-caps">matched to your taste.</span>
+            </h1>
             <p className="lede">
               Coffee, matcha, tea — every good café in Calgary is in here. Google ranks them by review count. We
               match you to yours, the way a taste, not a star rating, actually works. Free, no subscription, ever.
@@ -67,15 +70,29 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
             </div>
           </div>
 
-          <HeroQuiz
-            cafes={cafes}
-            userVector={userVector}
-            answeredDims={answeredDims}
-            primaryDrinkCategory={primaryDrinkCategory}
-            onAnswer={handleAnswer}
-            onCategory={handleCategory}
-            onRetake={handleRetake}
-          />
+          <div className="hero-illustration">
+            <HeroQuiz
+              cafes={cafes}
+              userVector={userVector}
+              answeredDims={answeredDims}
+              primaryDrinkCategory={primaryDrinkCategory}
+              onAnswer={handleAnswer}
+              onCategory={handleCategory}
+              onRetake={handleRetake}
+            />
+            {/* Purely decorative — echoes the little line-art bean on the
+                prelaunch teaser's hero. Hidden from screen readers and
+                collapsed on narrow viewports (see .hero-doodle, globals.css). */}
+            <svg className="hero-doodle" viewBox="0 0 140 170" fill="none" aria-hidden="true">
+              <ellipse cx="70" cy="62" rx="40" ry="50" transform="rotate(-5 70 62)" stroke="var(--ceremony)" strokeWidth="3" />
+              <circle cx="58" cy="55" r="2.5" fill="var(--ceremony)" />
+              <circle cx="82" cy="55" r="2.5" fill="var(--ceremony)" />
+              <path d="M60 72 Q70 78 80 72" stroke="var(--ceremony)" strokeWidth="3" strokeLinecap="round" />
+              <path d="M55 108 Q45 130 38 138" stroke="var(--ceremony)" strokeWidth="3" strokeLinecap="round" />
+              <path d="M85 108 Q95 130 102 138" stroke="var(--ceremony)" strokeWidth="3" strokeLinecap="round" />
+              <path d="M8 152 q6 -9 12 0 q6 9 12 0" stroke="var(--whisk)" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+          </div>
         </div>
       </section>
 
@@ -83,11 +100,13 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
 
       <section id="cafeslist">
         <div className="wrap">
-          <div className="section-eyebrow label">Calgary&apos;s scene · sample data for this demo</div>
+          <div className="section-eyebrow label">Calgary&apos;s scene{allVerified ? '' : ' · sample data for this demo'}</div>
           <h2 className="section-title">Seeded from the ground up, one café at a time</h2>
           <p className="section-lede">
-            The café names below are real; the taste profiles behind them are placeholders for this demo, not a
-            real visit. Calgary&apos;s independent roasting scene is deep for a city this size — around ten serious
+            {allVerified
+              ? 'The café names below are real, and so are their taste profiles. '
+              : 'The café names below are real; the taste profiles behind them are placeholders for this demo, not a real visit. '}
+            Calgary&apos;s independent roasting scene is deep for a city this size — around ten serious
             roasters, several carrying international competition credentials — which is exactly the kind of city
             that argues about coffee and will actually use a matching app instead of a star rating. At launch, every
             café is visited and vectored in person — not scraped, not guessed (§22) — across roughly 60 cafés in six

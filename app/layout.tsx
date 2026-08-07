@@ -8,7 +8,9 @@ const fraunces = Fraunces({
   variable: '--font-fraunces',
   subsets: ['latin'],
   weight: ['400', '500', '600'],
-  style: ['normal'],
+  // Italic added for .hero-accent — the small "every good café," line above
+  // the hero's bold caps headline (see app/globals.css).
+  style: ['normal', 'italic'],
 });
 
 const zenKakuGothicNew = Zen_Kaku_Gothic_New({
