@@ -6,6 +6,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 export const metadata: Metadata = {
   title: 'Terms — Brew and the City',
   description: 'The terms for using the Brew and the City pre-launch site — the waitlist and the two surveys.',
+  alternates: { canonical: '/terms' },
 };
 
 // §0.4 — this site has no accounts, no matching, and no City Card, so the

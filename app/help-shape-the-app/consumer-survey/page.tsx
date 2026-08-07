@@ -6,6 +6,7 @@ import { ConsumerSurveyForm } from '@/components/ConsumerSurveyForm';
 export const metadata: Metadata = {
   title: 'Consumer Survey — Brew and the City',
   description: 'Five steps, about two minutes — tell us how you actually find and choose cafés.',
+  alternates: { canonical: '/help-shape-the-app/consumer-survey' },
 };
 
 export default function ConsumerSurveyPage() {

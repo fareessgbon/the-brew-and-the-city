@@ -6,6 +6,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 export const metadata: Metadata = {
   title: 'Help Shape the App — Brew and the City',
   description: "Two short surveys — for cafés and for coffee drinkers — that decide what we actually build.",
+  alternates: { canonical: '/help-shape-the-app' },
 };
 
 // §13.6 / §12.1a — reachable from a single nav link, no login, either

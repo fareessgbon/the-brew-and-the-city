@@ -1,9 +1,17 @@
+import type { Metadata } from 'next';
 import { DemoBanner } from '@/components/DemoBanner';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { HomeContent } from '@/components/HomeContent';
 import { createAdminClient } from '@/lib/supabase/server';
 import type { HeroCafe } from '@/components/HeroQuiz';
+
+// Title/description inherit from the root layout — this page only adds
+// the canonical, since '/' is the one URL every other page's internal
+// links (and search results) should collapse back to.
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 // Reads real seeded café data from the shared Supabase project — the same
 // data the full product will use — so the quiz above is a genuine preview,

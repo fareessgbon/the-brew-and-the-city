@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: 'For Cafés — Brew and the City',
   description:
     "Get discovered by customers who already match your café — real Match %, not a review count. The first 15 approved Calgary cafés also get full Partner access free for six months.",
+  alternates: { canonical: '/for-cafes' },
 };
 
 // §12.1a — "discovery is a timeline, not a features table": the free,
@@ -56,8 +57,12 @@ export default function ForCafesPage() {
 
           {/* Illustrative only — no real friend graph or matching exists yet at this stage (§12.1a). Placeholder
               café names, not real seeded ones — this is activity that hasn't happened, so it shouldn't look like
-              it happened at an actual Calgary business. */}
+              it happened at an actual Calgary business. The on-page label below says the same thing to a visitor,
+              not just to whoever reads this comment. */}
           <div className="ratio-box" style={{ alignSelf: 'start', background: 'transparent' }}>
+            <div style={{ fontSize: 11.5, color: 'var(--whisk)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Illustrative preview — not real activity, not real cafés
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
               {[
                 ['C', 'var(--sky-deep)', <>

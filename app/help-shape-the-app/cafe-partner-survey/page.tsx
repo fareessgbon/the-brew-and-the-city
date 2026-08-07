@@ -6,6 +6,7 @@ import { CafePartnerSurveyForm } from '@/components/CafePartnerSurveyForm';
 export const metadata: Metadata = {
   title: 'Café Partner Survey — Brew and the City',
   description: 'Seven steps, about three minutes — tell us what would make this worth it for your café.',
+  alternates: { canonical: '/help-shape-the-app/cafe-partner-survey' },
 };
 
 export default function CafePartnerSurveyPage() {

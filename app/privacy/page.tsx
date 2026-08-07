@@ -5,6 +5,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 export const metadata: Metadata = {
   title: 'Privacy Policy — Brew and the City',
   description: "What Brew and the City's pre-launch site collects, why, and how to have it removed.",
+  alternates: { canonical: '/privacy' },
 };
 
 // §0.4 — deliberately short. This site collects a waitlist email and two

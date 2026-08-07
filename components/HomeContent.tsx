@@ -92,6 +92,9 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
               <Link href="#how" className="btn btn-ghost">
                 See how matching works
               </Link>
+              <Link href="/for-cafes" className="btn btn-ghost">
+                For cafés: partner with us
+              </Link>
             </div>
           </div>
 
