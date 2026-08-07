@@ -87,6 +87,7 @@ export interface Database {
           created_at: string;
           status: SurveyStatus;
           admin_notes: string | null;
+          deleted_at: string | null;
         };
         Insert: {
           id?: string;
@@ -95,6 +96,7 @@ export interface Database {
           created_at?: string;
           status?: SurveyStatus;
           admin_notes?: string | null;
+          deleted_at?: string | null;
         };
         Update: {
           id?: string;
@@ -103,6 +105,7 @@ export interface Database {
           created_at?: string;
           status?: SurveyStatus;
           admin_notes?: string | null;
+          deleted_at?: string | null;
         };
         Relationships: [];
       };

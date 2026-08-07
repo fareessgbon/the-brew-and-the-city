@@ -46,3 +46,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   return NextResponse.json({ success: true });
 }
+
+// DELETE /api/admin/survey-responses/[id] — soft delete (migration 0024).
+// Sets deleted_at rather than removing the row; app/admin/page.tsx filters
+// deleted_at is null out of every list. Switched from a hard delete after
+// real submission data was lost during testing of this exact feature (see
+// chat) — there is no scenario where losing real applicant data is an
+// acceptable failure mode for a UI confirm click, no matter how that
+// click happened.
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!isAdminRequest(request)) {
+    return NextResponse.json({ error: 'Not authorized.' }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const admin = createAdminClient();
+  const { error } = await admin.from('survey_responses').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+
+  if (error) {
+    await logServerError('api.admin.survey-responses.delete', error, { id });
+    return NextResponse.json({ error: 'Something went wrong.' }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}

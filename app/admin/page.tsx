@@ -4,6 +4,7 @@ import { ADMIN_COOKIE_NAME, expectedAdminToken } from '@/lib/server/adminAuth';
 import { createAdminClient } from '@/lib/supabase/server';
 import { AdminLoginForm } from '@/components/AdminLoginForm';
 import { AdminSurveyStatus } from '@/components/AdminSurveyStatus';
+import { AdminDeleteButton } from '@/components/AdminDeleteButton';
 import type { SurveyStatus } from '@/lib/supabase/types';
 
 // noindex — this route exists, its content shouldn't; nothing here links
@@ -73,6 +74,9 @@ export default async function AdminPage() {
     admin
       .from('survey_responses')
       .select('id, survey, answers, created_at, status, admin_notes')
+      // Soft-deleted rows (migration 0024) never show here — deleted, not
+      // just hidden, from the admin's point of view.
+      .is('deleted_at', null)
       .order('created_at', { ascending: false }),
   ]);
 
@@ -154,8 +158,9 @@ export default async function AdminPage() {
         {cafeSurveys.length === 0 ? <p style={{ color: 'var(--whisk)', fontSize: 14 }}>None yet.</p> : null}
         {cafeSurveys.map((s) => (
           <div key={s.id} className="ratio-box" style={{ background: '#faf8f4' }}>
-            <div style={{ fontSize: 12, color: 'var(--whisk)', marginBottom: 8 }}>
-              {new Date(s.created_at).toLocaleString()}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+              <span style={{ fontSize: 12, color: 'var(--whisk)' }}>{new Date(s.created_at).toLocaleString()}</span>
+              <AdminDeleteButton id={s.id} label="café survey" />
             </div>
             <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13.5, fontFamily: 'var(--font-sans)', margin: 0 }}>
               {formatAnswers(s.answers as Record<string, unknown>)}
@@ -173,8 +178,9 @@ export default async function AdminPage() {
         {consumerSurveys.length === 0 ? <p style={{ color: 'var(--whisk)', fontSize: 14 }}>None yet.</p> : null}
         {consumerSurveys.map((s) => (
           <div key={s.id} className="ratio-box" style={{ background: '#faf8f4' }}>
-            <div style={{ fontSize: 12, color: 'var(--whisk)', marginBottom: 8 }}>
-              {new Date(s.created_at).toLocaleString()}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+              <span style={{ fontSize: 12, color: 'var(--whisk)' }}>{new Date(s.created_at).toLocaleString()}</span>
+              <AdminDeleteButton id={s.id} label="consumer survey" />
             </div>
             <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13.5, fontFamily: 'var(--font-sans)', margin: 0 }}>
               {formatAnswers(s.answers as Record<string, unknown>)}

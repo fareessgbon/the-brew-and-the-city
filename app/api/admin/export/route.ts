@@ -44,6 +44,7 @@ export async function GET(request: Request) {
       .from('survey_responses')
       .select('id, created_at, status, admin_notes, answers')
       .eq('survey', table)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
     const flattened = (data ?? []).map((row) => ({
       id: row.id,
