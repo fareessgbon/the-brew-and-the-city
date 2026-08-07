@@ -324,18 +324,57 @@ body.mobile-menu-open {
 }
 .hero-grid {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 48px;
+  /* Single column, not side-by-side — the stacked wordmark needs the
+     full wrap width to match the artifact's scale (see chat); the quiz
+     card stacks below it instead of sharing a row. */
+  grid-template-columns: 1fr;
+  gap: 40px;
   align-items: start;
 }
 .eyebrow {
   color: var(--whisk);
   margin-bottom: 14px;
 }
-.hero h1 {
-  font-size: 56px;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+/* Bold stacked-wordmark hero treatment, replacing the single-line h1 —
+   poster-scale Fraunces doing what a hero image usually would, per the
+   reference design pass (see chat). hero-copy is the positioning context
+   for hero-mascot below. */
+.hero-copy {
+  position: relative;
+}
+.hero-stack {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ceremony);
+  line-height: 0.94;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.hero-stack .line {
+  display: block;
+  font-size: clamp(52px, 9vw, 108px);
+}
+.hero-stack .line.small {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-style: italic;
+  font-size: clamp(22px, 3vw, 30px);
+  color: var(--whisk);
+  letter-spacing: 0;
+  margin-bottom: 2px;
+}
+.hero-mascot {
+  position: absolute;
+  right: 6%;
+  bottom: -6px;
+  width: clamp(90px, 13vw, 150px);
+  height: auto;
+  pointer-events: none;
+}
+@media (max-width: 720px) {
+  .hero-mascot {
+    display: none;
+  }
 }
 .hero p.lede {
   font-size: 18px;
@@ -347,6 +386,37 @@ body.mobile-menu-open {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+.hero-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 6px;
+}
+.feature-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.feature-item .num {
+  flex: 0 0 auto;
+  padding-top: 3px;
+}
+.feature-item h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+.feature-item p {
+  font-size: 13.5px;
+  color: var(--whisk);
+  margin: 0;
 }
 
 /* Quiz card */
@@ -1274,13 +1344,10 @@ footer {
   }
 }
 @media (max-width: 860px) {
-  .hero-grid,
+  .hero-secondary,
   .club-grid,
   .forcafe-band {
     grid-template-columns: 1fr;
-  }
-  .hero h1 {
-    font-size: 40px;
   }
   .how-grid {
     grid-template-columns: 1fr;

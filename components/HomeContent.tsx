@@ -7,6 +7,8 @@ import { mapsTestLine } from '@/lib/mapsTestLine';
 import { HeroQuiz, type HeroCafe } from '@/components/HeroQuiz';
 import { WaitlistForm } from '@/components/WaitlistForm';
 import { HowItWorksSection } from '@/components/HowItWorksSection';
+import { BeanMascot } from '@/components/BeanMascot';
+import { HeroFeatureList } from '@/components/HeroFeatureList';
 
 const ANSWERED_DIMS: Dim[] = ['drink', 'energy'];
 
@@ -66,9 +68,15 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
     <>
       <section className="hero">
         <div className="wrap hero-grid">
-          <div>
+          <div className="hero-copy">
             <div className="label eyebrow">Calgary, Alberta · coming soon</div>
-            <h1>Every good café in Calgary, matched to your taste.</h1>
+            <h1 className="hero-stack">
+              <span className="line small">every good café,</span>
+              <span className="line">MATCHED</span>
+              <span className="line">TO YOUR</span>
+              <span className="line">TASTE</span>
+            </h1>
+            <BeanMascot className="hero-mascot" />
             <p className="lede">
               Coffee, matcha, tea — every good café in Calgary will be in here. Google ranks them by review count. We
               match you to yours, the way taste, not a star rating, actually works. Try the quiz below — it&apos;s
@@ -84,15 +92,18 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
             </div>
           </div>
 
-          <HeroQuiz
-            cafes={cafes}
-            userVector={userVector}
-            answeredDims={answeredDims}
-            primaryDrinkCategory={primaryDrinkCategory}
-            onAnswer={handleAnswer}
-            onCategory={handleCategory}
-            onRetake={handleRetake}
-          />
+          <div className="hero-secondary">
+            <HeroFeatureList />
+            <HeroQuiz
+              cafes={cafes}
+              userVector={userVector}
+              answeredDims={answeredDims}
+              primaryDrinkCategory={primaryDrinkCategory}
+              onAnswer={handleAnswer}
+              onCategory={handleCategory}
+              onRetake={handleRetake}
+            />
+          </div>
         </div>
       </section>
 
