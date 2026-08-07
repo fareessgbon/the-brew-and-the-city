@@ -111,9 +111,15 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
 
       <section id="cafeslist">
         <div className="wrap">
-          <div className="section-eyebrow label">Calgary&apos;s scene · sample data for this preview</div>
-          <h2 className="section-title">Seeded from the ground up, one café at a time</h2>
-          <p className="section-lede">Real neighbourhoods, real cafés, placeholder taste profiles.</p>
+          <div className="section-eyebrow label">Calgary&apos;s scene · built cluster by cluster</div>
+          <h2 className="section-title">
+            Real neighbourhoods, seeded one café at a time — the first 15 join free.
+          </h2>
+          <p className="section-lede">
+            Every café shown here is a real Calgary business; taste profiles are placeholders until launch. We&apos;re
+            building this before asking any café to pay for it — the first 15 approved cafés join free for six
+            months.
+          </p>
           <div className="cafes-strip">
             {coreNeighbourhoods.map((area) => (
               <div className="cafe-chip" key={area}>
@@ -121,6 +127,9 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
               </div>
             ))}
           </div>
+          <Link href="/for-cafes" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 24 }}>
+            See partner details →
+          </Link>
         </div>
       </section>
 
@@ -158,22 +167,6 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
               </div>
               {sixthRoundLine ? <div className="maps-test-line" style={{ marginTop: 12 }}>{sixthRoundLine}</div> : null}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="cafes">
-        <div className="wrap">
-          <div className="forcafe-teaser">
-            <div className="section-eyebrow label">For cafés · Calgary launch cohort</div>
-            <h2 className="section-title">The first 15 Calgary cafés join free for six months.</h2>
-            <p className="section-lede">
-              We&apos;re building this before asking any café to pay for it. See the founding terms and tell us
-              you&apos;re interested.
-            </p>
-            <Link href="/for-cafes" className="btn btn-primary">
-              See partner details →
-            </Link>
           </div>
         </div>
       </section>
