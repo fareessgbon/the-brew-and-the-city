@@ -69,10 +69,10 @@ export default async function MapPage() {
 
           {mapCafes.length < (totalCafes ?? 0) ? (
             <div className="notice-box" style={{ marginBottom: 24 }}>
-              {mapCafes.length} of {totalCafes} cafés are match-ready right now (real coordinates, address,
-              neighbourhood, hours, and admin-verified) — incomplete ones are held back from recommendations rather
-              than shown without real proximity or hours. Finish a café&apos;s details in the admin dashboard to
-              bring it in.
+              {mapCafes.length} of {totalCafes}{' '}
+              cafés are match-ready right now (real coordinates, address, neighbourhood, hours, and admin-verified)
+              — incomplete ones are held back from recommendations rather than shown without real proximity or
+              hours. Finish a café&apos;s details in the admin dashboard to bring it in.
             </div>
           ) : null}
 

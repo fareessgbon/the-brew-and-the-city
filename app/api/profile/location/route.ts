@@ -48,13 +48,22 @@ export async function POST(request: Request) {
   // The location step is the true end of onboarding (quiz → requirements →
   // location) — reached here means the whole sequence is done, whether the
   // member shared real coordinates or explicitly skipped this step.
+  const { data: before } = await supabase.from('taste_profiles').select('onboarding_completed').eq('user_id', user.id).maybeSingle();
+  const wasAlreadyCompleted = !!before?.onboarding_completed;
+
   const { error } = await supabase.from('taste_profiles').update({ ...update, onboarding_completed: true }).eq('user_id', user.id);
   if (error) {
     await logServerError('api.profile.location', error, { userId: user.id, method }, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   await trackServerEvent('location_saved', user.id, { method });
+  // Only the real false -> true transition, not a re-visit to this step
+  // after onboarding was already finished — avoids double-counting the
+  // funnel metric if someone navigates back here later.
+  if (!wasAlreadyCompleted) {
+    await trackServerEvent('onboarding_completed', user.id, { locationMethod: method });
+  }
 
   return NextResponse.json({ success: true });
 }

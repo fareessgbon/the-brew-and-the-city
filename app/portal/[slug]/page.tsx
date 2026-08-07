@@ -15,7 +15,10 @@ export default async function PortalLoginPage({ params }: { params: Promise<{ sl
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    // 100dvh, not 100vh — iOS Safari's address bar makes 100vh taller than
+    // the actually-visible viewport, pushing this centered login screen
+    // partly out of view until the user scrolls.
+    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       {cafe.portal_pin ? (
         <PortalLoginForm slug={slug} cafeName={cafe.name} />
       ) : (

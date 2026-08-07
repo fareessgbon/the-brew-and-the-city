@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { hasPortalSession } from '@/lib/portalSession';
 import { logServerError } from '@/lib/server/logError';
+import { trackServerEvent } from '@/lib/server/trackEvent';
 import type { RewardItemCategory } from '@/lib/supabase/types';
 
 const CATEGORIES: RewardItemCategory[] = ['drink', 'pastry', 'food', 'other'];
@@ -45,8 +46,10 @@ export async function POST(request: Request) {
 
   if (error) {
     await logServerError('api.portal.reward-items.create', error, { cafeId });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
+
+  await trackServerEvent('reward_item_created', null, { cafeId, rewardItemId: item.id, source: 'cafe_portal' });
 
   return NextResponse.json({ item });
 }

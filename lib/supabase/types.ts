@@ -18,6 +18,7 @@ export type RewardItemCategory = 'drink' | 'pastry' | 'food' | 'other';
 export type PriceBand = '$' | '$$' | '$$$';
 export type PartnerLifecycleStatus = 'active' | 'paused' | 'downgraded' | 'cancelled';
 export type NoiseLevel = 'quiet' | 'moderate' | 'loud';
+export type OnboardingStatus = 'pending_portal_setup' | 'active';
 export type FeatureFlagKey =
   | 'matching_feed'
   | 'receipt_uploads'
@@ -71,6 +72,7 @@ export interface Database {
           primary_contact_email: string | null;
           marketing_deliverables_owed: string | null;
           partner_lifecycle_status: PartnerLifecycleStatus;
+          onboarding_status: OnboardingStatus;
           created_at: string;
           updated_at: string;
         };
@@ -113,6 +115,7 @@ export interface Database {
           primary_contact_email?: string | null;
           marketing_deliverables_owed?: string | null;
           partner_lifecycle_status?: PartnerLifecycleStatus;
+          onboarding_status?: OnboardingStatus;
           created_at?: string;
           updated_at?: string;
         };
@@ -155,6 +158,7 @@ export interface Database {
           primary_contact_email?: string | null;
           marketing_deliverables_owed?: string | null;
           partner_lifecycle_status?: PartnerLifecycleStatus;
+          onboarding_status?: OnboardingStatus;
           created_at?: string;
           updated_at?: string;
         };
@@ -483,6 +487,7 @@ export interface Database {
           neighbourhood: string;
           instagram: string | null;
           status: ApplicationStatus;
+          cafe_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -492,6 +497,7 @@ export interface Database {
           neighbourhood: string;
           instagram?: string | null;
           status?: ApplicationStatus;
+          cafe_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -501,9 +507,12 @@ export interface Database {
           neighbourhood?: string;
           instagram?: string | null;
           status?: ApplicationStatus;
+          cafe_id?: string | null;
           created_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          { foreignKeyName: 'partner_applications_cafe_id_fkey'; columns: ['cafe_id']; isOneToOne: false; referencedRelation: 'cafes'; referencedColumns: ['id'] },
+        ];
       };
       cafe_feedback: {
         Row: { id: string; user_id: string; cafe_id: string; feedback: 'not_it'; created_at: string };

@@ -20,7 +20,10 @@ export async function GET(request: Request) {
     if (!error) {
       const user = data.user;
       if (user && Date.now() - Date.parse(user.created_at) < NEW_ACCOUNT_WINDOW_MS) {
-        await trackServerEvent('account_created', user.id, { email: user.email });
+        // user_id alone is enough to look up the account if ever needed —
+        // no reason to duplicate the email address into the analytics
+        // properties blob as well (§12 — don't collect unnecessary PII).
+        await trackServerEvent('account_created', user.id);
       }
       return NextResponse.redirect(`${origin}${next}`);
     }

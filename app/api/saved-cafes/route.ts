@@ -19,7 +19,7 @@ export async function GET() {
 
   if (error) {
     await logServerError('api.saved-cafes.list', error, undefined, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
   return NextResponse.json({ saved: data });
 }
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   if (error) {
     if (error.code === '23505') return NextResponse.json({ success: true, alreadySaved: true });
     await logServerError('api.saved-cafes.create', error, { cafeId }, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   await trackServerEvent('cafe_saved', user.id, { cafeId });

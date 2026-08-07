@@ -55,7 +55,7 @@ export async function GET() {
 
   if (error) {
     await logServerError('api.cafes.list', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   return NextResponse.json({ cafes: data.map(toApiShape) });

@@ -1,9 +1,14 @@
-import type { AnalyticsEvent } from '@/lib/analyticsEvents';
+import type { ClientAnalyticsEvent } from '@/lib/analyticsEvents';
 
 // Fire-and-forget client-side tracking. Never throws, never awaited by
 // callers — an analytics call must not be able to break the UI flow it's
 // attached to.
-export function track(event: AnalyticsEvent, properties?: Record<string, unknown>) {
+//
+// Typed to ClientAnalyticsEvent, not the full catalog: server-only events
+// (portal_login_failed, reward_redeemed, reimbursement_marked_paid, …) are
+// rejected by the route anyway, so this makes that a compile error rather
+// than a silently-dropped event at runtime.
+export function track(event: ClientAnalyticsEvent, properties?: Record<string, unknown>) {
   if (typeof window === 'undefined') return;
   fetch('/api/analytics/track', {
     method: 'POST',

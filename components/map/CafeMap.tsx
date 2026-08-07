@@ -112,8 +112,7 @@ export function CafeMap({ cafes, userLocation }: CafeMapProps) {
         />
       ) : (
         <div className="notice-box" style={{ marginBottom: 20 }}>
-          No <code>NEXT_PUBLIC_MAPBOX_TOKEN</code> set — the interactive map can&apos;t render without a Mapbox
-          account/token, which only you can create. The list below still works.
+          The interactive map isn&apos;t available right now — here&apos;s the full list instead.
         </div>
       )}
 

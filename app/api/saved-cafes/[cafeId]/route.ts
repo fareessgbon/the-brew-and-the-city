@@ -17,7 +17,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   const { error } = await supabase.from('saved_cafes').delete().eq('user_id', user.id).eq('cafe_id', cafeId);
   if (error) {
     await logServerError('api.saved-cafes.delete', error, { cafeId }, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

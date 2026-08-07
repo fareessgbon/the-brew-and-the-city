@@ -8,8 +8,8 @@ export function HowItWorksSection({ id }: { id?: string } = {}) {
         <h2 className="section-title">We stopped ranking cafés. We started matching them.</h2>
         <p className="section-lede">
           Two people can both be right that a café is a 5 and a 2. Your taste profile — drink, energy, aesthetic,
-          pace, adventure, price, food — gets compared to every café&apos;s, need, flavour, distance, and friends, in
-          that order.
+          pace, adventure, price, food — gets compared to every café&apos;s, need, flavour, and distance, in that
+          order.
         </p>
         <div className="how-grid">
           <div className="how-card">
@@ -34,11 +34,6 @@ export function HowItWorksSection({ id }: { id?: string } = {}) {
               it fades gradually, faster in winter, so a 90% match across town doesn&apos;t quietly bury a 90% match
               next door.
             </p>
-          </div>
-          <div className="how-card">
-            <div className="label num">04 — Social Proof</div>
-            <h3>Friends with taste like yours</h3>
-            <p>Friends are weighted by taste similarity, not by friendship. Your friend with terrible taste doesn&apos;t move your matches.</p>
           </div>
         </div>
         <div className="firewall-banner">

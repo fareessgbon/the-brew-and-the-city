@@ -9,8 +9,13 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from('cafes')
-    .select('id, name, slug, neighbourhood, drink_score, energy_score, aesthetic_score, pace_score, adventure_score, price_score, food_score')
+    .select('id, name, slug, neighbourhood, verified_at, drink_score, energy_score, aesthetic_score, pace_score, adventure_score, price_score, food_score')
     .order('name');
+
+  // Drives the demo/placeholder disclaimers below — false (still show them)
+  // until every café currently listed here has actually been visited and
+  // verified in person, not just until any one of them has.
+  const allVerified = (data ?? []).length > 0 && (data ?? []).every((c) => c.verified_at !== null);
 
   const cafes: HeroCafe[] = (data ?? []).map((c) => ({
     id: c.id,
@@ -30,9 +35,9 @@ export default async function HomePage() {
 
   return (
     <>
-      <DemoBanner />
+      <DemoBanner show={!allVerified} />
       <SiteHeader />
-      <HomeContent cafes={cafes} />
+      <HomeContent cafes={cafes} allVerified={allVerified} />
       <SiteFooter />
     </>
   );

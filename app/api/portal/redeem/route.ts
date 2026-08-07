@@ -4,6 +4,18 @@ import { hasPortalSession } from '@/lib/portalSession';
 import { logServerError } from '@/lib/server/logError';
 import { trackServerEvent } from '@/lib/server/trackEvent';
 import { isFeatureEnabled } from '@/lib/server/featureFlags';
+import { checkRateLimit } from '@/lib/server/rateLimit';
+
+// Activation codes are 4 characters from a 33-character alphabet (~1.19M
+// combinations) and live for 10 minutes. Without a throttle, a café with a
+// valid portal session could guess at another member's pending code inside
+// that window and redeem real reward value at its own counter. Scoped per
+// café rather than per IP: the session, not the network path, is the thing
+// being abused. 20 failures per 10 minutes leaves honest mistyping alone
+// (staff read these codes aloud) while making a search of the space
+// hopeless.
+const MAX_FAILED_REDEMPTIONS = 20;
+const REDEEM_WINDOW_MS = 10 * 60 * 1000;
 
 // POST /api/portal/redeem — body: { cafeId: string, code: string }.
 // Redeems an active reward at whichever partner café the member walks into
@@ -31,7 +43,19 @@ export async function POST(request: Request) {
   // café B, matching §8.11's "redeeming café matches cafe_id" check.
   const { data: reward } = await admin.from('rewards').select('*').eq('code', code).eq('pending_cafe_id', cafeId).maybeSingle();
 
-  if (!reward) return NextResponse.json({ error: 'No reward found for that code at this café.' }, { status: 404 });
+  if (!reward) {
+    // Only wrong guesses consume budget — a café redeeming a hundred valid
+    // codes in a busy hour is never throttled.
+    const attempts = checkRateLimit(`redeem:${cafeId}`, MAX_FAILED_REDEMPTIONS, REDEEM_WINDOW_MS);
+    if (!attempts.allowed) {
+      await logServerError('api.portal.redeem.throttled', new Error('Too many failed redemption attempts'), { cafeId });
+      return NextResponse.json(
+        { error: 'Too many incorrect codes — please wait a few minutes and try again.' },
+        { status: 429 },
+      );
+    }
+    return NextResponse.json({ error: 'No reward found for that code at this café.' }, { status: 404 });
+  }
   if (reward.status === 'redeemed') {
     return NextResponse.json({ error: `Already redeemed${reward.redeemed_at ? ' on ' + new Date(reward.redeemed_at).toLocaleDateString('en-CA') : ''}.` }, { status: 409 });
   }
@@ -47,7 +71,7 @@ export async function POST(request: Request) {
 
   if (error) {
     await logServerError('api.portal.redeem', error, { cafeId, code });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   await trackServerEvent('reward_redeemed', reward.user_id, { rewardId: reward.id, cafeId });

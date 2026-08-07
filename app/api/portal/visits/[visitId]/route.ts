@@ -41,7 +41,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ vis
 
   if (error) {
     await logServerError('api.portal.visits.review', error, { visitId, action });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   await trackServerEvent(action === 'approve' ? 'receipt_approved' : 'receipt_rejected', visit.user_id, { visitId, cafeId: visit.cafe_id });

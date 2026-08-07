@@ -1,3 +1,5 @@
+import { cache } from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { after } from 'next/server';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -12,11 +14,42 @@ import { trackServerEvent } from '@/lib/server/trackEvent';
 import { DIMS } from '@/lib/matching';
 import { isOpenNow, type OpeningHours } from '@/lib/cafeHours';
 
+// cache()'d so generateMetadata and the page body share one query per
+// request instead of two — React dedupes calls with the same argument
+// within a single render pass.
+const getCafeBySlug = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase.from('cafes').select('*').eq('slug', slug).maybeSingle();
+  return data;
+});
+
+// Every café previously inherited the same site-wide title/description
+// regardless of which one was shared — a link to any café looked
+// identical in a text message or social preview. This gives each one its
+// own, so sharing a café's page actually names the café.
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const cafe = await getCafeBySlug(slug);
+  if (!cafe) return {};
+
+  const title = `${cafe.name} — Brew and the City`;
+  const description = cafe.neighbourhood
+    ? `${cafe.name} in ${cafe.neighbourhood}, Calgary — see your taste match and City Card rewards.`
+    : `${cafe.name} on Brew and the City — see your taste match and City Card rewards.`;
+
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: 'website' },
+    twitter: { card: 'summary', title, description },
+  };
+}
+
 export default async function CafeDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: cafe } = await supabase.from('cafes').select('*').eq('slug', slug).maybeSingle();
+  const cafe = await getCafeBySlug(slug);
   if (!cafe) notFound();
 
   const [{ data: menuItems }, { data: rewardItems }] = await Promise.all([

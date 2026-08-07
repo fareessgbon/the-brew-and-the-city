@@ -28,7 +28,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ it
 
   if (error) {
     await logServerError('api.portal.reward-items.update', error, { itemId });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
@@ -47,7 +47,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const { error } = await admin.from('reward_items').delete().eq('id', itemId);
   if (error) {
     await logServerError('api.portal.reward-items.delete', error, { itemId });
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

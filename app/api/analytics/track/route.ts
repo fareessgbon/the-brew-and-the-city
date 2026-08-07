@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { isAnalyticsEvent } from '@/lib/analyticsEvents';
+import { isClientAnalyticsEvent } from '@/lib/analyticsEvents';
 import { logServerError } from '@/lib/server/logError';
+import { checkRateLimit, clientIp } from '@/lib/server/rateLimit';
 
 const MAX_PROPERTIES_BYTES = 4096;
+const MAX_EVENTS_PER_MINUTE = 60;
 
 // POST /api/analytics/track — the only write path into analytics_events.
 // Not exposed via direct RLS insert (same reasoning as partner_applications
@@ -13,8 +15,23 @@ const MAX_PROPERTIES_BYTES = 4096;
 // (hero_quiz_completed, signup_requested before confirmation) are recorded
 // with a null user_id rather than rejected.
 export async function POST(request: Request) {
+  // Unauthenticated by design (hero_quiz_completed and signup_requested both
+  // fire before an account exists), so cap by IP to stop one client filling
+  // analytics_events. Best-effort — see lib/server/rateLimit.ts. 60/min is
+  // far above real usage; the busiest genuine screen fires ~2 events.
+  const limit = checkRateLimit(`analytics:${clientIp(request)}`, MAX_EVENTS_PER_MINUTE, 60_000);
+  if (!limit.allowed) {
+    // Same shape as the success path — a throttled analytics call must not
+    // look like a failure to the caller, which never reads this anyway.
+    return NextResponse.json({ success: true }, { status: 202 });
+  }
+
   const body = await request.json().catch(() => null);
-  if (!body || !isAnalyticsEvent(body.event)) {
+  // Validated against the *client-writable* subset, not the full catalog:
+  // accepting server-only events here let anyone forge portal-login failures
+  // (locking a café out of its portal) and money-adjacent partner metrics.
+  // See lib/analyticsEvents.ts.
+  if (!body || !isClientAnalyticsEvent(body.event)) {
     return NextResponse.json({ error: 'Unknown event.' }, { status: 400 });
   }
 

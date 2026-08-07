@@ -107,7 +107,7 @@ export async function POST(request: Request) {
   const { error } = await supabase.from('taste_profiles').update(update).eq('user_id', user.id);
   if (error) {
     await logServerError('api.profile.preferences', error, { userId: user.id, update }, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   if (locationMethod) {

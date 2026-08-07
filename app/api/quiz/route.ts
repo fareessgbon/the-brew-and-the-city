@@ -76,7 +76,7 @@ export async function POST(request: Request) {
 
   if (error) {
     await logServerError('api.quiz', error, { userId: user.id }, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   await trackServerEvent('full_quiz_completed', user.id, { answeredDims, radiusKm, worthTrip, primaryDrinkCategory });

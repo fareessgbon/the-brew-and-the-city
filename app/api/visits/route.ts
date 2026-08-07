@@ -8,6 +8,10 @@ import { isFeatureEnabled } from '@/lib/server/featureFlags';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
 const MAX_SIZE_BYTES = 8 * 1024 * 1024;
+// §3.1f — "cap uploads at 3/day per member". The per-café check below is
+// stricter but only within one café; without this a member could upload
+// once at each of 60 seeded cafés in a day and still be inside every limit.
+const MAX_UPLOADS_PER_DAY = 3;
 
 // POST /api/visits — multipart form: { receipt: File, cafeId: string }.
 // Creates a pending visit for café-portal (or admin) review. Two duplicate
@@ -58,14 +62,20 @@ export async function POST(request: Request) {
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
-  const { count: todayCount } = await admin
+  const { data: todayVisits } = await admin
     .from('visits')
-    .select('id', { count: 'exact', head: true })
+    .select('cafe_id')
     .eq('user_id', user.id)
-    .eq('cafe_id', cafeId)
     .gte('created_at', startOfDay.toISOString());
-  if ((todayCount ?? 0) > 0) {
+
+  if ((todayVisits ?? []).some((v) => v.cafe_id === cafeId)) {
     return NextResponse.json({ error: 'You’ve already submitted a receipt for this café today.' }, { status: 429 });
+  }
+  if ((todayVisits ?? []).length >= MAX_UPLOADS_PER_DAY) {
+    return NextResponse.json(
+      { error: `You’ve reached today’s limit of ${MAX_UPLOADS_PER_DAY} receipts — try again tomorrow.` },
+      { status: 429 },
+    );
   }
 
   const path = `${user.id}/${randomUUID()}-${file.name}`;
@@ -114,7 +124,7 @@ export async function GET() {
 
   if (error) {
     await logServerError('api.visits.list', error, undefined, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   return NextResponse.json({ visits: data });

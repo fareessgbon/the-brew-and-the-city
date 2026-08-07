@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
   if (error) {
     await logServerError('api.feedback.not-it', error, { cafeId }, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   await trackServerEvent('not_it_submitted', user.id, { cafeId });
@@ -55,7 +55,7 @@ export async function DELETE(request: Request) {
 
   if (error) {
     await logServerError('api.feedback.not-it.undo', error, { cafeId }, user.id);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 
   await trackServerEvent('not_it_undone', user.id, { cafeId });
