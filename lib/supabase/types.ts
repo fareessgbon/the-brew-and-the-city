@@ -6,6 +6,9 @@
 // tables this codebase never touches.
 
 export type SurveyType = 'cafe_partner' | 'consumer';
+// Admin review workflow (migration 0023) — see chat, "similar to the
+// launch site admin". Only exposed in the UI for cafe_partner rows.
+export type SurveyStatus = 'new' | 'contacted' | 'selected' | 'declined';
 
 export interface Database {
   public: {
@@ -82,18 +85,24 @@ export interface Database {
           survey: SurveyType;
           answers: Record<string, unknown>;
           created_at: string;
+          status: SurveyStatus;
+          admin_notes: string | null;
         };
         Insert: {
           id?: string;
           survey: SurveyType;
           answers: Record<string, unknown>;
           created_at?: string;
+          status?: SurveyStatus;
+          admin_notes?: string | null;
         };
         Update: {
           id?: string;
           survey?: SurveyType;
           answers?: Record<string, unknown>;
           created_at?: string;
+          status?: SurveyStatus;
+          admin_notes?: string | null;
         };
         Relationships: [];
       };

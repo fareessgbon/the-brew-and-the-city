@@ -26,3 +26,18 @@ export function verifyAdminPin(pin: string): boolean {
   const expected = process.env.ADMIN_PIN;
   return expected != null && pin === expected;
 }
+
+// Shared by every /api/admin/* route handler that isn't the login route
+// itself — reads the same cookie app/admin/page.tsx checks, so the review
+// workflow's mutating endpoints (status change, notes, CSV export) can't
+// be hit directly even by someone who knows the URL shape.
+export function isAdminRequest(request: Request): boolean {
+  const expected = expectedAdminToken();
+  if (!expected) return false;
+  const cookieHeader = request.headers.get('cookie') ?? '';
+  const match = cookieHeader
+    .split(';')
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${ADMIN_COOKIE_NAME}=`));
+  return match?.slice(ADMIN_COOKIE_NAME.length + 1) === expected;
+}
