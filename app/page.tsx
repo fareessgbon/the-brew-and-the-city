@@ -6,12 +6,11 @@ import { createAdminClient } from '@/lib/supabase/server';
 import type { HeroCafe } from '@/components/HeroQuiz';
 
 // Reads real seeded café data from the shared Supabase project — the same
-// data the full product will use — so the neighbourhood chips below are a
-// genuine preview of real coverage, not invented. createAdminClient()
-// rather than a session-bound client: this build has no user sessions at
-// all (cafes has a public read policy anyway; using the admin client here
-// is just consistent with everywhere else in this codebase, not a
-// privilege escalation).
+// data the full product will use — so the quiz above is a genuine preview,
+// not a fake. createAdminClient() rather than a session-bound client: this
+// build has no user sessions at all (cafes has a public read policy
+// anyway; using the admin client here is just consistent with everywhere
+// else in this codebase, not a privilege escalation).
 export default async function HomePage() {
   const supabase = createAdminClient();
   const { data } = await supabase

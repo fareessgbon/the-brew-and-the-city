@@ -327,13 +327,6 @@ export function CafePartnerSurveyForm() {
         )}
       </div>
       {status === 'error' ? <div className="cafe-form-success">{message}</div> : null}
-      {/* §0.4 — even one email field is personal information under Alberta's
-          PIPA; a one-paragraph notice is required before collecting it. */}
-      <div className="form-note" style={{ marginTop: 16 }}>
-        Your café name, contact info, and answers are stored to follow up about the Founding Partner cohort —
-        nothing else, no account. Ask us to delete it any time at{' '}
-        <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>.
-      </div>
     </form>
   );
 }

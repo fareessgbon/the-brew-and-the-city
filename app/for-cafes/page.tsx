@@ -124,89 +124,36 @@ export default function ForCafesPage() {
           </div>
           <div className="pricing-grid">
             <div className="price-card">
-              <div className="tier-name">Listed</div>
+              <div className="tier-name">Starter</div>
               <div className="tier-price">Free</div>
               <ul>
-                <li>Searchable map listing</li>
-                <li>Honest Match % — same rules as every paid café</li>
-                <li>Save, directions, and share from your profile</li>
+                <li>Matchable café listing</li>
+                <li>Real Match % for every customer</li>
+                <li>Profile — hours, photos</li>
               </ul>
             </div>
             <div className="price-card featured-tier">
-              <div className="tier-name">Founding Partner · first 15</div>
-              <div className="tier-price">Free · 6 mo</div>
-              <ul>
-                <li>Everything in Partner, free for six months</li>
-                <li>Founding badge, decal, and a permanent place on the Founding Partners page</li>
-                <li>A launch-week feature and an onboarding photo session</li>
-                <li>Direct input into the early roadmap</li>
-                <li>Then $49/month, locked for 24 months — never rises to $89</li>
-              </ul>
-            </div>
-            <div className="price-card">
               <div className="tier-name">Partner</div>
-              <div className="tier-price">$89/mo</div>
+              <div className="tier-price">Let&apos;s talk</div>
               <ul>
-                <li>Everything in Listed</li>
-                <li>Tagged menu — named drink recommendations, not just the café</li>
-                <li>City Card stamps, plus optional monthly reward redemption</li>
-                <li>Café Portal — weekly numbers, quarterly written insights</li>
-                <li>One guaranteed group feature per quarter</li>
+                <li>Everything in Starter</li>
+                <li>City Card participation</li>
+                <li>Café portal</li>
+                <li>Customer insights</li>
+                <li>Standard promotion — City Picks rotation, group content</li>
               </ul>
             </div>
             <div className="price-card">
-              <div className="tier-name">Featured · capped at 8</div>
-              <div className="tier-price">$189/mo</div>
+              <div className="tier-name">Premium · capped at 8</div>
+              <div className="tier-price">Let&apos;s talk</div>
               <ul>
                 <li>Everything in Partner</li>
-                <li>One dedicated post or reel monthly, plus a story series</li>
                 <li>Quarterly photo shoot, ~10 images, yours to keep</li>
+                <li>One dedicated Instagram post or reel monthly</li>
                 <li>Homepage placement, 1 week per quarter</li>
-                <li>Quarterly insight call and deeper aggregate analytics</li>
+                <li>Advanced insights — why people passed on you</li>
+                <li>Priority support and launch opportunities</li>
               </ul>
-            </div>
-          </div>
-          <p style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 12 }}>
-            Annual Partner and Featured plans get two months free ($890/yr and $1,890/yr).
-          </p>
-        </div>
-      </section>
-
-      <section style={{ padding: '8px 0 32px' }}>
-        <div className="wrap">
-          <div className="label" style={{ color: 'var(--whisk)', marginBottom: 8 }}>
-            What you&apos;d pay for this separately
-          </div>
-          <div className="pricing-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-            <div className="ratio-box">
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 14 }}>
-                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>
-                  <span>One local micro-influencer post</span>
-                  <span style={{ color: 'var(--whisk)' }}>$150–400 one-off</span>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>
-                  <span>A content photographer, half-day</span>
-                  <span style={{ color: 'var(--whisk)' }}>$300–600 one-off</span>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>
-                  <span>Meta ads, meaningful local reach</span>
-                  <span style={{ color: 'var(--whisk)' }}>$300–800/mo + someone to run it</span>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                  <span>A single loyalty-app SaaS seat</span>
-                  <span style={{ color: 'var(--whisk)' }}>$50–150/mo</span>
-                </li>
-              </ul>
-            </div>
-            <div className="round-card">
-              <div className="label">Brew and the City Partner</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, margin: '6px 0' }}>
-                $89/mo
-              </div>
-              <p style={{ fontSize: 13.5, color: 'var(--whisk)', margin: 0 }}>
-                Ongoing, plus a reward program you fund at roughly $4 per redemption — real customer taste
-                research isn&apos;t purchasable at any price, at any of the rates above.
-              </p>
             </div>
           </div>
         </div>
@@ -238,7 +185,7 @@ export default function ForCafesPage() {
                 <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', fontSize: 14.5 }}>
                   <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>Free for the first 15 approved cafés, 6 months</li>
                   <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>
-                    Then $49/month, locked for 24 months — or step down to a free Listed profile any time
+                    Pricing after that is worked out with you directly — reach out and we&apos;ll walk you through it
                   </li>
                   <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>No payment method required to say you&apos;re interested</li>
                   <li style={{ padding: '8px 0' }}>Nothing is binding yet — this page is the pitch, not the agreement</li>
@@ -249,18 +196,12 @@ export default function ForCafesPage() {
 
           <div className="section-eyebrow label">Included with Partner</div>
           <h2 style={{ fontSize: 26, marginBottom: 12 }}>The City Card — one card, every café, five visits.</h2>
-          <p style={{ fontSize: 15.5, color: 'var(--ink)', maxWidth: '68ch', marginBottom: 12 }}>
-            You choose the item — up to five, submitted by the 25th for the month ahead, changeable any time. You
-            choose the hours — protect your rush, fill Tuesday at 2pm. You set a monthly cap (10 redemptions is the
-            default), so this can never cost more than you decided. No POS integration, no new hardware — a receipt
-            and a PIN.
-          </p>
-          <p style={{ fontSize: 15.5, color: 'var(--ink)', maxWidth: '68ch', marginBottom: 32 }}>
-            Five paid visits — max two at any single café, so a completed card always crosses at least three
-            different partners — unlock one item from your list for the member, entirely free. During your six
-            founding months, you cover that item yourself, within the cap you set. Once you&apos;re on a paid plan,
-            we reimburse roughly $4 per redemption — an average of about $32.50 in real, paid visits for every $4 you
-            give away, an 8:1 ratio. Every redeemer already matched with you — not a random deal-hunter.
+          <p style={{ fontSize: 15.5, color: 'var(--ink)', maxWidth: '64ch', marginBottom: 32 }}>
+            One City Card works everywhere in the network — so customers who discover you show up ready to redeem,
+            not just browse. Five stamps (one drink each, max two at any café) unlock a free item, entirely on your
+            terms — you decide what, never a blanket &quot;anything on the menu.&quot; No POS, no hardware — just a
+            receipt and a PIN. You only pay out when someone redeems with you specifically; every other stamp on
+            their card was earned, and cost you nothing, elsewhere.
           </p>
 
           <div className="firewall-banner" style={{ marginBottom: 24 }}>

@@ -201,11 +201,6 @@ export function ConsumerSurveyForm() {
         )}
       </div>
       {status === 'error' ? <div className="cafe-form-success">{message}</div> : null}
-      {/* §0.4 — a one-paragraph notice before collecting anything, even here
-          where there's no email to tie the answers to. */}
-      <div className="form-note" style={{ marginTop: 16 }}>
-        Anonymous — no email, no account. Your answers are stored only to shape what gets built.
-      </div>
     </form>
   );
 }
