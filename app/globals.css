@@ -643,6 +643,20 @@ section {
   margin: 0;
 }
 
+/* Match the heading/lede width to the full .how-grid width (all 4 cards
+   combined), not a fixed ch value — .how-grid always spans 100% of the
+   container regardless of column count, so this holds at every breakpoint. */
+.how-section .section-title,
+.how-section .section-lede {
+  max-width: none;
+}
+/* Same treatment for the café-scene section: match the full width of
+   .cafes-strip below it instead of the fixed 20ch/56ch default. */
+#cafeslist .section-title,
+#cafeslist .section-lede {
+  max-width: none;
+}
+
 .firewall-banner {
   margin-top: 22px;
   background: var(--whisk-10);
@@ -778,9 +792,8 @@ section {
 
 .cafes-strip {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 8px;
 }
 .cafe-chip {
   flex: 0 0 auto;
@@ -791,13 +804,6 @@ section {
   font-weight: 600;
   color: var(--ceremony);
   border: 1px solid var(--whisk-10);
-}
-.cafe-chip span {
-  display: block;
-  font-weight: 400;
-  color: var(--whisk);
-  font-size: 12px;
-  margin-top: 2px;
 }
 
 .forcafe-teaser {

@@ -27,7 +27,10 @@ export default async function HomePage() {
     id: c.id,
     name: c.name,
     slug: c.slug,
-    area: c.neighbourhood ?? 'Calgary',
+    // Never fall back to the city name — a café with no neighbourhood set
+    // needs a real one filled in on its record, not a stand-in that reads
+    // as if "Calgary" were itself a neighbourhood.
+    area: c.neighbourhood ?? 'Neighbourhood TBD',
     vector: {
       drink: c.drink_score,
       energy: c.energy_score,

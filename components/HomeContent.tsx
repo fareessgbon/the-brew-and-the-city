@@ -10,6 +10,22 @@ import { HowItWorksSection } from '@/components/HowItWorksSection';
 
 const ANSWERED_DIMS: Dim[] = ['drink', 'energy'];
 
+// The strip shows the walkable core, once each — not one chip per café
+// (17 chips with heavy repeats) and not every neighbourhood a café happens
+// to be in (a few, like Parkhill or Springbank Hill, are real but outside
+// the six-cluster story the copy above tells). Order is deliberate, not
+// alphabetical.
+const CORE_NEIGHBOURHOODS = [
+  'Beltline',
+  'Downtown',
+  'Inglewood',
+  'Bridgeland',
+  'Chinatown',
+  'Mission',
+  'Kensington',
+  'Crescent Heights',
+];
+
 // The real, interactive quiz + matching engine, restored for the pre-launch
 // homepage so visitors get a genuine idea of what the product will do —
 // distinct from §0.4's own recommendation, per an explicit product
@@ -42,6 +58,9 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
     setAnsweredDims(ANSWERED_DIMS);
     setPrimaryDrinkCategory(null);
   }
+
+  const seededAreas = new Set(cafes.map((c) => c.area));
+  const coreNeighbourhoods = CORE_NEIGHBOURHOODS.filter((n) => seededAreas.has(n));
 
   return (
     <>
@@ -83,20 +102,11 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
         <div className="wrap">
           <div className="section-eyebrow label">Calgary&apos;s scene · sample data for this preview</div>
           <h2 className="section-title">Seeded from the ground up, one café at a time</h2>
-          <p className="section-lede">
-            The café names below are real; the taste profiles behind them are placeholders for this preview, not a
-            real visit. Calgary&apos;s independent roasting scene is deep for a city this size — around ten serious
-            roasters, several carrying international competition credentials — which is exactly the kind of city
-            that argues about coffee and will actually use a matching app instead of a star rating. At launch, every
-            café is visited and vectored in person — not scraped, not guessed — across roughly 60 cafés in six
-            walkable clusters: Beltline, Mission/17th Ave, Inglewood, Kensington, Bridgeland, and downtown Stephen
-            Ave. Every café gets listed for free; paying only unlocks promotion, never a better score.
-          </p>
+          <p className="section-lede">Real neighbourhoods, real cafés, placeholder taste profiles.</p>
           <div className="cafes-strip">
-            {cafes.map((c) => (
-              <div className="cafe-chip" key={c.id}>
-                {c.name}
-                <span>{c.area}</span>
+            {coreNeighbourhoods.map((area) => (
+              <div className="cafe-chip" key={area}>
+                {area}
               </div>
             ))}
           </div>

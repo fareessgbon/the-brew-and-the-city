@@ -2,7 +2,7 @@
 // /how-it-works page, so the two never drift out of sync.
 export function HowItWorksSection({ id }: { id?: string } = {}) {
   return (
-    <section id={id}>
+    <section id={id} className="how-section">
       <div className="wrap">
         <div className="section-eyebrow label">How it works</div>
         <h2 className="section-title">We stopped ranking cafés. We started matching them.</h2>
