@@ -974,10 +974,9 @@ section {
 
 .pricing-grid {
   display: grid;
-  /* 3 columns: Starter / Partner / Premium — was 4 when Founding Partner
-     had its own card here; that moved into the club-band section below
-     instead, so this stayed hardcoded to 4 and left an empty 4th column. */
-  grid-template-columns: repeat(3, 1fr);
+  /* 4 columns: Listed / Founding Partner / Partner / Featured, matching
+     spec v3.6's own comparison sheet (§3.1b.1a) exactly. */
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 40px 0 24px;
 }
@@ -1355,7 +1354,8 @@ footer {
 }
 
 @media (max-width: 980px) {
-  .how-grid {
+  .how-grid,
+  .pricing-grid {
     grid-template-columns: 1fr 1fr;
   }
 }

@@ -2,15 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { NEUTRAL_VECTOR, clampDim, type Dim, type PrimaryDrinkCategory, type TasteVector } from '@/lib/matching';
 import { mapsTestLine } from '@/lib/mapsTestLine';
-import { HeroQuiz, type HeroCafe } from '@/components/HeroQuiz';
+import type { HeroCafe } from '@/components/HeroQuiz';
 import { WaitlistForm } from '@/components/WaitlistForm';
 import { HowItWorksSection } from '@/components/HowItWorksSection';
-import { BeanMascot } from '@/components/BeanMascot';
-import { HeroFeatureList } from '@/components/HeroFeatureList';
-
-const ANSWERED_DIMS: Dim[] = ['drink', 'energy'];
 
 // The strip shows the walkable core, once each — not one chip per café
 // (17 chips with heavy repeats) and not every neighbourhood a café happens
@@ -31,16 +26,15 @@ const CORE_NEIGHBOURHOODS = [
   'Crescent Heights',
 ];
 
-// The real, interactive quiz + matching engine, restored for the pre-launch
-// homepage so visitors get a genuine idea of what the product will do —
-// distinct from §0.4's own recommendation, per an explicit product
-// decision (see chat). No account gets created anywhere in this flow: the
-// end state is the waitlist, not a real Supabase Auth sign-up — §0.4's "no
-// accounts, ever" is the one rule this build still holds to strictly.
+// §12.1a — "no live quiz here, and that's deliberate": a mini-quiz that
+// resolves to 'your top match' needs seeded cafés and a working scoring
+// function, and this phase has neither. An earlier version of this build
+// ran the real quiz anyway, on an explicit product decision that overrode
+// this same spec section — see chat for that decision and this one, which
+// reverses it back to spec. If this needs to flip again, HeroQuiz,
+// HeroFeatureList, BeanMascot, and lib/matching are all still here, just
+// unused from this file.
 export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
-  const [userVector, setUserVector] = useState<TasteVector>(NEUTRAL_VECTOR);
-  const [answeredDims, setAnsweredDims] = useState<readonly Dim[]>(ANSWERED_DIMS);
-  const [primaryDrinkCategory, setPrimaryDrinkCategory] = useState<PrimaryDrinkCategory | null>(null);
   const [sixthRoundLine, setSixthRoundLine] = useState('');
 
   useEffect(() => {
@@ -50,62 +44,31 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
     );
   }, []);
 
-  function handleAnswer(dim: Dim, delta: number) {
-    setUserVector((prev) => ({ ...prev, [dim]: clampDim(prev[dim] + delta) }));
-  }
-
-  function handleCategory(category: PrimaryDrinkCategory) {
-    setPrimaryDrinkCategory(category);
-  }
-
-  function handleRetake() {
-    setUserVector(NEUTRAL_VECTOR);
-    setAnsweredDims(ANSWERED_DIMS);
-    setPrimaryDrinkCategory(null);
-  }
-
   const seededAreas = new Set(cafes.map((c) => c.area));
   const coreNeighbourhoods = CORE_NEIGHBOURHOODS.filter((n) => seededAreas.has(n));
 
   return (
     <>
       <section className="hero">
-        <div className="wrap hero-grid">
-          <div className="hero-copy">
+        <div className="wrap">
+          <div className="hero-copy" style={{ maxWidth: 560 }}>
             <div className="label eyebrow">Calgary, Alberta · coming soon</div>
-            <h1 className="hero-stack">
-              <span className="line small">every good café,</span>
-              <span className="line">MATCHED</span>
-              <span className="line">TO YOUR</span>
-              <span className="line">TASTE</span>
+            <h1 style={{ fontSize: 44, lineHeight: 1.1, letterSpacing: '-0.02em', margin: '10px 0 0' }}>
+              Matched to your next favourite café, before Calgary finds it.
             </h1>
-            <BeanMascot className="hero-mascot" />
             <p className="lede">
-              Coffee, matcha, tea — every good café in Calgary will be in here. Google ranks them by review count. We
-              match you to yours, the way taste, not a star rating, actually works. Try the quiz below — it&apos;s
-              real.
+              Calgary has 60+ independent cafés. We&apos;re building a way to match you to yours — by taste, not by
+              review count.
             </p>
-            <div className="cta-row">
-              <Link href="#waitlist" className="btn btn-primary">
-                Join the waitlist
-              </Link>
+            <WaitlistForm />
+            <div className="cta-row" style={{ marginTop: 12 }}>
               <Link href="#how" className="btn btn-ghost">
                 See how matching works
               </Link>
+              <Link href="/for-cafes" className="btn btn-ghost">
+                Café owner? →
+              </Link>
             </div>
-          </div>
-
-          <div className="hero-secondary">
-            <HeroFeatureList />
-            <HeroQuiz
-              cafes={cafes}
-              userVector={userVector}
-              answeredDims={answeredDims}
-              primaryDrinkCategory={primaryDrinkCategory}
-              onAnswer={handleAnswer}
-              onCategory={handleCategory}
-              onRetake={handleRetake}
-            />
           </div>
         </div>
       </section>
