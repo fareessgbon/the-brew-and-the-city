@@ -91,16 +91,17 @@ export function AdminNotesField({ id, initialNotes }: { id: string; initialNotes
   }
 
   return (
-    <div style={{ marginTop: 10 }}>
+    <div className="admin-notes" style={{ marginTop: 10 }}>
       <textarea
         placeholder="Notes — e.g. why selected/declined, follow-up needed"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         onBlur={handleBlur}
         rows={2}
-        style={{ width: '100%', fontSize: 13 }}
       />
-      <span style={{ fontSize: 11.5, color: 'var(--whisk)' }}>
+      {/* Reserved height, so the row of cards doesn't jump when a save
+          status appears and clears again. */}
+      <span className="admin-notes-status" style={saved === 'error' ? { color: '#b3402a' } : undefined}>
         {saved === 'saving' ? 'Saving…' : saved === 'saved' ? 'Saved' : saved === 'error' ? 'Failed to save' : ''}
       </span>
     </div>

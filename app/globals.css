@@ -75,6 +75,13 @@ a {
   color: var(--ceremony);
 }
 .wrap {
+  /* width:100% is load-bearing, not redundant. <body> is a column flex
+     container, so .wrap is a flex item whose cross axis is horizontal —
+     and an `auto` cross-axis margin cancels the default `stretch`. Without
+     an explicit width the item falls back to fit-content, collapsing to
+     ~350px and never reaching max-width (which is why section headings
+     used to overflow into their Export buttons). */
+  width: 100%;
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 24px;
@@ -1401,6 +1408,256 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+/* ---------------------------------------------------------------------
+   Admin (/admin)
+
+   A back-office surface, not a marketing page: denser, flatter, and built
+   to be *worked* rather than read. It still uses the brand palette so it
+   doesn't feel like a different product, but it drops the editorial
+   flourishes (noise overlay contrast, large display type) that would slow
+   down scanning a queue.
+   --------------------------------------------------------------------- */
+
+.admin-page {
+  padding: 40px 24px 96px;
+  max-width: 1000px;
+}
+
+/* Title row + section headers share this: content left, actions right,
+   wrapping instead of overlapping when the row runs out of room. The old
+   markup used justify-content:space-between with no min-width:0, so a long
+   heading pushed straight through the Export button. */
+.admin-bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.admin-bar > :first-child {
+  min-width: 0;
+}
+
+/* Section heading: rule runs the full width, label sits on it. Gives each
+   block a hard start without another heavy font size in the hierarchy. */
+/* Overrides the global `section { padding: 72px 0 }`, which is tuned for
+   marketing-page breathing room and reads as dead space in a dense
+   back-office list. Spacing here comes from margin-top alone. */
+.admin-section {
+  padding: 0;
+  margin-top: 44px;
+}
+.admin-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--whisk-10);
+}
+.admin-section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.admin-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--whisk);
+  background: var(--whisk-10);
+  border-radius: 999px;
+  padding: 2px 8px;
+  flex: none;
+}
+
+/* Cards: a hairline instead of a fill. On cream-on-cream the old #faf8f4
+   box was nearly invisible; a border defines the edge at any scale. */
+.admin-card {
+  background: #fbf9f5;
+  border: 1px solid var(--whisk-10);
+  border-radius: 12px;
+  padding: 16px 18px;
+  transition: border-color 150ms;
+}
+.admin-card:hover {
+  border-color: rgba(107, 107, 99, 0.22);
+}
+
+/* Metric tiles. The founding-partner tile spans the full row above these —
+   it's the one number the whole queue is in service of. */
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.admin-metric-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ceremony);
+}
+.admin-metric-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--whisk);
+  margin-bottom: 8px;
+}
+.admin-metric-sub {
+  font-size: 12px;
+  color: var(--whisk);
+  margin-top: 6px;
+}
+
+/* Progress track — segmented into one notch per slot so "3 of 15" reads
+   as discrete partners you signed, which is how the goal is actually
+   counted, rather than a smooth percentage. */
+.admin-track {
+  display: flex;
+  gap: 3px;
+  margin-top: 14px;
+}
+.admin-track span {
+  flex: 1;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--whisk-10);
+}
+.admin-track span[data-filled='true'] {
+  background: var(--ceremony);
+}
+
+/* Disclosure for full answers. Marker is a rotating caret so the row reads
+   as expandable without the inconsistent native triangle. */
+.admin-details summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--whisk);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+.admin-details summary::-webkit-details-marker {
+  display: none;
+}
+.admin-details summary::before {
+  content: '›';
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1;
+  transition: transform 150ms;
+}
+.admin-details[open] summary::before {
+  transform: rotate(90deg);
+}
+.admin-details summary:hover {
+  color: var(--ceremony);
+}
+
+/* Answer rows: label column fixed so values line up down the card. */
+.admin-answers {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) 1fr;
+  gap: 7px 16px;
+  font-size: 13.5px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--whisk-10);
+}
+.admin-answers dt {
+  color: var(--whisk);
+}
+.admin-answers dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Notes field. This is the one thing on the card you actually write into,
+   and unstyled it rendered as bare placeholder text floating in the card —
+   indistinguishable from a caption. It gets a real input affordance, but
+   quiet until focused so a screen of cards doesn't read as a form. */
+.admin-notes textarea {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--whisk-10);
+  border-radius: 8px;
+  padding: 8px 10px;
+  resize: vertical;
+  transition:
+    border-color 150ms,
+    background 150ms;
+}
+.admin-notes textarea::placeholder {
+  color: var(--whisk);
+  opacity: 0.75;
+}
+.admin-notes textarea:hover {
+  border-color: rgba(107, 107, 99, 0.25);
+}
+.admin-notes textarea:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--ceremony);
+}
+.admin-notes-status {
+  font-size: 11.5px;
+  color: var(--whisk);
+  min-height: 15px;
+  display: block;
+  margin-top: 3px;
+}
+
+/* Waitlist rows — a list, so it gets list density, not card density. */
+.admin-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--whisk-10);
+}
+.admin-row:hover {
+  background: rgba(107, 107, 99, 0.035);
+}
+
+/* Empty states: say what will appear here, not just that nothing has. */
+.admin-empty {
+  border: 1px dashed var(--whisk-10);
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--whisk);
+}
+
+@media (max-width: 560px) {
+  .admin-answers {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+  .admin-answers dd {
+    margin-bottom: 8px;
+  }
+  .admin-row {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;

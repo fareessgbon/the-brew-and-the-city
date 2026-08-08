@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Fragment } from 'react';
 import { cookies } from 'next/headers';
 import { ADMIN_COOKIE_NAME, expectedAdminToken } from '@/lib/server/adminAuth';
 import { createAdminClient } from '@/lib/supabase/server';
@@ -104,7 +105,7 @@ function formatAnswerRows(
 
 function ExportLink({ table }: { table: string }) {
   return (
-    <a href={`/api/admin/export?table=${table}`} className="btn btn-ghost" style={{ fontSize: 12.5, padding: '4px 0' }}>
+    <a href={`/api/admin/export?table=${table}`} className="btn btn-ghost" style={{ fontSize: 12, padding: '6px 14px', flex: 'none' }}>
       Export CSV
     </a>
   );
@@ -115,15 +116,69 @@ function countSince(items: { created_at: string }[], daysAgo: number): number {
   return items.filter((i) => new Date(i.created_at).getTime() >= cutoff).length;
 }
 
+// "3h ago" scans in a way "8/7/2026, 9:15:57 PM" doesn't — on a queue the
+// only thing the timestamp answers is "how stale is this?". The exact
+// value stays in the title attribute for when the actual date matters.
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diff / 60_000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function Timestamp({ iso }: { iso: string }) {
+  return (
+    <span style={{ fontSize: 12, color: 'var(--whisk)' }} title={new Date(iso).toLocaleString()}>
+      {relativeTime(iso)}
+    </span>
+  );
+}
+
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="ratio-box" style={{ background: '#faf8f4' }}>
-      <div className="label" style={{ color: 'var(--whisk)', marginBottom: 6, fontSize: 11 }}>
-        {label}
-      </div>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 600 }}>{value}</div>
-      {sub ? <div style={{ fontSize: 12, color: 'var(--whisk)', marginTop: 4 }}>{sub}</div> : null}
+    <div className="admin-card">
+      <div className="admin-metric-label">{label}</div>
+      <div className="admin-metric-value">{value}</div>
+      {sub ? <div className="admin-metric-sub">{sub}</div> : null}
     </div>
+  );
+}
+
+function SectionHead({ title, count, table }: { title: string; count: number; table: string }) {
+  return (
+    <div className="admin-section-head">
+      <div className="admin-section-title">
+        <h2 style={{ fontSize: 19 }}>{title}</h2>
+        <span className="admin-count">{count}</span>
+      </div>
+      <ExportLink table={table} />
+    </div>
+  );
+}
+
+function EmptyState({ children }: { children: React.ReactNode }) {
+  return <div className="admin-empty">{children}</div>;
+}
+
+function AnswerList({ rows }: { rows: { key: string; label: string; value: string }[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <details className="admin-details" style={{ marginTop: 10 }}>
+      <summary>View full survey answers</summary>
+      <dl className="admin-answers">
+        {rows.map((row) => (
+          <Fragment key={row.key}>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </Fragment>
+        ))}
+      </dl>
+    </details>
   );
 }
 
@@ -160,176 +215,157 @@ export default async function AdminPage() {
   const waitlistLastWeek = countSince(waitlist ?? [], 14) - waitlistThisWeek;
   const cafeSurveysThisWeek = countSince(cafeSurveysRaw, 7);
 
-  return (
-    <div className="wrap" style={{ padding: '48px 24px 96px', maxWidth: 900 }}>
-      <div className="label eyebrow">Admin</div>
-      <h1 style={{ fontSize: 28, marginBottom: 8 }}>Submissions</h1>
-      <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 24 }}>
-        {(waitlist ?? []).length} waitlist · {cafeSurveys.length} café survey · {consumerSurveys.length} consumer survey
-      </p>
+  const slotsLeft = Math.max(0, FOUNDING_PARTNER_TARGET - statusCounts.selected);
+  const waitlistDelta = waitlistThisWeek - waitlistLastWeek;
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
-        <div className="ratio-box" style={{ background: '#faf8f4' }}>
-          <div className="label" style={{ color: 'var(--whisk)', marginBottom: 6, fontSize: 11 }}>
-            Founding Partner slots
+  return (
+    <div className="wrap admin-page">
+      <div className="admin-bar" style={{ marginBottom: 28 }}>
+        <div>
+          <div className="label eyebrow">Admin</div>
+          <h1 style={{ fontSize: 30, marginBottom: 6 }}>Submissions</h1>
+          <p style={{ fontSize: 13.5, color: 'var(--whisk)' }}>
+            {statusCounts.new > 0
+              ? `${statusCounts.new} café ${statusCounts.new === 1 ? 'survey needs' : 'surveys need'} a first look.`
+              : 'Nothing waiting on you — the café queue is triaged.'}
+          </p>
+        </div>
+      </div>
+
+      {/* The goal the whole queue serves, given its own row above the
+          supporting counts — everything below is in service of filling
+          these 15 slots (§3.0). */}
+      <div className="admin-card" style={{ marginBottom: 12 }}>
+        <div className="admin-bar">
+          <div>
+            <div className="admin-metric-label">Founding Partner slots</div>
+            <div className="admin-metric-value">
+              {statusCounts.selected}{' '}
+              <span style={{ fontSize: 20, color: 'var(--whisk)', fontWeight: 500 }}>/ {FOUNDING_PARTNER_TARGET}</span>
+            </div>
           </div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 600 }}>
-            {statusCounts.selected} / {FOUNDING_PARTNER_TARGET}
-          </div>
-          <div
-            style={{
-              height: 4,
-              borderRadius: 999,
-              background: 'var(--whisk-10)',
-              marginTop: 8,
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                height: '100%',
-                width: `${Math.min(100, (statusCounts.selected / FOUNDING_PARTNER_TARGET) * 100)}%`,
-                background: 'var(--ceremony)',
-              }}
-            />
+          <div style={{ fontSize: 12.5, color: 'var(--whisk)' }}>
+            {slotsLeft === 0 ? 'All slots filled' : `${slotsLeft} left to fill`}
           </div>
         </div>
+        <div className="admin-track" aria-hidden="true">
+          {Array.from({ length: FOUNDING_PARTNER_TARGET }, (_, i) => (
+            <span key={i} data-filled={i < statusCounts.selected} />
+          ))}
+        </div>
+      </div>
+
+      <div className="admin-metrics">
         <StatCard
           label="Café queue"
           value={String(statusCounts.new)}
-          sub={`new · ${statusCounts.contacted} contacted · ${statusCounts.declined} declined`}
+          sub={`awaiting review · ${statusCounts.contacted} contacted · ${statusCounts.declined} declined`}
         />
         <StatCard
           label="Waitlist this week"
           value={String(waitlistThisWeek)}
-          sub={waitlistLastWeek > 0 ? `${waitlistLastWeek} the week before` : 'no signups the week before'}
+          sub={
+            waitlistLastWeek === 0
+              ? 'no signups the week before'
+              : `${waitlistDelta >= 0 ? '+' : ''}${waitlistDelta} vs ${waitlistLastWeek} the week before`
+          }
         />
         <StatCard
           label="Café surveys this week"
           value={String(cafeSurveysThisWeek)}
-          sub={`${cafeSurveysRaw.length} total`}
+          sub={`${cafeSurveysRaw.length} total all time`}
         />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-        <h2 style={{ fontSize: 20 }}>Café partner survey — {cafeSurveys.length}</h2>
-        <ExportLink table="cafe_partner" />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 40 }}>
-        {cafeSurveys.length === 0 ? <p style={{ color: 'var(--whisk)', fontSize: 14 }}>None yet.</p> : null}
-        {cafeSurveys.map((s) => {
+      <section className="admin-section">
+        <SectionHead title="Café partner survey" count={cafeSurveys.length} table="cafe_partner" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {cafeSurveys.length === 0 ? (
+            <EmptyState>No café has filled out the partner survey yet.</EmptyState>
+          ) : null}
+          {cafeSurveys.map((s) => {
           const answers = s.answers as Record<string, unknown>;
           const cafeName = typeof answers.cafeName === 'string' && answers.cafeName ? answers.cafeName : 'Unnamed café';
           const metaBits = [answers.contactName, answers.email, answers.cityArea]
             .filter((v): v is string => typeof v === 'string' && v.length > 0)
             .join(' · ');
           const detailRows = formatAnswerRows(answers, CAFE_FIELD_LABELS, CAFE_FIELD_ORDER, ['cafeName', 'contactName', 'email', 'cityArea']);
-          return (
-            <div key={s.id} className="ratio-box" style={{ background: '#faf8f4' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                <div>
-                  <h3 style={{ fontSize: 16, margin: 0 }}>{cafeName}</h3>
-                  {metaBits ? <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 2 }}>{metaBits}</div> : null}
+            return (
+              <div key={s.id} className="admin-card">
+                <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
+                  <div>
+                    <h3 style={{ fontSize: 16.5, margin: 0 }}>{cafeName}</h3>
+                    {metaBits ? (
+                      <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>{metaBits}</div>
+                    ) : null}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none' }}>
+                    <Timestamp iso={s.created_at} />
+                    <AdminStatusBadge id={s.id} initialStatus={s.status} />
+                  </div>
                 </div>
-                <AdminStatusBadge id={s.id} initialStatus={s.status} />
+                <AnswerList rows={detailRows} />
+                <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                  <AdminDeleteButton id={s.id} label="café survey" />
+                </div>
               </div>
-              <div style={{ fontSize: 11.5, color: 'var(--whisk)', margin: '6px 0 10px' }}>
-                {new Date(s.created_at).toLocaleString()}
-              </div>
-              {detailRows.length > 0 ? (
-                <details>
-                  <summary style={{ cursor: 'pointer', fontSize: 12.5, color: 'var(--whisk)' }}>
-                    View full survey answers
-                  </summary>
-                  <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    {detailRows.map((row) => (
-                      <div key={row.key} style={{ fontSize: 13.5 }}>
-                        <span style={{ color: 'var(--whisk)' }}>{row.label}: </span>
-                        {row.value}
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              ) : null}
-              <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                <AdminDeleteButton id={s.id} label="café survey" />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </section>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-        <h2 style={{ fontSize: 20 }}>Consumer survey — {consumerSurveys.length}</h2>
-        <ExportLink table="consumer" />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 40 }}>
-        {consumerSurveys.length === 0 ? <p style={{ color: 'var(--whisk)', fontSize: 14 }}>None yet.</p> : null}
-        {consumerSurveys.map((s) => {
-          const answers = s.answers as Record<string, unknown>;
-          const pricing = typeof answers.pricing === 'string' && answers.pricing ? answers.pricing : null;
-          const detailRows = formatAnswerRows(answers, CONSUMER_FIELD_LABELS, CONSUMER_FIELD_ORDER);
-          return (
-            <div key={s.id} className="ratio-box" style={{ background: '#faf8f4' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: 'var(--whisk)' }}>{new Date(s.created_at).toLocaleString()}</span>
-                {pricing ? (
-                  <span style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--ceremony)' }}>{pricing}</span>
-                ) : null}
-              </div>
-              {detailRows.length > 0 ? (
-                <details>
-                  <summary style={{ cursor: 'pointer', fontSize: 12.5, color: 'var(--whisk)' }}>
-                    View full survey answers
-                  </summary>
-                  <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    {detailRows.map((row) => (
-                      <div key={row.key} style={{ fontSize: 13.5 }}>
-                        <span style={{ color: 'var(--whisk)' }}>{row.label}: </span>
-                        {row.value}
+      <section className="admin-section">
+        <SectionHead title="Consumer survey" count={consumerSurveys.length} table="consumer" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {consumerSurveys.length === 0 ? (
+            <EmptyState>No consumer survey responses yet.</EmptyState>
+          ) : null}
+          {consumerSurveys.map((s) => {
+            const answers = s.answers as Record<string, unknown>;
+            const pricing = typeof answers.pricing === 'string' && answers.pricing ? answers.pricing : null;
+            const detailRows = formatAnswerRows(answers, CONSUMER_FIELD_LABELS, CONSUMER_FIELD_ORDER);
+            return (
+              <div key={s.id} className="admin-card">
+                <div className="admin-bar">
+                  {/* Price expectation leads — it's the one answer with a
+                      number attached, and the reason this survey exists. */}
+                  {pricing ? (
+                    <div>
+                      <div className="admin-metric-label" style={{ marginBottom: 3 }}>
+                        Would pay
                       </div>
-                    ))}
-                  </div>
-                </details>
-              ) : null}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                <AdminDeleteButton id={s.id} label="consumer survey" />
+                      <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--ceremony)' }}>{pricing}</div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 13.5, color: 'var(--whisk)' }}>No price given</div>
+                  )}
+                  <Timestamp iso={s.created_at} />
+                </div>
+                <AnswerList rows={detailRows} />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                  <AdminDeleteButton id={s.id} label="consumer survey" />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </section>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-        <h2 style={{ fontSize: 20 }}>Waitlist — {(waitlist ?? []).length}</h2>
-        <ExportLink table="waitlist" />
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {(waitlist ?? []).length === 0 ? <p style={{ color: 'var(--whisk)', fontSize: 14 }}>None yet.</p> : null}
-        {(waitlist ?? []).map((w) => (
-          <div
-            key={w.email}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontSize: 14,
-              padding: '8px 0',
-              borderBottom: '1px solid var(--whisk-10)',
-            }}
-          >
-            <span>{w.email}</span>
-            <span style={{ color: 'var(--whisk)' }}>{new Date(w.created_at).toLocaleString()}</span>
-          </div>
-        ))}
-      </div>
+      <section className="admin-section">
+        <SectionHead title="Waitlist" count={(waitlist ?? []).length} table="waitlist" />
+        <div>
+          {(waitlist ?? []).length === 0 ? (
+            <EmptyState>No one has joined the waitlist yet.</EmptyState>
+          ) : null}
+          {(waitlist ?? []).map((w) => (
+            <div key={w.email} className="admin-row">
+              <span style={{ overflowWrap: 'anywhere' }}>{w.email}</span>
+              <Timestamp iso={w.created_at} />
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
