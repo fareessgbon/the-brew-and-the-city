@@ -270,7 +270,15 @@ nav a:focus-visible,
   font-weight: 600;
   font-style: italic;
   font-size: clamp(22px, 3vw, 30px);
-  color: var(--sky-text);
+  /* Deliberate contrast exception, not an oversight — don't "fix" this to
+     --sky-text without asking. This is 1.75:1 on cream, under the 3:1 large
+     text minimum, and it was chosen on the look after seeing the accessible
+     alternatives side by side. It's survivable specifically here: the line
+     is decorative, and the h1 directly beneath carries the same message at
+     ~12:1, so nothing is only available in this colour. The 12px numerals
+     in .feature-item .num are NOT covered by that reasoning and stay on
+     --sky-text. */
+  color: var(--sky-deep);
   letter-spacing: 0;
   margin-bottom: 2px;
 }
@@ -282,7 +290,13 @@ nav a:focus-visible,
   height: auto;
   pointer-events: none;
 }
-@media (max-width: 720px) {
+/* Hidden below the wrap's own max-width, not at 720px. The mascot is
+   anchored to the right edge while the CTA row grows from the left, so
+   between about 721px and 1040px the two met and the bean sat on top of
+   "For cafés: partner with us" (measured: 60px of overlap at 723px). It
+   never blocked the click — pointer-events is none — it just covered the
+   label. Above 1080px there's ~40px of clearance, so that's the floor. */
+@media (max-width: 1080px) {
   .hero-mascot {
     display: none;
   }
