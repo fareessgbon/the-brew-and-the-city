@@ -173,32 +173,32 @@ nav a:not(.current):not(.btn):hover {
      (§12.1a). Tap targets are unaffected — the 44px min-height on nav a is
      what carries touch, not the font size. flex-wrap stays so anything
      narrower than ~340px still wraps instead of overflowing. */
+  /* Not sticky on phones. It fits in 103px now, but in an in-app browser —
+     Instagram's especially, which is where this traffic arrives — the
+     webview already pins its own bar at the top, and a second fixed strip
+     under it crowds an already short screen. Scrolls away here instead. */
+  header {
+    position: static;
+  }
+  /* Wordmark and nav both centred: with the nav on its own full-width row
+     the two are stacked, and a left-aligned pair under a centred banner
+     read as misaligned rather than deliberate. */
   header .wrap {
     flex-wrap: wrap;
     row-gap: 2px;
+    justify-content: center;
+  }
+  .logo {
+    align-items: center;
   }
   header nav {
     width: 100%;
     gap: 12px;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: center;
   }
   header nav a {
     font-size: 12px;
-  }
-}
-
-/* The nav needs 312px, and .wrap takes 48px in gutters, so one row survives
-   down to exactly 360px — every current phone (iPhone SE 2/3 at 375, most
-   Androids at 360+) clears it. Below that it wraps back to two rows and
-   159px, and sticky at that height would pin a fifth of an already small
-   screen, so there it scrolls away instead. Shrinking type further would
-   hold one row but lands near 10.5px, too small to be worth it for how rare
-   sub-360px screens now are. Breakpoint is 359, not a round number, because
-   360 itself still fits. */
-@media (max-width: 359px) {
-  header {
-    position: static;
   }
 }
 
