@@ -648,7 +648,13 @@ section {
   gap: 18px;
 }
 .how-card {
-  background: var(--paper-2);
+  /* White, not --paper-2. The darker cream fill made these read as a tinted
+     block on a cream page; white lifts each card off the background and is
+     the one surface on the site that does. The hairline keeps the edge
+     defined where a card meets a pale area rather than relying on the fill
+     alone. */
+  background: #fff;
+  border: 1px solid var(--whisk-10);
   border-radius: 16px;
   padding: 26px;
   position: relative;
