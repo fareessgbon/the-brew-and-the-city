@@ -50,10 +50,17 @@ export default function PrivacyPage() {
                 <th>What&apos;s collected</th>
                 <th>Why</th>
               </tr>
+              {/* Kept in step with components/WaitlistForm.tsx. The form
+                  gained an optional first name and go-to cafés (migration
+                  0025); "email address only" was true before that and is
+                  not any more, so this row has to say so. */}
               <tr>
                 <td>Waitlist (&ldquo;Join the list&rdquo;)</td>
-                <td>Email address only</td>
-                <td>To notify you when the product launches</td>
+                <td>
+                  Your email address, plus a first name and your go-to cafés if you choose to add them — both are
+                  optional and the list works without them
+                </td>
+                <td>To notify you when the product launches, and to know which cafés to have ready on day one</td>
               </tr>
               <tr>
                 <td>Café partner survey</td>
@@ -71,7 +78,7 @@ export default function PrivacyPage() {
 
           <h2>3. How long it&apos;s kept</h2>
           <p>
-            Waitlist emails and survey responses are kept until the product launches or, if it doesn&apos;t, no
+            Waitlist entries and survey responses are kept until the product launches or, if it doesn&apos;t, no
             longer than 12 months from submission — whichever comes first.
           </p>
 

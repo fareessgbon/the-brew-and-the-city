@@ -118,13 +118,18 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
       <section id="cafeslist">
         <div className="wrap">
           <div className="section-eyebrow label">Calgary&apos;s scene · built cluster by cluster</div>
+          {/* Deliberately says nothing about what cafés pay. The founding-
+              partner offer is a pitch to café owners and it lives on
+              /for-cafes, which is the page written for them; on the consumer
+              homepage it just puts the reader on the wrong side of the
+              product. Same section, framed around what a visitor gets. */}
           <h2 className="section-title">
-            Real neighbourhoods, seeded one café at a time — the first 15 join free.
+            Real neighbourhoods, seeded one café at a time.
           </h2>
           <p className="section-lede">
-            Every café shown here is a real Calgary business; taste profiles are placeholders until launch. We&apos;re
-            building this before asking any café to pay for it — the first 15 approved cafés join free for six
-            months.
+            Every café shown here is a real Calgary business; taste profiles are placeholders until launch.
+            We&apos;re building Calgary out cluster by cluster, so the map fills in the way people actually drink
+            coffee — by neighbourhood, not by whoever ranks highest.
           </p>
           <div className="cafes-strip">
             {coreNeighbourhoods.map((area) => (
@@ -185,9 +190,14 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
           <div className="signup-band">
             <div className="section-eyebrow label">Save your Taste</div>
             <h2>Join the list. Keep the matches you just saw.</h2>
+            {/* "Leave your email" was accurate when email was the only
+                field. The form now also asks for a name and go-to cafés, so
+                the invitation names the trade instead: tell us where you
+                already go, and those cafés are there when this opens. */}
             <p className="section-lede">
               This is a real preview of the matching engine, but there&apos;s no live product yet — no account, no
-              password. Leave your email and we&apos;ll notify you the moment it&apos;s ready.
+              password. Leave your email and we&apos;ll tell you the moment it&apos;s ready. Tell us where you
+              already drink and we&apos;ll make sure those cafés are in it.
             </p>
             <WaitlistForm />
           </div>

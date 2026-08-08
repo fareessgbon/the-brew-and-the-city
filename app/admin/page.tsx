@@ -193,7 +193,7 @@ export default async function AdminPage() {
 
   const admin = createAdminClient();
   const [{ data: waitlist }, { data: surveys }] = await Promise.all([
-    admin.from('waitlist').select('email, created_at').order('created_at', { ascending: false }),
+    admin.from('waitlist').select('email, name, go_to_cafes, created_at').order('created_at', { ascending: false }),
     admin
       .from('survey_responses')
       .select('id, survey, answers, created_at, status, admin_notes')
@@ -360,7 +360,17 @@ export default async function AdminPage() {
           ) : null}
           {(waitlist ?? []).map((w) => (
             <div key={w.email} className="admin-row">
-              <span style={{ overflowWrap: 'anywhere' }}>{w.email}</span>
+              <div style={{ minWidth: 0 }}>
+                <span style={{ overflowWrap: 'anywhere' }}>
+                  {w.name ? `${w.name} · ` : ''}
+                  {w.email}
+                </span>
+                {/* The reason the field exists — which cafés people name
+                    unprompted is the most actionable thing on this list. */}
+                {w.go_to_cafes ? (
+                  <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 2 }}>{w.go_to_cafes}</div>
+                ) : null}
+              </div>
               <Timestamp iso={w.created_at} />
             </div>
           ))}

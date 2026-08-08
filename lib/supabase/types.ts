@@ -62,19 +62,27 @@ export interface Database {
         Relationships: [];
       };
       waitlist: {
+        // name / go_to_cafes are nullable (migration 0025) — optional in
+        // the form, and rows created before that migration have neither.
         Row: {
           id: string;
           email: string;
+          name: string | null;
+          go_to_cafes: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           email: string;
+          name?: string | null;
+          go_to_cafes?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           email?: string;
+          name?: string | null;
+          go_to_cafes?: string | null;
           created_at?: string;
         };
         Relationships: [];

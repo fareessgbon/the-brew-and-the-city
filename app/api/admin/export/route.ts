@@ -36,7 +36,10 @@ export async function GET(request: Request) {
   let csv: string;
 
   if (table === 'waitlist') {
-    const { data } = await admin.from('waitlist').select('email, created_at').order('created_at', { ascending: false });
+    const { data } = await admin
+      .from('waitlist')
+      .select('email, name, go_to_cafes, created_at')
+      .order('created_at', { ascending: false });
     filename = 'waitlist.csv';
     csv = toCsv(data ?? []);
   } else if (table === 'cafe_partner' || table === 'consumer') {
