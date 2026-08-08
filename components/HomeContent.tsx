@@ -189,7 +189,7 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
         <div className="wrap">
           <div className="signup-band">
             <div className="section-eyebrow label">Save your Taste</div>
-            <h2>Join the list. Keep the matches you just saw.</h2>
+            <h2>We&apos;re building Brew and the City with café lovers. Join us at launch.</h2>
             {/* Kept short on purpose. The "no live product yet" disclosure
                 stays — it's the honest framing the whole preview rests on —
                 but everything around it is cut to the bone. */}

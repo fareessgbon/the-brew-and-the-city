@@ -964,9 +964,30 @@ section {
   text-align: center;
 }
 .signup-band h2 {
-  max-width: 26ch;
+  /* One line, so the 26ch cap that used to force a wrap is gone. The size
+     scales with the viewport so the line shrinks to fit rather than
+     breaking, and nowrap is applied only above the width where it actually
+     fits — on a phone this has to wrap, and forcing one line there would
+     push it out of the band. text-wrap: balance evens the lines out when it
+     does wrap. */
+  max-width: none;
   margin: 0 auto 14px;
   color: var(--ceremony-2);
+  /* Sized so the line always fits rather than being trusted to. This wording
+     runs ~32.4px of text per 1px of font-size; the band's inner width is
+     viewport − 144 (wrap padding plus band padding), capped at 936 once
+     .wrap reaches max-width. These values leave 74px of slack at the 860px
+     breakpoint and 93px at the widest, so the line never grazes the edge.
+     If the wording changes, re-measure — with a Range over the text node,
+     not the h2's own box, which is a full-width block and will always look
+     like it exactly fills the band. */
+  font-size: clamp(19px, 2.3vw, 26px);
+  text-wrap: balance;
+}
+@media (min-width: 860px) {
+  .signup-band h2 {
+    white-space: nowrap;
+  }
 }
 /* --whisk is the site's muted-text grey, but it was tuned against cream.
    On this band — now the full-strength blue — it measures 3.21:1, under the
