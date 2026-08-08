@@ -648,13 +648,12 @@ section {
   gap: 18px;
 }
 .how-card {
-  /* White, not --paper-2. The darker cream fill made these read as a tinted
-     block on a cream page; white lifts each card off the background and is
-     the one surface on the site that does. The hairline keeps the edge
-     defined where a card meets a pale area rather than relying on the fill
-     alone. */
-  background: #fff;
-  border: 1px solid var(--whisk-10);
+  /* Same surface as .quiz-card — off-white fill with a --paper-2 hairline.
+     Was --paper-2 as a fill, which read as a tinted block rather than a
+     card; matching the quiz means the two card surfaces on the homepage are
+     one material instead of three different creams. Keep these in step. */
+  background: #faf8f4;
+  border: 1px solid var(--paper-2);
   border-radius: 16px;
   padding: 26px;
   position: relative;
