@@ -973,15 +973,14 @@ section {
   max-width: none;
   margin: 0 auto 14px;
   color: var(--ceremony-2);
-  /* Sized so the line always fits rather than being trusted to. This wording
-     runs ~32.4px of text per 1px of font-size; the band's inner width is
-     viewport − 144 (wrap padding plus band padding), capped at 936 once
-     .wrap reaches max-width. These values leave 74px of slack at the 860px
-     breakpoint and 93px at the widest, so the line never grazes the edge.
+  /* Sized so the line always fits rather than being trusted to. The current
+     wording is short enough to carry full section-heading weight and still
+     hold one line; the band's inner width is viewport − 144 (wrap padding
+     plus band padding), capped at 936 once .wrap reaches max-width.
      If the wording changes, re-measure — with a Range over the text node,
      not the h2's own box, which is a full-width block and will always look
      like it exactly fills the band. */
-  font-size: clamp(19px, 2.3vw, 26px);
+  font-size: clamp(22px, 3vw, 34px);
   text-wrap: balance;
 }
 @media (min-width: 860px) {
