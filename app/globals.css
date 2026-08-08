@@ -2,7 +2,13 @@
 
 :root {
   --paper: #f4efe4;
-  --sky: #c6d8e6;
+  /* The site's one blue. Previously three: --sky (#c6d8e6) for background
+     fields, --sky-deep (#9dbbd0) for marks, and briefly --sky-text
+     (#395f7d) for type that had to clear contrast minimums. Collapsed to
+     the hero's blue on request, so fields, marks and accents are all the
+     same colour. Where it carries small type the contrast cost is noted at
+     the rule itself. */
+  --sky: #9dbbd0;
   --ceremony: #3a2c24;
   /* Darkened from #6b6b63: at that value, muted text on --paper-2 measured
      4.24:1, just under the 4.5:1 minimum for body copy. This clears it at
@@ -11,12 +17,6 @@
   --blush: #e8c4c0;
   --ink: #1a1a17;
   --paper-2: #ebe4d5;
-  --sky-deep: #9dbbd0;
-  /* --sky/--sky-deep are fill-and-mark colours; against cream they measure
-     1.75:1, which is unreadable as text. This is the text-weight member of
-     the same blue family — 5.9:1 on --paper, 5.3:1 on --paper-2 — so the
-     accent can appear in type without going invisible in bright light. */
-  --sky-text: #395f7d;
   --ceremony-2: #241a15;
   --whisk-10: rgba(107, 107, 99, 0.1);
 
@@ -34,8 +34,6 @@
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
   --color-sky: var(--sky);
-  --color-sky-deep: var(--sky-deep);
-  --color-sky-text: var(--sky-text);
   --color-ceremony: var(--ceremony);
   --color-ceremony-2: var(--ceremony-2);
   --color-whisk: var(--whisk);
@@ -270,15 +268,13 @@ nav a:focus-visible,
   font-weight: 600;
   font-style: italic;
   font-size: clamp(22px, 3vw, 30px);
-  /* Deliberate contrast exception, not an oversight — don't "fix" this to
-     --sky-text without asking. This is 1.75:1 on cream, under the 3:1 large
-     text minimum, and it was chosen on the look after seeing the accessible
-     alternatives side by side. It's survivable specifically here: the line
-     is decorative, and the h1 directly beneath carries the same message at
-     ~12:1, so nothing is only available in this colour. The 12px numerals
-     in .feature-item .num are NOT covered by that reasoning and stay on
-     --sky-text. */
-  color: var(--sky-deep);
+  /* Deliberate contrast exception, not an oversight — don't darken this
+     without asking. 1.75:1 on cream, under the 3:1 large-text minimum, and
+     chosen on the look after seeing the accessible alternatives side by
+     side. Survivable specifically here: the line is decorative, and the h1
+     directly beneath carries the same message at ~12:1, so nothing is only
+     available in this colour. */
+  color: var(--sky);
   letter-spacing: 0;
   margin-bottom: 2px;
 }
@@ -332,7 +328,12 @@ nav a:focus-visible,
 .feature-item .num {
   flex: 0 0 auto;
   padding-top: 3px;
-  color: var(--sky-text);
+  /* Same blue as the hero line above it, on request — one accent blue
+     across the site. At 12px that's 1.75:1 against cream, below the 4.5:1
+     minimum for small text, so these numerals are decorative ordinals only:
+     the heading beside each one carries the meaning. Don't move content
+     into this colour. */
+  color: var(--sky);
 }
 .feature-item h2 {
   font-family: var(--font-display);
@@ -639,101 +640,35 @@ section {
   margin-bottom: 40px;
 }
 
-/* Sequential, not a 4-across grid. The copy says these four factors apply
-   "in that order" and that "need leads the score" — but four equal cards in
-   a row state the opposite, that they're peers. A numbered rail reads as a
-   pipeline, which is what the scoring actually is, and it gives each step
-   full measure instead of a 25%-width column that forced 14.5px text into
-   six-word lines. */
 .how-grid {
-  display: flex;
-  flex-direction: column;
-  margin-top: 8px;
-  list-style: none;
-  padding: 0;
+  display: grid;
+  /* 4 columns: components/HowItWorksSection.tsx has 4 cards — context fit,
+     taste fit, proximity, and social proof. Was 3 (no social-proof card
+     existed yet) — trailing 4th card wrapped onto its own row until this
+     was updated to match. */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
 }
 .how-card {
+  background: var(--paper-2);
+  border-radius: 16px;
+  padding: 26px;
   position: relative;
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 0 24px;
-  padding: 22px 0 26px 0;
-  align-items: start;
-}
-.how-kicker {
-  grid-column: 2;
-  font-size: 11px;
-  color: var(--whisk);
-  margin-bottom: 2px;
-}
-/* The rail: a line down the number column, drawn per step so it stops
-   cleanly at the last one instead of running into the banner below. */
-.how-card::before {
-  content: '';
-  position: absolute;
-  left: 19px;
-  top: 44px;
-  bottom: -4px;
-  width: 1px;
-  background: var(--whisk-10);
-}
-.how-card:last-child::before {
-  display: none;
 }
 .how-card .num {
-  grid-column: 1;
-  grid-row: 1 / span 3;
   font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--sky-text);
-  /* The step marker sits on the rail: a filled dot on paper, so the line
-     appears to thread through each number rather than pass behind it. */
-  width: 39px;
-  height: 39px;
-  border-radius: 999px;
-  border: 1px solid var(--whisk-10);
-  background: var(--paper);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--whisk);
 }
 .how-card h3 {
-  grid-column: 2;
-  font-size: 20px;
-  margin: 7px 0 6px;
+  font-size: 19px;
+  margin: 10px 0 8px;
   font-family: var(--font-display);
 }
 .how-card p {
-  grid-column: 2;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 14.5px;
   color: var(--ink);
-  max-width: 62ch;
   margin: 0;
-}
-@media (max-width: 560px) {
-  .how-card {
-    grid-template-columns: 44px 1fr;
-    gap: 0 14px;
-    padding: 18px 0 20px;
-  }
-  .how-card::before {
-    left: 15px;
-    top: 38px;
-  }
-  .how-card .num {
-    width: 31px;
-    height: 31px;
-    font-size: 11.5px;
-  }
-  .how-card h3 {
-    font-size: 18px;
-    margin: 4px 0 6px;
-  }
 }
 
 /* Match the heading/lede width to the full .how-grid width (all 4 cards
@@ -880,7 +815,7 @@ section {
   color: var(--ceremony-2);
   font-size: 10.5px;
   background-image: repeating-linear-gradient(45deg, var(--sky) 0 6px, var(--paper-2) 6px 12px);
-  border: 1.5px solid var(--sky-deep);
+  border: 1.5px solid var(--sky);
 }
 
 .cafes-strip {
@@ -896,7 +831,7 @@ section {
   font-size: 14px;
   font-weight: 600;
   color: var(--ceremony);
-  border: 1px solid var(--sky-deep);
+  border: 1px solid var(--sky);
 }
 
 .forcafe-band {
@@ -1030,10 +965,16 @@ section {
   margin: 0 auto 14px;
   color: var(--ceremony-2);
 }
-/* The default --whisk eyebrow lands on the blue field at 4.41:1, just shy
-   of 4.5. Everything else on this band is already --ceremony, so matching
-   it both fixes contrast (9.2:1) and reads as more deliberate. */
-.signup-band .section-eyebrow {
+/* --whisk is the site's muted-text grey, but it was tuned against cream.
+   On this band — now the full-strength blue — it measures 3.21:1, under the
+   4.5 minimum for small text. Everything else here is already --ceremony
+   (6.7:1 on the blue), so the secondary text joins it rather than inventing
+   a fourth grey. These read a touch stronger than muted text elsewhere,
+   which is correct on a colour field anyway. */
+.signup-band .section-eyebrow,
+.signup-band .waitlist-optional,
+.signup-band .waitlist-hint,
+.signup-band .form-note {
   color: var(--ceremony);
 }
 .signup-band .section-lede {
@@ -1081,7 +1022,7 @@ section {
   width: 100%;
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid var(--sky-deep);
+  border: 1px solid var(--sky);
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
@@ -1163,7 +1104,7 @@ section {
   flex: 1 1 200px;
   padding: 13px 16px;
   border-radius: 999px;
-  border: 1px solid var(--sky-deep);
+  border: 1px solid var(--sky);
   font-family: var(--font-sans);
   /* 16px, not 15 — iOS Safari auto-zooms the page on focus for any input
      below 16px, and this class covers login/signup/forgot/reset-password:

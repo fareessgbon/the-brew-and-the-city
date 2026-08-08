@@ -65,7 +65,7 @@ export default function ForCafesPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
               {[
-                ['C', 'var(--sky-deep)', <>
+                ['C', 'var(--sky)', <>
                   <strong>Carson</strong> just recommended <strong>The Roasted Fox</strong> to a friend
                 </>, '1h ago', 0],
                 ['D', 'var(--whisk)', <>
@@ -77,7 +77,7 @@ export default function ForCafesPage() {
                 ['Q', 'var(--blush)', <>
                   <strong>Quinn</strong> just got an 87% match to <strong>Corner Press Coffee</strong>
                 </>, '2 days ago', 28],
-                ['V', 'var(--sky-deep)', <>
+                ['V', 'var(--sky)', <>
                   <strong>Vanessa</strong> added <strong>The Roasted Fox</strong> to her City List
                 </>, '2 days ago', 0],
                 ['K', 'var(--whisk)', <>
