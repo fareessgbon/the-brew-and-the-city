@@ -4,7 +4,7 @@ import Link from 'next/link';
 // goes somewhere a visitor can act on without an account. "For Cafés" was
 // previously footer-only; added here too so the café pitch isn't a click
 // a café owner has to already know to look for.
-export function SiteHeader({ current }: { current?: 'for-cafes' | 'help-shape-the-app' }) {
+export function SiteHeader({ current }: { current?: 'for-cafes' | 'make-brew-better' }) {
   return (
     <header>
       <div className="wrap">
@@ -15,8 +15,8 @@ export function SiteHeader({ current }: { current?: 'for-cafes' | 'help-shape-th
           <Link href="/for-cafes" className={current === 'for-cafes' ? 'current' : undefined} aria-current={current === 'for-cafes' ? 'page' : undefined}>
             For Cafés
           </Link>
-          <Link href="/help-shape-the-app" className={current === 'help-shape-the-app' ? 'current' : undefined} aria-current={current === 'help-shape-the-app' ? 'page' : undefined}>
-            Help Shape the App
+          <Link href="/make-brew-better" className={current === 'make-brew-better' ? 'current' : undefined} aria-current={current === 'make-brew-better' ? 'page' : undefined}>
+            Make Brew Better
           </Link>
           <a href="https://instagram.com/brewandthecity" target="_blank" rel="noopener noreferrer">
             Catch Us on Instagram

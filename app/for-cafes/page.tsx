@@ -38,7 +38,7 @@ export default function ForCafesPage() {
               actually fits your café sees you. The first 15 approved cafés get full Partner access free for six
               months to prove it.
             </p>
-            <Link href="/help-shape-the-app/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 20 }}>
+            <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 20 }}>
               Tell us about your café
             </Link>
 
@@ -184,7 +184,7 @@ export default function ForCafesPage() {
                   <li>Locked founding pricing after launch — your rate won&apos;t rise later just because you joined early</li>
                   <li>No POS integration, no new hardware — a web page and a PIN</li>
                 </ul>
-                <Link href="/help-shape-the-app/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 8 }}>
+                <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 8 }}>
                   Tell us about your café
                 </Link>
               </div>
@@ -239,7 +239,7 @@ export default function ForCafesPage() {
               A five-minute survey — your name, café, and what you&apos;d actually want from something like this. No
               account, no obligation.
             </p>
-            <Link href="/help-shape-the-app/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
+            <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
               Take the café survey
             </Link>{' '}
             <span style={{ fontSize: 13.5, color: 'var(--whisk)' }}>

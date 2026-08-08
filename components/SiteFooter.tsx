@@ -12,7 +12,7 @@ export function SiteFooter() {
           </span>
         </Link>
         <div className="footer-links">
-          <Link href="/help-shape-the-app">Help Shape the App</Link>
+          <Link href="/make-brew-better">Make Brew Better</Link>
           <a href="https://instagram.com/brewandthecity" target="_blank" rel="noopener noreferrer">
             Catch Us on Instagram
           </a>

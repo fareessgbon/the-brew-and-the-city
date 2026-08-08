@@ -4,20 +4,20 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 
 export const metadata: Metadata = {
-  title: 'Help Shape the App — Brew and the City',
+  title: 'Make Brew Better — Brew and the City',
   description: "Two short surveys — for cafés and for coffee drinkers — that decide what we actually build.",
-  alternates: { canonical: '/help-shape-the-app' },
+  alternates: { canonical: '/make-brew-better' },
 };
 
 // §13.6 / §12.1a — reachable from a single nav link, no login, either
 // survey answerable in under 3 minutes.
-export default function HelpShapeTheAppPage() {
+export default function MakeBrewBetterPage() {
   return (
     <>
-      <SiteHeader current="help-shape-the-app" />
+      <SiteHeader current="make-brew-better" />
       <section style={{ padding: '56px 0' }}>
         <div className="wrap" style={{ maxWidth: 640 }}>
-          <div className="eyebrow label">Help shape the app</div>
+          <div className="eyebrow label">Make Brew Better</div>
           <h1 style={{ fontSize: 36, marginBottom: 12 }}>Before we build anything, we&apos;re asking.</h1>
           <p style={{ fontSize: 16, color: 'var(--ink)', marginBottom: 32, maxWidth: '56ch' }}>
             Two short surveys — one for café owners, one for coffee drinkers. Real answers here decide the
@@ -31,7 +31,7 @@ export default function HelpShapeTheAppPage() {
                 I own or run a café
               </div>
               <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 16 }}>7 steps, about 3 minutes.</p>
-              <Link href="/help-shape-the-app/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
+              <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
                 Take the café survey
               </Link>
             </div>
@@ -40,7 +40,7 @@ export default function HelpShapeTheAppPage() {
                 I drink coffee or matcha in Calgary
               </div>
               <p style={{ fontSize: 13.5, color: 'var(--whisk)', marginBottom: 16 }}>5 steps, about 2 minutes.</p>
-              <Link href="/help-shape-the-app/consumer-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
+              <Link href="/make-brew-better/consumer-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
                 Take the consumer survey
               </Link>
             </div>
