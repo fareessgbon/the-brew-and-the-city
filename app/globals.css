@@ -7,7 +7,7 @@
      added so small type could clear contrast minimums); they were collapsed
      into this on request. Anywhere it carries small type, the contrast cost
      is recorded at that rule. Do not add a second blue. */
-  --sky: #9dbbd0;
+  --sky: #c6d8e6;
   --ceremony: #3a2c24;
   /* Darkened from #6b6b63: at that value, muted text on --paper-2 measured
      4.24:1, just under the 4.5:1 minimum for body copy. This clears it at
@@ -268,11 +268,11 @@ nav a:focus-visible,
   font-style: italic;
   font-size: clamp(22px, 3vw, 30px);
   /* Deliberate contrast exception, not an oversight — don't darken this
-     without asking. 1.75:1 on cream, under the 3:1 large-text minimum, and
-     chosen on the look after seeing the accessible alternatives side by
-     side. Survivable specifically here: the line is decorative, and the h1
-     directly beneath carries the same message at ~12:1, so nothing is only
-     available in this colour. */
+     without asking. 1.28:1 on cream, well under the 3:1 large-text minimum,
+     and chosen on the look after seeing the accessible alternatives side by
+     side. Survivable only because the line is decorative and the h1 directly
+     beneath restates it at ~12:1 — nothing is available solely in this
+     colour. Treat it as ornament, never as the only carrier of meaning. */
   color: var(--sky);
   letter-spacing: 0;
   margin-bottom: 2px;
@@ -327,11 +327,10 @@ nav a:focus-visible,
 .feature-item .num {
   flex: 0 0 auto;
   padding-top: 3px;
-  /* Same blue as the hero line above it, on request — one accent blue
-     across the site. At 12px that's 1.75:1 against cream, below the 4.5:1
-     minimum for small text, so these numerals are decorative ordinals only:
-     the heading beside each one carries the meaning. Don't move content
-     into this colour. */
+  /* Same blue as the hero line above it — one accent blue across the site.
+     At 12px that's 1.28:1 against cream, far below the 4.5:1 minimum, so
+     these numerals are decorative ordinals only: the heading beside each
+     one carries the meaning. Don't move content into this colour. */
   color: var(--sky);
 }
 .feature-item h2 {
