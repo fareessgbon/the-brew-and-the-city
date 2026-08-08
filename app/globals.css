@@ -2,12 +2,11 @@
 
 :root {
   --paper: #f4efe4;
-  /* The site's one blue. Previously three: --sky (#c6d8e6) for background
-     fields, --sky-deep (#9dbbd0) for marks, and briefly --sky-text
-     (#395f7d) for type that had to clear contrast minimums. Collapsed to
-     the hero's blue on request, so fields, marks and accents are all the
-     same colour. Where it carries small type the contrast cost is noted at
-     the rule itself. */
+  /* The site's only blue — fields, marks and accents alike. There were
+     three (a pale background tint, this one for marks, and a dark variant
+     added so small type could clear contrast minimums); they were collapsed
+     into this on request. Anywhere it carries small type, the contrast cost
+     is recorded at that rule. Do not add a second blue. */
   --sky: #9dbbd0;
   --ceremony: #3a2c24;
   /* Darkened from #6b6b63: at that value, muted text on --paper-2 measured
@@ -20,13 +19,13 @@
   --ceremony-2: #241a15;
   --whisk-10: rgba(107, 107, 99, 0.1);
 
-  /* Drink-type ramp (§4.2) — small marks only (menu dots, filter chips,
-     award badges), never a background field or match-card color. */
-  --d-matcha: #7a9a5b;
-  --d-espresso: #6b4a32;
-  --d-filter: #b0703a;
-  --d-tea: #c2a25a;
-  --d-other: #93a0a8;
+  /* The drink-type ramp (§4.2) lived here — matcha/espresso/filter/tea/
+     other, for menu dots, filter chips and award badges. None of those
+     surfaces exist in the pre-launch build and all five tokens were unused,
+     including --d-other, a blue-grey that was the last colour in the file
+     competing with --sky. Removed rather than kept as a trap; the
+     full product's own stylesheet still defines the ramp for when those
+     components ship. */
 }
 
 /* Exposes the brand palette as Tailwind utilities: bg-paper, text-ceremony, etc. */
