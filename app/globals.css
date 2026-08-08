@@ -161,28 +161,44 @@ nav a:not(.current):not(.btn):hover {
    would be more chrome than it saves, so the nav drops to its own full
    width row beneath the wordmark and wraps if it needs to. */
 @media (max-width: 720px) {
-  /* Not sticky here. The three labels total ~327px of text, which is the
-     entire content width of a 375px phone, so the nav wraps to two rows and
-     the bar lands at ~164px tall. Pinned, that would hold a fifth of the
-     screen for the whole scroll; unpinned it costs that once, at the top,
-     and the footer repeats every destination anyway. Shortening the labels
-     would buy the single row back, but they're deliberate wording (§12.1a),
-     so the layout gives way instead of the copy. */
-  header {
-    position: static;
-  }
+  /* Nav drops to its own row under the wordmark and holds one line there.
+     At 13.5px the three labels plus gaps need 356px against the 327px a
+     375px phone actually has, so it wrapped to two rows and the bar stood
+     163px tall — a third of the screen gone before any content, with one
+     link orphaned on the second row. 12px text with 12px gaps needs 312px
+     and fits with 15px to spare, which brings the bar to roughly 100px.
+     Verified in a real 375px viewport, not by eye.
+
+     Type shrinks rather than the labels, because the wording is deliberate
+     (§12.1a). Tap targets are unaffected — the 44px min-height on nav a is
+     what carries touch, not the font size. flex-wrap stays so anything
+     narrower than ~340px still wraps instead of overflowing. */
   header .wrap {
     flex-wrap: wrap;
     row-gap: 2px;
   }
   header nav {
     width: 100%;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
     justify-content: flex-start;
   }
   header nav a {
-    font-size: 13.5px;
+    font-size: 12px;
+  }
+}
+
+/* The nav needs 312px, and .wrap takes 48px in gutters, so one row survives
+   down to exactly 360px — every current phone (iPhone SE 2/3 at 375, most
+   Androids at 360+) clears it. Below that it wraps back to two rows and
+   159px, and sticky at that height would pin a fifth of an already small
+   screen, so there it scrolls away instead. Shrinking type further would
+   hold one row but lands near 10.5px, too small to be worth it for how rare
+   sub-360px screens now are. Breakpoint is 359, not a round number, because
+   360 itself still fits. */
+@media (max-width: 359px) {
+  header {
+    position: static;
   }
 }
 
