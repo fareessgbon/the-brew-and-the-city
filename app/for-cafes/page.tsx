@@ -103,7 +103,10 @@ export default function ForCafesPage() {
                       height: 26,
                       borderRadius: '50%',
                       background: color as string,
-                      color: 'var(--ceremony)',
+                      // --whisk is the one dark swatch in this set, so the
+                      // default dark initial sat on it at 2.08:1. Light text
+                      // there instead (5.6:1); the rest stay dark-on-light.
+                      color: color === 'var(--whisk)' ? 'var(--paper)' : 'var(--ceremony)',
                       fontSize: 11,
                       fontWeight: 700,
                       display: 'flex',

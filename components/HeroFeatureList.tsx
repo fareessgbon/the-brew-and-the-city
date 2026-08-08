@@ -32,7 +32,10 @@ export function HeroFeatureList() {
         <div className="feature-item" key={f.num}>
           <div className="label num">{f.num}</div>
           <div>
-            <h3>{f.title}</h3>
+            {/* h2, not h3: these are the first headings after the page h1,
+                so h3 skipped a level and broke screen-reader outline order.
+                Styling is unchanged — .feature-item h2 carries it. */}
+            <h2>{f.title}</h2>
             <p>{f.body}</p>
           </div>
         </div>

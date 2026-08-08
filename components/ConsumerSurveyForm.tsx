@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { SurveyMultiSelect } from './SurveyMultiSelect';
+import { SurveyProgress } from './SurveyProgress';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -113,9 +114,7 @@ export function ConsumerSurveyForm() {
       // also uses.
       style={{ maxWidth: 640, background: '#faf8f4' }}
     >
-      <div className="quiz-progress">
-        Step {step + 1} of {STEP_TITLES.length}
-      </div>
+      <SurveyProgress step={step} total={STEP_TITLES.length} />
       <div className="label" style={{ margin: '10px 0' }}>
         {step + 1}. {STEP_TITLES[step]}
       </div>

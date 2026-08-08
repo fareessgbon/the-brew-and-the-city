@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { SurveyMultiSelect } from './SurveyMultiSelect';
+import { SurveyProgress } from './SurveyProgress';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -171,9 +172,7 @@ export function CafePartnerSurveyForm() {
       // class and wasn't part of this request.
       style={{ maxWidth: 640, background: '#faf8f4' }}
     >
-      <div className="quiz-progress">
-        Step {step + 1} of {STEP_TITLES.length}
-      </div>
+      <SurveyProgress step={step} total={STEP_TITLES.length} />
       <div className="label" style={{ margin: '10px 0' }}>
         {step + 1}. {STEP_TITLES[step]}
       </div>
@@ -183,21 +182,21 @@ export function CafePartnerSurveyForm() {
           <div className="field-row">
             <div>
               <label htmlFor="cafeName">Café name</label>
-              <input type="text" id="cafeName" name="cafeName" value={cafeName} onChange={(e) => setCafeName(e.target.value)} required />
+              <input type="text" id="cafeName" name="cafeName" autoComplete="organization" value={cafeName} onChange={(e) => setCafeName(e.target.value)} required />
             </div>
             <div>
               <label htmlFor="contactName">Contact name</label>
-              <input type="text" id="contactName" name="contactName" value={contactName} onChange={(e) => setContactName(e.target.value)} />
+              <input type="text" id="contactName" name="contactName" autoComplete="name" value={contactName} onChange={(e) => setContactName(e.target.value)} />
             </div>
           </div>
           <div className="field-row">
             <div>
               <label htmlFor="email">Email</label>
-              <input type="email" id="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <input type="email" id="email" name="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div>
               <label htmlFor="cityArea">City / area</label>
-              <input type="text" id="cityArea" name="cityArea" placeholder="e.g. Beltline, Calgary" value={cityArea} onChange={(e) => setCityArea(e.target.value)} />
+              <input type="text" id="cityArea" name="cityArea" autoComplete="address-level2" placeholder="e.g. Beltline, Calgary" value={cityArea} onChange={(e) => setCityArea(e.target.value)} />
             </div>
           </div>
           <div className="field-row" style={{ marginBottom: 16 }}>
@@ -207,6 +206,7 @@ export function CafePartnerSurveyForm() {
                 type="text"
                 id="instagramOrWebsite"
                 name="instagramOrWebsite"
+                autoComplete="url"
                 placeholder="@yourcafe"
                 value={instagramOrWebsite}
                 onChange={(e) => setInstagramOrWebsite(e.target.value)}

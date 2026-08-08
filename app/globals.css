@@ -4,11 +4,19 @@
   --paper: #f4efe4;
   --sky: #c6d8e6;
   --ceremony: #3a2c24;
-  --whisk: #6b6b63;
+  /* Darkened from #6b6b63: at that value, muted text on --paper-2 measured
+     4.24:1, just under the 4.5:1 minimum for body copy. This clears it at
+     5.09:1 while staying the same warm grey. */
+  --whisk: #5f5f57;
   --blush: #e8c4c0;
   --ink: #1a1a17;
   --paper-2: #ebe4d5;
   --sky-deep: #9dbbd0;
+  /* --sky/--sky-deep are fill-and-mark colours; against cream they measure
+     1.75:1, which is unreadable as text. This is the text-weight member of
+     the same blue family — 5.9:1 on --paper, 5.3:1 on --paper-2 — so the
+     accent can appear in type without going invisible in bright light. */
+  --sky-text: #395f7d;
   --ceremony-2: #241a15;
   --whisk-10: rgba(107, 107, 99, 0.1);
 
@@ -27,6 +35,7 @@
   --color-paper-2: var(--paper-2);
   --color-sky: var(--sky);
   --color-sky-deep: var(--sky-deep);
+  --color-sky-text: var(--sky-text);
   --color-ceremony: var(--ceremony);
   --color-ceremony-2: var(--ceremony-2);
   --color-whisk: var(--whisk);
@@ -100,14 +109,19 @@ header .wrap {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  /* Small, because nav links carry a 44px min-height for touch (below) and
+     that supplies most of the bar's height on its own. */
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 .logo {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   line-height: 1;
   text-decoration: none;
+  /* Same 44px touch floor as the nav links — it's the "go home" target. */
+  min-height: 44px;
 }
 .logo .en {
   font-family: var(--font-display);
@@ -131,6 +145,11 @@ nav a {
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
+  /* 14px text alone gives a ~21px hit box — fine with a cursor, awkward
+     with a thumb. This brings each link to the 44px touch minimum. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 nav a.current {
   color: var(--ceremony);
@@ -139,156 +158,41 @@ nav a.current {
 nav a:not(.current):not(.btn):hover {
   color: var(--ceremony);
 }
+/* Mobile header. There was previously no responsive rule for the primary
+   nav at all — wordmark plus three links held one flex row at every width,
+   which does not fit a phone. With only three destinations a hamburger
+   would be more chrome than it saves, so the nav drops to its own full
+   width row beneath the wordmark and wraps if it needs to. */
+@media (max-width: 720px) {
+  /* Not sticky here. The three labels total ~327px of text, which is the
+     entire content width of a 375px phone, so the nav wraps to two rows and
+     the bar lands at ~164px tall. Pinned, that would hold a fifth of the
+     screen for the whole scroll; unpinned it costs that once, at the top,
+     and the footer repeats every destination anyway. Shortening the labels
+     would buy the single row back, but they're deliberate wording (§12.1a),
+     so the layout gives way instead of the copy. */
+  header {
+    position: static;
+  }
+  header .wrap {
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  header nav {
+    width: 100%;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  header nav a {
+    font-size: 13.5px;
+  }
+}
+
 nav a:focus-visible,
 .btn:focus-visible {
   outline: 2px solid var(--ceremony);
   outline-offset: 2px;
-}
-.nav-loading {
-  width: 220px;
-  height: 20px;
-}
-
-/* Account menu (signed-in header dropdown) */
-.account-menu {
-  position: relative;
-}
-.account-menu-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink);
-  padding: 0;
-}
-.account-menu-caret {
-  font-size: 9px;
-  color: var(--whisk);
-}
-.account-menu-panel {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
-  min-width: 200px;
-  background: var(--paper);
-  border: 1px solid var(--whisk-10);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(26, 26, 23, 0.12);
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  z-index: 150;
-}
-.account-menu-panel a,
-.account-menu-panel button {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  text-decoration: none;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--ink);
-  padding: 9px 10px;
-  border-radius: 8px;
-}
-.account-menu-panel a:hover,
-.account-menu-panel button:hover,
-.account-menu-panel a:focus-visible,
-.account-menu-panel button:focus-visible {
-  background: var(--paper-2);
-  outline: none;
-}
-.account-menu-signout {
-  color: var(--error, #a8503f);
-  border-top: 1px solid var(--whisk-10);
-  margin-top: 4px;
-  padding-top: 12px;
-}
-
-/* Signed-out mobile hamburger */
-.mobile-menu-trigger {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-}
-.hamburger {
-  display: block;
-  width: 22px;
-  height: 16px;
-  position: relative;
-}
-.hamburger span {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--ceremony);
-  border-radius: 2px;
-  transition: transform 200ms, opacity 200ms;
-}
-.hamburger span:nth-child(1) {
-  top: 0;
-}
-.hamburger span:nth-child(2) {
-  top: 7px;
-}
-.hamburger span:nth-child(3) {
-  top: 14px;
-}
-.hamburger.open span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
-}
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger.open span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
-}
-.mobile-menu-scrim {
-  position: fixed;
-  inset: 0;
-  background: rgba(26, 26, 23, 0.3);
-  border: none;
-  padding: 0;
-  z-index: 190;
-  cursor: default;
-}
-.mobile-menu-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(300px, 84vw);
-  background: var(--paper);
-  z-index: 195;
-  padding: 80px 28px 28px;
-  box-shadow: -8px 0 24px rgba(26, 26, 23, 0.15);
-}
-.mobile-menu-panel nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: flex-start;
-}
-.mobile-menu-panel nav a {
-  width: 100%;
-  padding: 12px 4px;
-  font-size: 16px;
-  border-bottom: 1px solid var(--paper-2);
-}
-body.mobile-menu-open {
-  overflow: hidden;
 }
 
 .btn {
@@ -366,7 +270,7 @@ body.mobile-menu-open {
   font-weight: 600;
   font-style: italic;
   font-size: clamp(22px, 3vw, 30px);
-  color: var(--sky-deep);
+  color: var(--sky-text);
   letter-spacing: 0;
   margin-bottom: 2px;
 }
@@ -414,9 +318,9 @@ body.mobile-menu-open {
 .feature-item .num {
   flex: 0 0 auto;
   padding-top: 3px;
-  color: var(--sky-deep);
+  color: var(--sky-text);
 }
-.feature-item h3 {
+.feature-item h2 {
   font-family: var(--font-display);
   font-size: 18px;
   margin: 0 0 4px;
@@ -472,6 +376,27 @@ body.mobile-menu-open {
   text-align: center;
   margin-top: 18px;
   letter-spacing: 0.08em;
+}
+
+/* Visual progress for the multi-step surveys. "Step 1 of 7" as bare text
+   makes people estimate remaining effort from a sentence; a filled track
+   answers it at a glance, which is the cheapest lever on completion rate
+   for a form this long. Rendered from data-step/data-total so it stays in
+   sync with whatever the form reports. */
+.quiz-progress-track {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.quiz-progress-track span {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--whisk-10);
+  transition: background 200ms;
+}
+.quiz-progress-track span[data-done='true'] {
+  background: var(--ceremony);
 }
 .quiz-q {
   text-align: center;
@@ -674,7 +599,15 @@ body.mobile-menu-open {
 
 /* Sections */
 section {
-  padding: 72px 0;
+  padding: 64px 0;
+}
+/* 72px top and bottom stacked with each section's own heading margins into
+   voids big enough to read as "the page ended" mid-scroll. Tighter here,
+   and tighter again on phones where vertical space is the scarce axis. */
+@media (max-width: 720px) {
+  section {
+    padding: 44px 0;
+  }
 }
 .section-eyebrow {
   color: var(--whisk);
@@ -914,40 +847,6 @@ section {
   left: 0;
   color: var(--whisk);
 }
-.portal-mock {
-  background: var(--paper-2);
-  border-radius: 18px;
-  padding: 24px;
-  border: 1px solid var(--whisk-10);
-}
-.portal-mock .top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  color: var(--ceremony);
-  margin-bottom: 18px;
-}
-.portal-mock .scan {
-  background: var(--paper);
-  border: 2px dashed var(--whisk);
-  border-radius: 12px;
-  padding: 40px;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--whisk);
-  text-transform: uppercase;
-}
-.portal-mock .item {
-  margin-top: 18px;
-  font-size: 14px;
-}
-.portal-mock .item strong {
-  color: var(--ceremony);
-}
 
 .ratio-box {
   background: var(--paper-2);
@@ -1050,6 +949,12 @@ section {
   max-width: 26ch;
   margin: 0 auto 14px;
   color: var(--ceremony-2);
+}
+/* The default --whisk eyebrow lands on the blue field at 4.41:1, just shy
+   of 4.5. Everything else on this band is already --ceremony, so matching
+   it both fixes contrast (9.2:1) and reads as more deliberate. */
+.signup-band .section-eyebrow {
+  color: var(--ceremony);
 }
 .signup-band .section-lede {
   max-width: 46ch;
@@ -1203,25 +1108,6 @@ section {
   outline-offset: 2px;
 }
 
-.portal-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 28px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--paper-2);
-}
-.portal-nav a {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--whisk);
-  text-decoration: none;
-}
-.portal-nav a:hover,
-.portal-nav a:focus-visible {
-  color: var(--ceremony);
-}
-
 .demo-banner {
   background: var(--ceremony-2);
   color: var(--paper);
@@ -1231,47 +1117,6 @@ section {
 }
 .demo-banner strong {
   font-weight: 600;
-}
-
-/* Signed-in mobile bottom nav — fixed, mobile-only (see the 640px query
-   below). Pages get bottom padding via body.has-bottom-nav so the bar
-   never sits over page content or form controls. */
-.mobile-bottom-nav {
-  display: none;
-}
-body.has-bottom-nav {
-  padding-bottom: 64px;
-}
-@media (max-width: 640px) {
-  .mobile-bottom-nav {
-    display: flex;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 200;
-    background: var(--paper);
-    border-top: 1px solid var(--paper-2);
-    padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
-  }
-  .mobile-bottom-nav-item {
-    flex: 1;
-    text-align: center;
-    padding: 6px 2px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--whisk);
-    text-decoration: none;
-    border-radius: 10px;
-  }
-  .mobile-bottom-nav-item.active {
-    color: var(--ceremony);
-    background: var(--paper-2);
-  }
-  .mobile-bottom-nav-item:focus-visible {
-    outline: 2px solid var(--ceremony);
-    outline-offset: 2px;
-  }
 }
 
 .notice-box {
