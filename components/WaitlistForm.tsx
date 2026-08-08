@@ -99,9 +99,7 @@ export function WaitlistForm() {
             placeholder="Rosso, Phil &amp; Sebastian, that place on 17th…"
             maxLength={400}
           />
-          <p className="waitlist-hint">
-            Name a few and we&apos;ll make sure they&apos;re in on day one — including the ones nobody writes about.
-          </p>
+          <p className="waitlist-hint">Including the ones nobody writes about.</p>
         </div>
 
         <button type="submit" className="btn btn-primary waitlist-submit" disabled={status === 'sending'}>
@@ -114,9 +112,11 @@ export function WaitlistForm() {
           {message}
         </div>
       ) : null}
+      {/* Still has to carry the actual disclosure — what's stored and how to
+          get out — so it's compressed rather than cut. */}
       <div className="form-note">
-        Your email, and whatever else you choose to add — stored to notify you at launch, nothing more, no account.
-        Unsubscribe any time by emailing <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>.
+        Stored only to notify you at launch. Unsubscribe any time —{' '}
+        <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>.
       </div>
     </>
   );

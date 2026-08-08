@@ -190,14 +190,12 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
           <div className="signup-band">
             <div className="section-eyebrow label">Save your Taste</div>
             <h2>Join the list. Keep the matches you just saw.</h2>
-            {/* "Leave your email" was accurate when email was the only
-                field. The form now also asks for a name and go-to cafés, so
-                the invitation names the trade instead: tell us where you
-                already go, and those cafés are there when this opens. */}
+            {/* Kept short on purpose. The "no live product yet" disclosure
+                stays — it's the honest framing the whole preview rests on —
+                but everything around it is cut to the bone. */}
             <p className="section-lede">
-              This is a real preview of the matching engine, but there&apos;s no live product yet — no account, no
-              password. Leave your email and we&apos;ll tell you the moment it&apos;s ready. Tell us where you
-              already drink and we&apos;ll make sure those cafés are in it.
+              No live product yet — no account, no password. Just your email, and the cafés you already love so
+              they&apos;re here at launch.
             </p>
             <WaitlistForm />
           </div>
