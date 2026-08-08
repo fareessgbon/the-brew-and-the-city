@@ -1071,8 +1071,11 @@ section {
   line-height: 1.5;
 }
 .waitlist-submit {
-  align-self: flex-start;
-  margin-top: 2px;
+  /* Centred, matching the band's centred heading and lede above it. The
+     fields stay left-aligned — labels and text entry read better on a hard
+     left edge — but the single action at the end sits on the band's axis. */
+  align-self: center;
+  margin-top: 4px;
 }
 /* Success state. The old one was a line of text; this is the only moment
    the site gets to feel like something happened, so it gets a mark. */
