@@ -18,8 +18,18 @@ export function SiteHeader({ current }: { current?: 'for-cafes' | 'make-brew-bet
           <Link href="/make-brew-better" className={current === 'make-brew-better' ? 'current' : undefined} aria-current={current === 'make-brew-better' ? 'page' : undefined}>
             Make Brew Better
           </Link>
-          <a href="https://instagram.com/brewandthecity" target="_blank" rel="noopener noreferrer">
-            Catch Us on Instagram
+          {/* The visible label no longer names the destination, and this
+              leaves the site for Instagram in a new tab. aria-label keeps
+              "Instagram" and the new-tab warning available to screen
+              readers, who otherwise get a link that gives no clue where it
+              goes or that focus is about to move. */}
+          <a
+            href="https://instagram.com/brewandthecity"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="See what we're brewing on Instagram (opens in a new tab)"
+          >
+            See What We&apos;re Brewing
           </a>
         </nav>
       </div>

@@ -13,8 +13,13 @@ export function SiteFooter() {
         </Link>
         <div className="footer-links">
           <Link href="/make-brew-better">Make Brew Better</Link>
-          <a href="https://instagram.com/brewandthecity" target="_blank" rel="noopener noreferrer">
-            Catch Us on Instagram
+          <a
+            href="https://instagram.com/brewandthecity"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="See what we're brewing on Instagram (opens in a new tab)"
+          >
+            See What We&apos;re Brewing
           </a>
           <Link href="/#waitlist">Join the Waitlist</Link>
           <Link href="/for-cafes">For Cafés</Link>
