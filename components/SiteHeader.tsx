@@ -25,12 +25,6 @@ export function SiteHeader({ current }: { current?: 'for-cafes' | 'make-brew-bet
           <Link href="/make-brew-better" className={current === 'make-brew-better' ? 'current' : undefined} aria-current={current === 'make-brew-better' ? 'page' : undefined}>
             Make Brew Better
           </Link>
-          {/* Footer-only until now, which put an open role two clicks from
-              anywhere and one of them un-guessable. Still the last item —
-              hiring matters to fewer visitors than either link above it. */}
-          <Link href="/careers" className={current === 'careers' ? 'current' : undefined} aria-current={current === 'careers' ? 'page' : undefined}>
-            Careers
-          </Link>
           {/* The visible label no longer names the destination, and this
               leaves the site for Instagram in a new tab. aria-label keeps
               "Instagram" and the new-tab warning available to screen
@@ -44,6 +38,13 @@ export function SiteHeader({ current }: { current?: 'for-cafes' | 'make-brew-bet
           >
             See What We&apos;re Brewing
           </a>
+          {/* Footer-only until now, which put an open role two clicks from
+              anywhere and one of them un-guessable. Last in the row, and
+              last on mobile where the nav stacks — hiring matters to fewer
+              visitors than anything above it. */}
+          <Link href="/careers" className={current === 'careers' ? 'current' : undefined} aria-current={current === 'careers' ? 'page' : undefined}>
+            Careers
+          </Link>
         </nav>
       </div>
     </header>
