@@ -27,7 +27,11 @@ const LIMITS: Record<string, number> = {
   fullName: 120,
   phone: 40,
   basedIn: 120,
+  canTravel: 120,
+  resumeLink: 500,
   portfolio: 2000,
+  brandContent: 120,
+  onCamera: 120,
   availability: 500,
   pitch: 2000,
   whyYou: 2000,
@@ -36,6 +40,17 @@ const LIMITS: Record<string, number> = {
 function text(value: unknown, max: number): string {
   if (typeof value !== 'string') return '';
   return value.trim().slice(0, max);
+}
+
+// A pasted resume link arrives as often without a scheme as with one, and a
+// stored "drive.google.com/…" becomes a *relative* href the moment admin
+// renders it — so the scheme is settled here, once, rather than by whoever
+// displays it. Prefixing also defuses a `javascript:` paste, which comes
+// out the far side as an inert https URL.
+function url(value: unknown, max: number): string {
+  const raw = text(value, max);
+  if (!raw) return '';
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 }
 
 // Multi-selects arrive as string arrays; anything else becomes an empty
@@ -93,11 +108,14 @@ export async function POST(request: Request) {
     const problem = validateResume(resumeFile);
     if (problem) return NextResponse.json({ error: problem }, { status: 400 });
   }
-  // Required, so the row can never end up with resumeFile: null. The
-  // presence check sits here with the format check rather than down with
-  // the text fields, so everything about the file is decided in one place.
-  if (!resumeFile) {
-    return NextResponse.json({ error: 'A resume is required — PDF, DOC or DOCX, up to 5 MB.' }, { status: 400 });
+  // A resume is required; *uploading* one is not. Neither the file nor the
+  // link is checked on its own — the pair is — since plenty of people keep
+  // theirs on Drive or LinkedIn and shouldn't have to export a copy to
+  // apply. The check sits here with the format check so everything about
+  // the resume is decided in one place.
+  const resumeLink = url(body.resumeLink, LIMITS.resumeLink);
+  if (!resumeFile && !resumeLink) {
+    return NextResponse.json({ error: 'Please attach your resume or paste a link to it.' }, { status: 400 });
   }
 
   const role = typeof body.roleSlug === 'string' ? getRole(body.roleSlug) : undefined;
@@ -160,12 +178,19 @@ export async function POST(request: Request) {
     email,
     phone: text(body.phone, LIMITS.phone),
     basedIn: text(body.basedIn, LIMITS.basedIn),
+    canTravel: text(body.canTravel, LIMITS.canTravel),
     portfolio,
-    // Always populated — the file is required, and the request is rejected
-    // above without one. The bucket is private, so this path is only ever
-    // resolvable through a signed URL minted by the admin page.
+    // One of these two is always populated — the request is rejected above
+    // with neither. The bucket is private, so an uploaded file's path is
+    // only ever resolvable through a signed URL minted by the admin page.
     resumeFile: resumeRecord,
+    resumeLink,
+    // Not capped at the form's three: the cap is a prompt to prioritise, not
+    // a rule worth rejecting an application over if the client sends more.
+    interests: stringList(body.interests),
+    brandContent: text(body.brandContent, LIMITS.brandContent),
     tools: stringList(body.tools),
+    onCamera: text(body.onCamera, LIMITS.onCamera),
     availability: text(body.availability, LIMITS.availability),
     pitch: text(body.pitch, LIMITS.pitch),
     whyYou: text(body.whyYou, LIMITS.whyYou),

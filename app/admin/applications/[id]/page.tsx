@@ -23,18 +23,41 @@ export const dynamic = 'force-dynamic';
 // be imported — sharing would drag its whole data fetch along with it.
 const FIELD_LABELS: Record<string, string> = {
   portfolio: 'Portfolio and work',
+  interests: 'What draws them to the role',
+  brandContent: 'Made content for a brand before',
+  tools: 'Tools they’re comfortable with',
+  onCamera: 'Comfortable on camera',
   pitch: 'Their post pitch',
-  tools: 'Tools they already use',
   availability: 'Availability',
   whyYou: 'Anything else',
   acknowledgedUnpaid: 'Confirmed the role is unpaid',
 };
 
-const FIELD_ORDER = ['portfolio', 'pitch', 'tools', 'availability', 'whyYou', 'acknowledgedUnpaid'];
+const FIELD_ORDER = [
+  'portfolio',
+  'interests',
+  'brandContent',
+  'tools',
+  'onCamera',
+  'pitch',
+  'availability',
+  'whyYou',
+  'acknowledgedUnpaid',
+];
 
 // Header/contact fields, plus roleSlug, which roleTitle already says in
 // words — none of these belong in the answers list below.
-const HEADER_FIELDS = ['roleSlug', 'roleTitle', 'fullName', 'email', 'phone', 'basedIn', 'resumeFile'];
+const HEADER_FIELDS = [
+  'roleSlug',
+  'roleTitle',
+  'fullName',
+  'email',
+  'phone',
+  'basedIn',
+  'canTravel',
+  'resumeFile',
+  'resumeLink',
+];
 
 function humanizeKey(key: string): string {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
@@ -74,8 +97,10 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
   const email = text(answers.email);
   const phone = text(answers.phone);
   const basedIn = text(answers.basedIn);
+  const canTravel = text(answers.canTravel);
   const roleTitle = text(answers.roleTitle);
   const resume = answers.resumeFile as { path?: unknown; name?: unknown; size?: unknown } | null;
+  const resumeLink = text(answers.resumeLink);
 
   let resumeHref: string | null = null;
   if (resume && typeof resume.path === 'string') {
@@ -144,30 +169,57 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
               <dd>{basedIn}</dd>
             </>
           ) : null}
+          {canTravel ? (
+            <>
+              <dt>Can travel for shoots</dt>
+              <dd>{canTravel}</dd>
+            </>
+          ) : null}
         </dl>
       </div>
 
-      {resume && typeof resume.name === 'string' ? (
+      {/* An application has a file, a link, or both — whichever arrived goes
+          in this one card, so "where's their resume" is always the same
+          place to look. */}
+      {(resume && typeof resume.name === 'string') || resumeLink ? (
         <div className="admin-card" style={{ marginBottom: 12 }}>
           <div className="admin-metric-label" style={{ marginBottom: 10 }}>
             Resume
           </div>
-          {resumeHref ? (
-            <a
-              href={resumeHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-ghost"
-              style={{ width: 'auto', display: 'inline-block', fontSize: 13 }}
-            >
-              Open {resume.name}
-              {typeof resume.size === 'number' ? ` (${formatBytes(resume.size)})` : ''}
-            </a>
-          ) : (
-            <span style={{ fontSize: 13, color: '#b3402a' }}>
-              {resume.name} is on file, but the download link couldn&apos;t be generated.
-            </span>
-          )}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+            {resume && typeof resume.name === 'string' ? (
+              resumeHref ? (
+                <a
+                  href={resumeHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost"
+                  style={{ width: 'auto', display: 'inline-block', fontSize: 13 }}
+                >
+                  Open {resume.name}
+                  {typeof resume.size === 'number' ? ` (${formatBytes(resume.size)})` : ''}
+                </a>
+              ) : (
+                <span style={{ fontSize: 13, color: '#b3402a' }}>
+                  {resume.name} is on file, but the download link couldn&apos;t be generated.
+                </span>
+              )
+            ) : null}
+            {resumeLink ? (
+              <a
+                href={resumeLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-ghost"
+                style={{ width: 'auto', display: 'inline-block', fontSize: 13 }}
+              >
+                Open their resume link
+              </a>
+            ) : null}
+          </div>
+          {resumeLink ? (
+            <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 8, wordBreak: 'break-all' }}>{resumeLink}</div>
+          ) : null}
         </div>
       ) : null}
 

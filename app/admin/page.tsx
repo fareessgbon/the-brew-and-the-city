@@ -389,6 +389,10 @@ export default async function AdminPage() {
             // a disclosure that duplicates it just makes the queue longer.
             const resumeFile = answers.resumeFile as { name?: unknown; size?: unknown } | null;
             const resumeHref = resumeUrls.get(s.id);
+            // An applicant may have linked their resume instead of
+            // uploading one; the card would otherwise read as "sent no
+            // resume", which is the opposite of true.
+            const resumeLink = typeof answers.resumeLink === 'string' ? answers.resumeLink : '';
             return (
               <div key={s.id} className="admin-card">
                 <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
@@ -412,27 +416,40 @@ export default async function AdminPage() {
                 {/* Above the collapsed answers, not inside them — the
                     resume is the thing you open first on a hiring queue,
                     and it shouldn't need a disclosure click to reach. */}
-                {resumeFile && typeof resumeFile.name === 'string' ? (
-                  <div style={{ marginTop: 10 }}>
-                    {resumeHref ? (
+                {(resumeFile && typeof resumeFile.name === 'string') || resumeLink ? (
+                  <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                    {resumeFile && typeof resumeFile.name === 'string' ? (
+                      resumeHref ? (
+                        <a
+                          href={resumeHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-ghost"
+                          style={{ fontSize: 12, padding: '6px 14px', width: 'auto', display: 'inline-block' }}
+                        >
+                          Resume · {resumeFile.name}
+                          {typeof resumeFile.size === 'number' ? ` (${formatBytes(resumeFile.size)})` : ''}
+                        </a>
+                      ) : (
+                        // The row says there's a file but no signed URL came
+                        // back — say so rather than rendering nothing, which
+                        // would read as "this applicant sent no resume".
+                        <span style={{ fontSize: 12.5, color: '#b3402a' }}>
+                          Resume on file ({resumeFile.name}) but the download link couldn&apos;t be generated.
+                        </span>
+                      )
+                    ) : null}
+                    {resumeLink ? (
                       <a
-                        href={resumeHref}
+                        href={resumeLink}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn btn-ghost"
                         style={{ fontSize: 12, padding: '6px 14px', width: 'auto', display: 'inline-block' }}
                       >
-                        Resume · {resumeFile.name}
-                        {typeof resumeFile.size === 'number' ? ` (${formatBytes(resumeFile.size)})` : ''}
+                        Resume · link
                       </a>
-                    ) : (
-                      // The row says there's a file but no signed URL came
-                      // back — say so rather than rendering nothing, which
-                      // would read as "this applicant sent no resume".
-                      <span style={{ fontSize: 12.5, color: '#b3402a' }}>
-                        Resume on file ({resumeFile.name}) but the download link couldn&apos;t be generated.
-                      </span>
-                    )}
+                    ) : null}
                   </div>
                 ) : null}
                 <Link href={`/admin/applications/${s.id}`} className="admin-open-link">

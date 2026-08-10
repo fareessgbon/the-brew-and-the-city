@@ -6,22 +6,82 @@ import { RESUME_ACCEPT, formatBytes, validateResume } from '@/lib/careers/resume
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type Choice = { label: string; value: string };
 
-// From the posting's own "bonus" list plus the tools the role names
-// outright. "None of these yet" is a real option, not a courtesy one — the
-// posting says you don't need years of experience, so the form shouldn't
-// quietly imply otherwise by making this list feel like a checklist to
-// pass.
-const TOOL_OPTIONS = [
-  'Canva',
-  'Figma',
-  'CapCut',
-  'Adobe (Photoshop, Illustrator, Premiere…)',
-  'Lightroom or mobile photo editing',
-  'Photography',
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Deliberately loose: a resume lives on Drive, Notion, LinkedIn, a personal
+// site or a shortener, and the only thing they reliably share is a dot and
+// no spaces. The protocol is optional here and added server-side.
+const LINK_RE = /^(https?:\/\/)?[^\s/]+\.[^\s]{2,}$/i;
+
+// Most of these read the same whether they're the stored answer or the word
+// on screen, so the two are the same string unless there's a reason.
+const choices = (...labels: string[]): Choice[] => labels.map((label) => ({ label, value: label }));
+
+// Was a free-text "Where are you based?". The only thing we actually do
+// with the answer is work out whether someone can get to Calgary cafés, so
+// a yes/no answers it faster and scans cleanly in admin. The stored value
+// is the place, not the word the applicant clicked — admin prints it after
+// a "Based in" label, where "Yes" would say nothing.
+const BASED_IN_OPTIONS: Choice[] = [
+  { label: 'Yes', value: 'Calgary' },
+  { label: 'No', value: 'Outside Calgary' },
+];
+
+const TRAVEL_OPTIONS = choices('Yes', 'No');
+
+// Capped at three, like the surveys' "choose up to N" questions: seven ticks
+// would tell us nothing, and being made to drop the fourth is what turns
+// this into an answer about what they'd rather be doing.
+const INTEREST_OPTIONS = [
+  'Content creation',
   'Video editing',
-  'None of these yet',
+  'Social media strategy',
+  'Photography',
+  'Community building',
+  'Working with local cafés',
+  'Startup experience',
+];
+const MAX_INTERESTS = 3;
+
+// "No" is a full option with its own wording rather than a bare no: the
+// posting says you don't need years of experience, and a list that made the
+// only honest answer sound like a failure would quietly say otherwise.
+const BRAND_CONTENT_OPTIONS = choices(
+  'Yes, professionally',
+  'Yes, for my own project/business',
+  'Yes, for school or volunteer work',
+  "No, but I'm actively learning",
+);
+
+const ON_CAMERA_OPTIONS = choices('Yes', 'Somewhat', 'No');
+
+// What .cafe-signup-form gives a <label>, applied by hand — the form's CSS
+// dresses labels only, and every grouped question here captions itself with
+// a <legend> instead.
+const LEGEND_STYLE = {
+  padding: 0,
+  marginBottom: 8,
+  fontFamily: 'var(--font-mono)',
+  fontSize: 11,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+  color: 'var(--whisk)',
+} as const;
+
+// The tools the role actually names, plus "Other" — nothing here is a
+// requirement, and the question is answerable by selecting nothing at all,
+// so there's no "none of these" row to pick.
+const TOOL_OPTIONS = [
+  'CapCut',
+  'Canva',
+  // One row rather than Premiere/Photoshop/Illustrator separately: which
+  // three Adobe apps someone ticks doesn't change the shortlist, and three
+  // near-identical rows made the list read as an experience checklist.
+  'Adobe',
+  'Figma',
+  'Lightroom',
+  'Other',
 ];
 
 // One page, not a wizard like the two surveys. A survey is something we
@@ -38,8 +98,13 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [basedIn, setBasedIn] = useState('');
+  const [canTravel, setCanTravel] = useState('');
+  const [resumeLink, setResumeLink] = useState('');
   const [portfolio, setPortfolio] = useState('');
+  const [interests, setInterests] = useState<string[]>([]);
+  const [brandContent, setBrandContent] = useState('');
   const [tools, setTools] = useState<string[]>([]);
+  const [onCamera, setOnCamera] = useState('');
   const [availability, setAvailability] = useState('');
   const [pitch, setPitch] = useState('');
   const [whyYou, setWhyYou] = useState('');
@@ -90,7 +155,15 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
 
     if (!fullName.trim()) return fail('Please tell us your name.', 'fullName');
     if (!EMAIL_RE.test(email.trim())) return fail('A valid email is required — it’s how we reply.', 'email');
-    if (!resumeFile) return fail('Please attach your resume — PDF, DOC or DOCX, up to 5 MB.', 'resume');
+    // Neither half of the resume question is required on its own; the pair
+    // is. The error points at the link box rather than the file input,
+    // which is visually hidden and can't be scrolled to.
+    if (!resumeFile && !resumeLink.trim()) {
+      return fail('Please attach your resume or paste a link to it — either one is enough.', 'resumeLink');
+    }
+    if (resumeLink.trim() && !LINK_RE.test(resumeLink.trim())) {
+      return fail('That resume link doesn’t look like a web address — check it, or attach the file instead.', 'resumeLink');
+    }
     if (!portfolio.trim()) {
       return fail('Please share at least one link to work you’ve made — an account you run counts.', 'portfolio');
     }
@@ -105,9 +178,14 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
       fullName: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
-      basedIn: basedIn.trim(),
+      basedIn,
+      canTravel,
+      resumeLink: resumeLink.trim(),
       portfolio: portfolio.trim(),
+      interests,
+      brandContent,
       tools,
+      onCamera,
       availability: availability.trim(),
       pitch: pitch.trim(),
       whyYou: whyYou.trim(),
@@ -169,19 +247,25 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
           <label htmlFor="phone">Phone (optional)</label>
           <input type="tel" id="phone" name="phone" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
-        <div>
-          <label htmlFor="basedIn">Where are you based?</label>
-          <input
-            type="text"
-            id="basedIn"
-            name="basedIn"
-            autoComplete="address-level2"
-            placeholder="Calgary"
-            value={basedIn}
-            onChange={(e) => setBasedIn(e.target.value)}
-          />
-        </div>
       </div>
+
+      <ChoiceField
+        name="basedIn"
+        legend="Are you currently based in Calgary?"
+        options={BASED_IN_OPTIONS}
+        value={basedIn}
+        onChange={setBasedIn}
+        inline
+      />
+
+      <ChoiceField
+        name="canTravel"
+        legend="Are you able to travel around Calgary for café visits and content shoots?"
+        options={TRAVEL_OPTIONS}
+        value={canTravel}
+        onChange={setCanTravel}
+        inline
+      />
 
       <div style={{ marginBottom: 12 }}>
         <label htmlFor="resume">Resume</label>
@@ -228,6 +312,26 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
             </>
           )}
         </div>
+
+        {/* The second half of one question, not a new one — plenty of people
+            keep their resume on Drive or LinkedIn and would otherwise have
+            to export a copy just to apply. Either box satisfies it; the
+            label says so, so nobody fills both to be safe. */}
+        <label htmlFor="resumeLink" style={{ marginTop: 10 }}>
+          Or link to your resume
+        </label>
+        <input
+          type="url"
+          id="resumeLink"
+          name="resumeLink"
+          inputMode="url"
+          placeholder="A Drive, Notion, LinkedIn or personal-site link"
+          value={resumeLink}
+          onChange={(e) => setResumeLink(e.target.value)}
+        />
+        <div className="cafe-form-note" style={{ marginTop: 6 }}>
+          Attach a file or paste a link — whichever you have. One is enough.
+        </div>
       </div>
 
       <div style={{ marginBottom: 12 }}>
@@ -247,10 +351,41 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
         </div>
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 13.5, marginBottom: 8 }}>What do you already use? (Pick any)</div>
+      <fieldset style={{ border: 0, margin: '0 0 16px', padding: 0, minWidth: 0 }}>
+        <legend style={LEGEND_STYLE}>What interests you most about this role? (Select up to 3)</legend>
+        <SurveyMultiSelect
+          name="interests"
+          options={INTEREST_OPTIONS}
+          selected={interests}
+          onChange={setInterests}
+          max={MAX_INTERESTS}
+        />
+      </fieldset>
+
+      <ChoiceField
+        name="brandContent"
+        legend="Have you created content for a brand before?"
+        options={BRAND_CONTENT_OPTIONS}
+        value={brandContent}
+        onChange={setBrandContent}
+      />
+
+      {/* A fieldset for the same reason ChoiceField uses one, and with the
+          same legend, so this question doesn't read as a different kind of
+          question from the five around it just because its answers are
+          checkboxes. */}
+      <fieldset style={{ border: 0, margin: '0 0 16px', padding: 0, minWidth: 0 }}>
+        <legend style={LEGEND_STYLE}>Which tools are you comfortable using? (Select all that apply)</legend>
         <SurveyMultiSelect name="tools" options={TOOL_OPTIONS} selected={tools} onChange={setTools} />
-      </div>
+      </fieldset>
+
+      <ChoiceField
+        name="onCamera"
+        legend="Are you comfortable appearing on camera?"
+        options={ON_CAMERA_OPTIONS}
+        value={onCamera}
+        onChange={setOnCamera}
+      />
 
       <div style={{ marginBottom: 12 }}>
         <label htmlFor="availability">Availability</label>
@@ -328,5 +463,63 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
         with cafés or anyone else — see our <a href="/privacy">privacy policy</a>.
       </div>
     </form>
+  );
+}
+
+// fieldset/legend rather than a label, since the question captions a group
+// of inputs and not one — the browser reads it out with each option. Both
+// are reset to nothing and restyled, as .cafe-signup-form only dresses
+// <label>. `inline` is for the two-option questions, where a row of radios
+// costs less height than a stack and reads no worse.
+function ChoiceField({
+  name,
+  legend,
+  options,
+  value,
+  onChange,
+  inline = false,
+}: {
+  name: string;
+  legend: string;
+  options: Choice[];
+  value: string;
+  onChange: (next: string) => void;
+  inline?: boolean;
+}) {
+  return (
+    <fieldset style={{ border: 0, margin: '0 0 16px', padding: 0, minWidth: 0 }}>
+      <legend style={LEGEND_STYLE}>{legend}</legend>
+      <div style={{ display: 'flex', flexDirection: inline ? 'row' : 'column', gap: inline ? 20 : 8 }}>
+        {options.map((option) => (
+          <label
+            key={option.value}
+            // Same opt-out as the unpaid checkbox: the form's label style is
+            // mono/uppercase/tracked, which is right for a caption and wrong
+            // for a word someone is choosing between.
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 0,
+              fontFamily: 'var(--font-sans)',
+              fontSize: 14,
+              letterSpacing: 'normal',
+              textTransform: 'none',
+              color: 'var(--ink)',
+            }}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={value === option.value}
+              onChange={() => onChange(option.value)}
+              style={{ width: 'auto' }}
+            />
+            {option.label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }
