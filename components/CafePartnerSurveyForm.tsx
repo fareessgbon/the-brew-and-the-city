@@ -170,7 +170,7 @@ export function CafePartnerSurveyForm() {
       // darker cream) — scoped here rather than changing the shared
       // .cafe-signup-form class, since ConsumerSurveyForm uses that same
       // class and wasn't part of this request.
-      style={{ maxWidth: 640, background: '#faf8f4' }}
+      style={{ maxWidth: 640, background: 'var(--porcelain)' }}
     >
       <SurveyProgress step={step} total={STEP_TITLES.length} />
       <div className="label" style={{ margin: '10px 0' }}>

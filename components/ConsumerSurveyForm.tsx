@@ -112,7 +112,7 @@ export function ConsumerSurveyForm() {
       // Same off-white treatment as the café survey — scoped here rather
       // than the shared .cafe-signup-form class, which CafePartnerSurveyForm
       // also uses.
-      style={{ maxWidth: 640, background: '#faf8f4' }}
+      style={{ maxWidth: 640, background: 'var(--porcelain)' }}
     >
       <SurveyProgress step={step} total={STEP_TITLES.length} />
       <div className="label" style={{ margin: '10px 0' }}>

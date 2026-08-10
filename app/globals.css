@@ -16,6 +16,13 @@
   --blush: #e8c4c0;
   --ink: #1a1a17;
   --paper-2: #ebe4d5;
+  /* The card surface — lighter than --paper, and the one material every
+     raised thing on the site is made of (quiz card, how-it-works cards,
+     forms, ratio boxes, price cards, admin cards). It was a bare hex
+     literal repeated in seven CSS rules and four components, with a stray
+     near-duplicate in the admin cards that was clearly meant to be the same
+     colour and wasn't. One token, so a card can't drift again. */
+  --porcelain: #faf8f4;
   --ceremony-2: #241a15;
   --whisk-10: rgba(107, 107, 99, 0.1);
 
@@ -32,6 +39,7 @@
 @theme inline {
   --color-paper: var(--paper);
   --color-paper-2: var(--paper-2);
+  --color-porcelain: var(--porcelain);
   --color-sky: var(--sky);
   --color-ceremony: var(--ceremony);
   --color-ceremony-2: var(--ceremony-2);
@@ -237,6 +245,13 @@ nav a:focus-visible,
   background: transparent;
   color: var(--ceremony);
   border: 1px solid var(--ceremony);
+  transition: background 150ms;
+}
+/* Fills with the accent rather than darkening — the text stays --ceremony
+   at 8.8:1, so the hover state doesn't have to swap the label's colour to
+   stay legible. */
+.btn-ghost:hover {
+  background: var(--sky);
 }
 .btn:active {
   transform: scale(0.97);
@@ -364,7 +379,7 @@ nav a:focus-visible,
 .quiz-card {
   /* Off-white, not the rest of the site's cream/paper tones — the quiz
      reads as its own clean surface (see chat). */
-  background: #faf8f4;
+  background: var(--porcelain);
   border: 1px solid var(--paper-2);
   border-radius: 20px;
   padding: 28px;
@@ -379,7 +394,7 @@ nav a:focus-visible,
   left: 0;
   right: 0;
   height: 8px;
-  background-image: repeating-linear-gradient(90deg, var(--sky) 0 8px, #faf8f4 8px 16px);
+  background-image: repeating-linear-gradient(90deg, var(--sky) 0 8px, var(--porcelain) 8px 16px);
 }
 .quiz-step {
   display: none;
@@ -440,7 +455,7 @@ nav a:focus-visible,
   gap: 14px;
 }
 .opt {
-  background: #faf8f4;
+  background: var(--porcelain);
   border: 1.5px solid var(--whisk-10);
   border-radius: 14px;
   padding: 22px 14px;
@@ -480,7 +495,7 @@ nav a:focus-visible,
   width: 100%;
   aspect-ratio: 1.3 / 1;
   margin: 18px 0 12px;
-  background: #faf8f4;
+  background: var(--porcelain);
   border-radius: 14px;
   border: 1px solid var(--whisk-10);
   overflow: hidden;
@@ -542,7 +557,7 @@ nav a:focus-visible,
   font-size: 11px;
   font-weight: 600;
   color: var(--ink);
-  background: #faf8f4;
+  background: var(--porcelain);
   padding: 1px 6px;
   border-radius: 8px;
   transform: translate(-50%, 6px);
@@ -555,7 +570,7 @@ nav a:focus-visible,
   opacity: 1;
 }
 .match-result {
-  background: #faf8f4;
+  background: var(--porcelain);
   border: 1px solid var(--whisk-10);
   border-radius: 12px;
   padding: 14px 18px;
@@ -638,9 +653,24 @@ section {
     padding: 44px 0;
   }
 }
+/* A short sky rule before the label. Purely decorative — the label text
+   stays --whisk and carries the meaning on its own — but it puts the accent
+   colour at the top of every section on the site, which is the most
+   systematic place for it to appear. */
 .section-eyebrow {
   color: var(--whisk);
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-eyebrow::before {
+  content: '';
+  flex: none;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--sky);
 }
 .section-title {
   font-size: 34px;
@@ -668,7 +698,7 @@ section {
      Was --paper-2 as a fill, which read as a tinted block rather than a
      card; matching the quiz means the two card surfaces on the homepage are
      one material instead of three different creams. Keep these in step. */
-  background: #faf8f4;
+  background: var(--porcelain);
   border: 1px solid var(--paper-2);
   border-radius: 16px;
   padding: 26px;
@@ -882,8 +912,13 @@ section {
   color: var(--whisk);
 }
 
+/* Was a --paper-2 fill, which read as a tinted block rather than a card and
+   made it the third cream on pages that also carry .how-card and .quiz-card.
+   Porcelain plus a hairline is the same treatment those two already use, so
+   every raised surface on the site is now one material. */
 .ratio-box {
-  background: var(--paper-2);
+  background: var(--porcelain);
+  border: 1px solid var(--whisk-10);
   border-radius: 14px;
   padding: 18px 20px;
   margin-bottom: 18px;
@@ -922,7 +957,7 @@ section {
   margin: 40px 0 24px;
 }
 .price-card {
-  background: var(--paper-2);
+  background: var(--porcelain);
   border-radius: 16px;
   padding: 22px 18px;
   border: 1px solid var(--whisk-10);
@@ -1251,6 +1286,96 @@ section {
   margin-top: 4px;
 }
 
+/* Careers — the resume file picker. Matches the text inputs above it
+   (same fill, radius, border) so the row of fields reads as one set rather
+   than a form with a browser widget dropped into it. */
+.resume-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px dashed var(--whisk-10);
+  background: var(--paper);
+  cursor: pointer;
+  min-height: 48px;
+}
+.resume-field:hover {
+  border-color: var(--whisk);
+}
+/* The native input is visually hidden but still focusable, so the ring has
+   to be drawn by the box on its behalf — otherwise a keyboard user tabs
+   onto a control with no visible focus anywhere on screen. */
+.resume-field:focus-within {
+  outline: 2px solid var(--ceremony);
+  outline-offset: 1px;
+}
+.resume-field input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+/* Sky under --ceremony type, same pairing as .role-meta span — it also
+   makes the one thing in this box you're meant to click read as a control
+   rather than as another line of grey helper text. */
+.resume-cta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ceremony);
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: var(--sky);
+  flex: none;
+}
+.resume-hint,
+.resume-file-size {
+  font-size: 12.5px;
+  color: var(--whisk);
+  flex: none;
+}
+.resume-file-name {
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+  /* A resume filename is routinely someone's full name plus four words —
+     it has to be the part that truncates, not the size or the button. */
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.resume-clear {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--whisk);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--whisk-10);
+  padding: 2px 0;
+  cursor: pointer;
+  flex: none;
+}
+.resume-clear:hover {
+  color: var(--ceremony);
+  border-bottom-color: var(--ceremony);
+}
+@media (max-width: 560px) {
+  /* The hint is the first thing worth losing when the row gets tight —
+     the accept attribute still filters the picker, and the label above
+     already says the field is optional. */
+  .resume-hint {
+    display: none;
+  }
+}
+
 .tabs-row {
   display: flex;
   gap: 8px;
@@ -1291,8 +1416,12 @@ section {
   font-weight: 600;
 }
 
+/* Sky, not the old grey wash. Body copy here is --ink, which measures
+   12.5:1 on this fill — the accent colour reading as "read this bit"
+   rather than as decoration, on the two boxes that most need it (the
+   unpaid terms on a job posting, the pre-launch caveat on the policy). */
 .notice-box {
-  background: var(--whisk-10);
+  background: var(--sky);
   border-radius: 14px;
   padding: 18px 20px;
   margin: 28px 0;
@@ -1307,6 +1436,52 @@ section {
 }
 .notice-box.dark strong {
   color: var(--paper);
+}
+
+/* Careers — the location / commitment / pay row under a role title. Chips
+   rather than a comma-joined sentence: these are three independent facts a
+   candidate scans for, and one of them ("Unpaid internship") is the reason
+   the row exists at all. Mono, like every other data-ish label on the site. */
+.role-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* Sky-filled, with --ceremony type on top at 8.8:1 — comfortably past the
+   4.5:1 minimum. This is the one way the accent blue can carry small text:
+   as a background under dark type, never as the type itself (see the note
+   at .feature-item .num, where sky text on cream measures 1.28:1). */
+.role-meta span {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ceremony);
+  background: var(--sky);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+/* The role's one-line hook. Display serif at body-copy scale rather than a
+   heading — it reads as someone talking, which is the point, and it can't
+   be an <h2> without inserting a fake level between the role title and the
+   posting's real sections. */
+.role-hook {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 19px;
+  line-height: 1.32;
+  color: var(--ceremony);
+  max-width: 34ch;
+}
+
+/* Careers — a group heading inside a posting section ("Content", "On
+   location", "Logistics"). Sits between the mono uppercase section eyebrow
+   above it and the bullets below. */
+.role-group-head {
+  font-size: 17px;
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--ceremony);
 }
 
 .legal h2 {
@@ -1353,7 +1528,9 @@ section {
 
 footer {
   padding: 40px 0 60px;
-  border-top: 1px solid var(--paper-2);
+  /* Sky rather than another cream hairline — it closes every page with the
+     same accent the section eyebrows open them with. */
+  border-top: 1px solid var(--sky);
   margin-top: auto;
 }
 .footer-row {
@@ -1474,34 +1651,90 @@ footer {
   margin-bottom: 14px;
   border-bottom: 1px solid var(--whisk-10);
 }
+/* Same sky rule the marketing pages put before a section eyebrow, so the
+   back office reads as part of the same site rather than a bare table. */
 .admin-section-title {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   min-width: 0;
+}
+.admin-section-title::before {
+  content: '';
+  flex: none;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--sky);
 }
 .admin-count {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 500;
-  color: var(--whisk);
-  background: var(--whisk-10);
+  color: var(--ceremony);
+  background: var(--sky);
   border-radius: 999px;
   padding: 2px 8px;
   flex: none;
 }
 
-/* Cards: a hairline instead of a fill. On cream-on-cream the old #faf8f4
-   box was nearly invisible; a border defines the edge at any scale. */
+/* Cards: porcelain fill, a hairline, and a shadow shallow enough to read as
+   a lifted edge rather than a drop shadow. The border alone was a 10% grey
+   on cream-on-cream — technically an edge, visually almost nothing, so a
+   column of cards read as one undifferentiated block. */
 .admin-card {
-  background: #fbf9f5;
-  border: 1px solid var(--whisk-10);
+  background: var(--porcelain);
+  border: 1px solid rgba(95, 95, 87, 0.14);
   border-radius: 12px;
   padding: 16px 18px;
-  transition: border-color 150ms;
+  box-shadow: 0 1px 2px rgba(58, 44, 36, 0.04);
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
 }
 .admin-card:hover {
-  border-color: rgba(107, 107, 99, 0.22);
+  border-color: rgba(95, 95, 87, 0.26);
+  box-shadow: 0 2px 8px rgba(58, 44, 36, 0.07);
+}
+
+/* Card footer: note control left, delete right, on one line. These were
+   two stacked full-width rows, which left a band of empty card between a
+   small button and a small link. */
+.admin-card-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 10px;
+}
+/* Only the expanded field grows. The collapsed "+ Add a note" button is a
+   small control and stays its own size — stretched across the row it read
+   as an empty input rather than a button. space-between keeps Delete on
+   the right either way. */
+.admin-card-foot > .admin-notes {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The note field, collapsed (see AdminNotesField). Deliberately quiet — on
+   a triaged queue most cards will never need one. */
+.admin-note-add {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--whisk);
+  background: none;
+  border: 1px dashed rgba(95, 95, 87, 0.22);
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition:
+    border-color 150ms,
+    color 150ms;
+}
+.admin-note-add:hover {
+  border-color: var(--ceremony);
+  color: var(--ceremony);
 }
 
 /* Metric tiles. The founding-partner tile spans the full row above these —
@@ -1517,6 +1750,14 @@ footer {
   font-weight: 600;
   line-height: 1.1;
   color: var(--ceremony);
+}
+/* A zero is real information here — "nothing waiting on you" — but at full
+   weight four of them shout as loudly as a real number would, and a
+   pre-launch queue is mostly zeros. Muted, so the first non-zero figure on
+   this page is the thing the eye lands on. */
+.admin-metric-value[data-zero='true'] {
+  color: var(--whisk);
+  opacity: 0.55;
 }
 .admin-metric-label {
   font-family: var(--font-mono);

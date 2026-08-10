@@ -7,6 +7,7 @@ import { AdminLoginForm } from '@/components/AdminLoginForm';
 import { AdminStatusBadge, AdminNotesField } from '@/components/AdminSurveyStatus';
 import { AdminDeleteButton } from '@/components/AdminDeleteButton';
 import type { SurveyStatus } from '@/lib/supabase/types';
+import { RESUME_BUCKET, formatBytes } from '@/lib/careers/resume';
 
 // noindex — this route exists, its content shouldn't; nothing here links
 // to it publicly either (see chat: deliberately not in SiteHeader nav).
@@ -50,6 +51,22 @@ const CAFE_FIELD_LABELS: Record<string, string> = {
   freeText: 'What would make them interested',
 };
 
+// Careers (/careers) — see components/JobApplicationForm.tsx for the source
+// field names.
+const JOB_FIELD_LABELS: Record<string, string> = {
+  roleTitle: 'Role',
+  fullName: 'Name',
+  email: 'Email',
+  phone: 'Phone',
+  basedIn: 'Based in',
+  portfolio: 'Portfolio / work',
+  tools: 'Tools they use',
+  availability: 'Availability',
+  pitch: 'Their post pitch',
+  whyYou: 'Anything else',
+  acknowledgedUnpaid: 'Confirmed unpaid',
+};
+
 const CONSUMER_FIELD_LABELS: Record<string, string> = {
   howTheyFindCafes: 'How they find cafés',
   whatMakesThemReturn: 'What makes them return',
@@ -79,8 +96,30 @@ const CAFE_FIELD_ORDER = [
 
 const CONSUMER_FIELD_ORDER = ['howTheyFindCafes', 'whatMakesThemReturn', 'friendsInfluence', 'tryNewFor', 'pricing', 'freeText'];
 
+// Mirrors the form's own field order (see JobApplicationForm.tsx) so the
+// detail list reads the way the applicant filled it in. roleSlug is left
+// out entirely: roleTitle already says the same thing in words.
+const JOB_FIELD_ORDER = [
+  'portfolio',
+  'pitch',
+  'tools',
+  'availability',
+  'whyYou',
+  'phone',
+  'acknowledgedUnpaid',
+];
+
 function humanizeKey(key: string): string {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+}
+
+// Booleans exist in the answer blobs now (the careers form's unpaid
+// acknowledgement) — String(false) would print "false" in a column of
+// prose answers.
+function formatValue(value: unknown): string {
+  if (Array.isArray(value)) return value.join(', ');
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  return String(value);
 }
 
 // Same filtering formatAnswers used to do (drop empty/null/empty-array
@@ -100,7 +139,7 @@ function formatAnswerRows(
   return keys
     .filter((k) => k in answers)
     .filter((k) => !exclude.includes(k) && answers[k] !== '' && answers[k] !== null && !(Array.isArray(answers[k]) && answers[k].length === 0))
-    .map((k) => ({ key: k, label: labels[k] ?? humanizeKey(k), value: Array.isArray(answers[k]) ? answers[k].join(', ') : String(answers[k]) }));
+    .map((k) => ({ key: k, label: labels[k] ?? humanizeKey(k), value: formatValue(answers[k]) }));
 }
 
 function ExportLink({ table }: { table: string }) {
@@ -143,7 +182,12 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
   return (
     <div className="admin-card">
       <div className="admin-metric-label">{label}</div>
-      <div className="admin-metric-value">{value}</div>
+      {/* data-zero mutes the figure rather than hiding it — see the rule in
+          globals.css. A zero still has to be readable; it just shouldn't
+          compete with a real count. */}
+      <div className="admin-metric-value" data-zero={value === '0'}>
+        {value}
+      </div>
       {sub ? <div className="admin-metric-sub">{sub}</div> : null}
     </div>
   );
@@ -165,11 +209,17 @@ function EmptyState({ children }: { children: React.ReactNode }) {
   return <div className="admin-empty">{children}</div>;
 }
 
-function AnswerList({ rows }: { rows: { key: string; label: string; value: string }[] }) {
+function AnswerList({
+  rows,
+  summary = 'View full survey answers',
+}: {
+  rows: { key: string; label: string; value: string }[];
+  summary?: string;
+}) {
   if (rows.length === 0) return null;
   return (
     <details className="admin-details" style={{ marginTop: 10 }}>
-      <summary>View full survey answers</summary>
+      <summary>{summary}</summary>
       <dl className="admin-answers">
         {rows.map((row) => (
           <Fragment key={row.key}>
@@ -206,6 +256,26 @@ export default async function AdminPage() {
   const cafeSurveysRaw = (surveys ?? []).filter((s) => s.survey === 'cafe_partner');
   const cafeSurveys = [...cafeSurveysRaw].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
   const consumerSurveys = (surveys ?? []).filter((s) => s.survey === 'consumer');
+  // Same triage sort as the café queue — these are applications to work
+  // through, not a feed to read (migration 0026).
+  const jobApplicationsRaw = (surveys ?? []).filter((s) => s.survey === 'job_application');
+  const jobApplications = [...jobApplicationsRaw].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+  const newApplications = jobApplicationsRaw.filter((s) => s.status === 'new').length;
+
+  // The resumes bucket is private (migration 0027), so a stored path isn't
+  // a URL anyone — including a logged-in admin's browser — can fetch. Mint
+  // a short-lived signed URL per resume at render time. One hour: long
+  // enough to work through the queue in a sitting, short enough that a URL
+  // copied out of the page stops working the same day.
+  const resumeUrls = new Map<string, string>();
+  await Promise.all(
+    jobApplications.map(async (s) => {
+      const file = (s.answers as Record<string, unknown>).resumeFile as { path?: unknown } | null;
+      if (!file || typeof file.path !== 'string') return;
+      const { data } = await admin.storage.from(RESUME_BUCKET).createSignedUrl(file.path, 3600);
+      if (data?.signedUrl) resumeUrls.set(s.id, data.signedUrl);
+    }),
+  );
 
   const statusCounts = cafeSurveysRaw.reduce(
     (acc, s) => ({ ...acc, [s.status]: acc[s.status] + 1 }),
@@ -225,9 +295,21 @@ export default async function AdminPage() {
           <div className="label eyebrow">Admin</div>
           <h1 style={{ fontSize: 30, marginBottom: 6 }}>Submissions</h1>
           <p style={{ fontSize: 13.5, color: 'var(--whisk)' }}>
-            {statusCounts.new > 0
-              ? `${statusCounts.new} café ${statusCounts.new === 1 ? 'survey needs' : 'surveys need'} a first look.`
-              : 'Nothing waiting on you — the café queue is triaged.'}
+            {/* Both queues in one line — an unread job application is just
+                as much "waiting on you" as an unread café survey, and the
+                old copy would have said "nothing waiting" with five
+                applications sitting untouched below. */}
+            {[
+              statusCounts.new > 0
+                ? `${statusCounts.new} café ${statusCounts.new === 1 ? 'survey needs' : 'surveys need'} a first look`
+                : null,
+              newApplications > 0
+                ? `${newApplications} job ${newApplications === 1 ? 'application needs' : 'applications need'} a first look`
+                : null,
+            ]
+              .filter(Boolean)
+              .map((line) => `${line}.`)
+              .join(' ') || 'Nothing waiting on you — both queues are triaged.'}
           </p>
         </div>
       </div>
@@ -239,7 +321,7 @@ export default async function AdminPage() {
         <div className="admin-bar">
           <div>
             <div className="admin-metric-label">Founding Partner slots</div>
-            <div className="admin-metric-value">
+            <div className="admin-metric-value" data-zero={statusCounts.selected === 0}>
               {statusCounts.selected}{' '}
               <span style={{ fontSize: 20, color: 'var(--whisk)', fontWeight: 500 }}>/ {FOUNDING_PARTNER_TARGET}</span>
             </div>
@@ -275,6 +357,11 @@ export default async function AdminPage() {
           value={String(cafeSurveysThisWeek)}
           sub={`${cafeSurveysRaw.length} total all time`}
         />
+        <StatCard
+          label="Job applications"
+          value={String(newApplications)}
+          sub={`awaiting review · ${jobApplicationsRaw.length} total all time`}
+        />
       </div>
 
       <section className="admin-section">
@@ -305,9 +392,80 @@ export default async function AdminPage() {
                   </div>
                 </div>
                 <AnswerList rows={detailRows} />
-                <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                <div className="admin-card-foot">
+                  <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
                   <AdminDeleteButton id={s.id} label="café survey" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="admin-section">
+        <SectionHead title="Job applications" count={jobApplications.length} table="job_application" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {jobApplications.length === 0 ? <EmptyState>No one has applied for an open role yet.</EmptyState> : null}
+          {jobApplications.map((s) => {
+            const answers = s.answers as Record<string, unknown>;
+            const name = typeof answers.fullName === 'string' && answers.fullName ? answers.fullName : 'Unnamed applicant';
+            const metaBits = [answers.roleTitle, answers.email, answers.basedIn]
+              .filter((v): v is string => typeof v === 'string' && v.length > 0)
+              .join(' · ');
+            const detailRows = formatAnswerRows(answers, JOB_FIELD_LABELS, JOB_FIELD_ORDER, [
+              'roleSlug',
+              'roleTitle',
+              'fullName',
+              'email',
+              'basedIn',
+              // Rendered as a download button below instead — the stored
+              // object path is meaningless to read and isn't clickable.
+              'resumeFile',
+            ]);
+            const resumeFile = answers.resumeFile as { name?: unknown; size?: unknown } | null;
+            const resumeHref = resumeUrls.get(s.id);
+            return (
+              <div key={s.id} className="admin-card">
+                <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
+                  <div>
+                    <h3 style={{ fontSize: 16.5, margin: 0 }}>{name}</h3>
+                    {metaBits ? <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>{metaBits}</div> : null}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none' }}>
+                    <Timestamp iso={s.created_at} />
+                    <AdminStatusBadge id={s.id} initialStatus={s.status} />
+                  </div>
+                </div>
+                {/* Above the collapsed answers, not inside them — the
+                    resume is the thing you open first on a hiring queue,
+                    and it shouldn't need a disclosure click to reach. */}
+                {resumeFile && typeof resumeFile.name === 'string' ? (
+                  <div style={{ marginTop: 10 }}>
+                    {resumeHref ? (
+                      <a
+                        href={resumeHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-ghost"
+                        style={{ fontSize: 12, padding: '6px 14px', width: 'auto', display: 'inline-block' }}
+                      >
+                        Resume · {resumeFile.name}
+                        {typeof resumeFile.size === 'number' ? ` (${formatBytes(resumeFile.size)})` : ''}
+                      </a>
+                    ) : (
+                      // The row says there's a file but no signed URL came
+                      // back — say so rather than rendering nothing, which
+                      // would read as "this applicant sent no resume".
+                      <span style={{ fontSize: 12.5, color: '#b3402a' }}>
+                        Resume on file ({resumeFile.name}) but the download link couldn&apos;t be generated.
+                      </span>
+                    )}
+                  </div>
+                ) : null}
+                <AnswerList rows={detailRows} summary="View the full application" />
+                <div className="admin-card-foot">
+                  <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
+                  <AdminDeleteButton id={s.id} label="application" />
                 </div>
               </div>
             );
@@ -343,7 +501,9 @@ export default async function AdminPage() {
                   <Timestamp iso={s.created_at} />
                 </div>
                 <AnswerList rows={detailRows} />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                {/* No notes control on consumer rows — they're anonymous
+                    aggregate signal, not a queue item to work. */}
+                <div className="admin-card-foot" style={{ justifyContent: 'flex-end' }}>
                   <AdminDeleteButton id={s.id} label="consumer survey" />
                 </div>
               </div>

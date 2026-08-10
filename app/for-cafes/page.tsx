@@ -55,15 +55,12 @@ export default function ForCafesPage() {
             </p>
           </div>
 
-          {/* Illustrative only — no real friend graph or matching exists yet at this stage (§12.1a). Placeholder
-              café names, not real seeded ones — this is activity that hasn't happened, so it shouldn't look like
-              it happened at an actual Calgary business. The on-page label below says the same thing to a visitor,
-              not just to whoever reads this comment. */}
-          <div className="ratio-box" style={{ alignSelf: 'start', background: 'transparent' }}>
-            <div style={{ fontSize: 11.5, color: 'var(--whisk)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Illustrative preview — not real activity, not real cafés
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
+          {/* Illustrative only — no real friend graph or matching exists yet at this stage (§12.1a). The on-page
+              "Illustrative preview" label that used to sit above these rows was removed on request, so the café
+              names below are now the only thing keeping this from reading as real activity: they are invented,
+              not drawn from the seeded cafés, precisely so no actual Calgary business appears to have had
+              customers it never had. Keep them fictional. */}
+          <div style={{ alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: 26, padding: '18px 20px' }}>
               {[
                 ['C', 'var(--sky)', <>
                   <strong>Carson</strong> just recommended <strong>The Roasted Fox</strong> to a friend
@@ -91,7 +88,7 @@ export default function ForCafesPage() {
                     alignItems: 'center',
                     gap: 10,
                     marginLeft: indent as number,
-                    background: '#ffffff',
+                    background: 'var(--porcelain)',
                     borderRadius: 14,
                     padding: '10px 14px',
                   }}
@@ -120,7 +117,6 @@ export default function ForCafesPage() {
                   <div style={{ fontSize: 11.5, color: 'var(--whisk)', flexShrink: 0 }}>{when}</div>
                 </div>
               ))}
-            </div>
           </div>
         </div>
       </section>
@@ -204,7 +200,12 @@ export default function ForCafesPage() {
 
           <div className="section-eyebrow label">Included with Partner</div>
           <h2 style={{ fontSize: 26, marginBottom: 12 }}>The City Card — one card, every café, five visits.</h2>
-          <p style={{ fontSize: 15.5, color: 'var(--ink)', maxWidth: '64ch', marginBottom: 32 }}>
+          {/* No max-width: this paragraph and the firewall banner directly
+              below it are a pair, and a 64ch measure here left the text
+              stopping well short of the banner's edge — two blocks about the
+              same subject, ending in different places. Runs the full wrap
+              width instead, matching the banner. */}
+          <p style={{ fontSize: 15.5, color: 'var(--ink)', marginBottom: 32 }}>
             One City Card works everywhere in the network — so customers who discover you show up ready to redeem,
             not just browse. Five stamps (one drink each, max two at any café) unlock a free item, entirely on your
             terms — you decide what, never a blanket &quot;anything on the menu.&quot; No POS, no hardware — just a

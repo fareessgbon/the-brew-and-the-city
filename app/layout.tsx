@@ -2,11 +2,16 @@ import type { Metadata } from 'next';
 import { Fraunces, Zen_Kaku_Gothic_New, Martian_Mono } from 'next/font/google';
 import './globals.css';
 
+// Italic is loaded, not synthesised. The careers postings set their group
+// headings in italic display type, and with only the roman loaded the
+// browser fakes it by slanting the upright — which in Fraunces is
+// especially obvious, since its real italic is a differently drawn face,
+// not a sheared version of the same letters.
 const fraunces = Fraunces({
   variable: '--font-fraunces',
   subsets: ['latin'],
   weight: ['400', '500', '600'],
-  style: ['normal'],
+  style: ['normal', 'italic'],
 });
 
 const zenKakuGothicNew = Zen_Kaku_Gothic_New({

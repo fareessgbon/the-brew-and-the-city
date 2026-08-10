@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SurveyStatus } from '@/lib/supabase/types';
 
 const STATUS_OPTIONS: SurveyStatus[] = ['new', 'contacted', 'selected', 'declined'];
@@ -70,9 +70,29 @@ export function AdminStatusBadge({ id, initialStatus }: { id: string; initialSta
 // The card body's working field — separate from the badge above so the
 // header can stay a single scannable line while this sits with the rest
 // of the card's content.
+//
+// Collapsed until there's something to show. An always-rendered empty
+// textarea put roughly 90px of blank box on every card in the queue, so a
+// page with a handful of submissions was mostly empty note fields — the
+// notes are the exception, not the default state of a row. Cards that
+// already have a note open showing it, since that note is worth reading
+// without a click.
 export function AdminNotesField({ id, initialNotes }: { id: string; initialNotes: string | null }) {
   const [notes, setNotes] = useState(initialNotes ?? '');
   const [saved, setSaved] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [open, setOpen] = useState(Boolean(initialNotes));
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Only focus when the field was opened by a click, never on mount —
+  // otherwise every card with an existing note would fight for focus as
+  // the page loads.
+  const openedByClick = useRef(false);
+
+  useEffect(() => {
+    if (open && openedByClick.current) {
+      openedByClick.current = false;
+      textareaRef.current?.focus();
+    }
+  }, [open]);
 
   async function handleBlur() {
     setSaved('saving');
@@ -90,10 +110,26 @@ export function AdminNotesField({ id, initialNotes }: { id: string; initialNotes
     }
   }
 
+  if (!open) {
+    return (
+      <button
+        type="button"
+        className="admin-note-add"
+        onClick={() => {
+          openedByClick.current = true;
+          setOpen(true);
+        }}
+      >
+        + Add a note
+      </button>
+    );
+  }
+
   return (
-    <div className="admin-notes" style={{ marginTop: 10 }}>
+    <div className="admin-notes">
       <textarea
-        placeholder="Notes — e.g. why selected/declined, follow-up needed"
+        ref={textareaRef}
+        placeholder="Why selected or declined, follow-up needed…"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         onBlur={handleBlur}

@@ -32,8 +32,8 @@ export default function PrivacyPage() {
         <div className="wrap" style={{ maxWidth: 760 }}>
           <div className="notice-box">
             <strong>This is a pre-launch page, not the product.</strong> There is no account, no app, and no café
-            data yet — just a waitlist and two short surveys. This policy covers only what that actually collects.
-            A fuller policy will replace this one once the real product exists.
+            data yet — just a waitlist, two short surveys, and a job application form. This policy covers only what
+            those actually collect. A fuller policy will replace this one once the real product exists.
           </div>
 
           <h2>1. Who we are</h2>
@@ -72,6 +72,19 @@ export default function PrivacyPage() {
                 <td>Your answers only — no name or email is collected</td>
                 <td>To shape what we build; responses aren&apos;t tied to you</td>
               </tr>
+              {/* Kept in step with components/JobApplicationForm.tsx. A
+                  resume is the most sensitive thing this site holds — it's
+                  a file someone wrote about themselves, not a form field —
+                  so it's named explicitly rather than folded into "your
+                  application". */}
+              <tr>
+                <td>Job application (&ldquo;Careers&rdquo;)</td>
+                <td>
+                  Your name, email and the resume file you upload, plus anything else you choose to add — phone
+                  number, where you&apos;re based, links to your work, your availability and written answers
+                </td>
+                <td>To consider you for the role you applied to, and to reply to you about it</td>
+              </tr>
             </tbody>
           </table>
           <p>Nothing else is collected. There is no location tracking, no analytics, and no cookies beyond what your browser needs to load the page.</p>
@@ -81,14 +94,25 @@ export default function PrivacyPage() {
             Waitlist entries and survey responses are kept until the product launches or, if it doesn&apos;t, no
             longer than 12 months from submission — whichever comes first.
           </p>
+          <p>
+            Job applications, including any uploaded resume, are kept for 12 months from the date you applied, so we
+            can come back to you if a role opens that fits better than the one you applied for. Ask us sooner and
+            we&apos;ll delete both the application and the file.
+          </p>
+          <p>
+            Uploaded resumes are stored privately. They are not published anywhere, not linked from any public page,
+            and not readable by anyone with the file&apos;s address — the only way to open one is a temporary link
+            generated for us when we review your application.
+          </p>
 
           <h2>4. Your rights</h2>
           <p>
             Under Alberta&apos;s <em>Personal Information Protection Act</em> (PIPA), you can ask us what we hold
             about you and ask us to delete it. Email{' '}
-            <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a> — waitlist removal is immediate;
-            survey responses submitted anonymously (the consumer survey) can&apos;t be matched back to a specific
-            person to delete individually, since we never collected anything identifying in the first place.
+            <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a> — waitlist removal is immediate,
+            and so is deleting a job application and any resume you uploaded with it; survey responses submitted
+            anonymously (the consumer survey) can&apos;t be matched back to a specific person to delete
+            individually, since we never collected anything identifying in the first place.
           </p>
 
           <h2>5. Changes to this policy</h2>

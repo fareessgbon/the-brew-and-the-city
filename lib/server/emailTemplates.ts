@@ -43,6 +43,41 @@ function wrap(bodyHtml: string): string {
 </html>`;
 }
 
+// Neither of these values is ever HTML, but both come straight from a form
+// field and land inside a template string — escape rather than reason about
+// it at each call site.
+function escapeHtml(value: string): string {
+  return value.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c] as string);
+}
+
+export function jobApplicationConfirmationEmail(
+  applicantName: string,
+  roleTitle: string,
+): { subject: string; html: string } {
+  const name = escapeHtml(applicantName);
+  const role = escapeHtml(roleTitle);
+  // First name only in the greeting — "Thanks, Jordan Alvarez-Smith" reads
+  // like a form letter, which is the one thing this shouldn't.
+  const firstName = name.split(/\s+/)[0];
+  return {
+    subject: `We got your application — ${role}`,
+    html: wrap(`
+      <p style="margin:0 0 16px; font-size:19px; font-weight:600; font-family:Georgia,serif;">Thanks, ${firstName} — your application is in.</p>
+      <p style="margin:0 0 16px;">
+        You applied for <strong>${role}</strong>. Every application is read by the founder directly, not filtered
+        by anything, so give us a little time — we&rsquo;ll reply either way, including if it&rsquo;s a no.
+      </p>
+      <p style="margin:0 0 16px;">
+        If your resume isn&rsquo;t hosted anywhere, reply to this email and attach it — it&rsquo;ll get matched to
+        your application.
+      </p>
+      <p style="margin:0;">
+        Anything you want to add in the meantime? Just reply here.
+      </p>
+    `),
+  };
+}
+
 export function cafePartnerSurveyConfirmationEmail(cafeName: string): { subject: string; html: string } {
   const safeName = cafeName.replace(/[<>&]/g, ''); // no HTML special chars expected in a café name, but don't trust it
   return {

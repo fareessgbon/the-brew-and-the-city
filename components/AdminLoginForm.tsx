@@ -34,7 +34,7 @@ export function AdminLoginForm() {
     <div className="wrap" style={{ maxWidth: 360, padding: '80px 24px' }}>
       <div className="label eyebrow">Admin</div>
       <h1 style={{ fontSize: 24, marginBottom: 20 }}>Enter the admin PIN</h1>
-      <form onSubmit={handleSubmit} className="cafe-signup-form" style={{ background: '#faf8f4' }}>
+      <form onSubmit={handleSubmit} className="cafe-signup-form" style={{ background: 'var(--porcelain)' }}>
         <label htmlFor="pin">PIN</label>
         <input
           type="password"

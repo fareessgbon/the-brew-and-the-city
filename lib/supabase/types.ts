@@ -5,9 +5,14 @@
 // copy of this file; duplicating all of it here would describe dozens of
 // tables this codebase never touches.
 
-export type SurveyType = 'cafe_partner' | 'consumer';
+// 'job_application' (migration 0026) is a survey row only in the storage
+// sense — /careers/*/apply reuses this table for its answer blob and,
+// unlike the consumer survey, actually uses the review workflow below.
+export type SurveyType = 'cafe_partner' | 'consumer' | 'job_application';
 // Admin review workflow (migration 0023) — see chat, "similar to the
-// launch site admin". Only exposed in the UI for cafe_partner rows.
+// launch site admin". Exposed in the UI for cafe_partner and
+// job_application rows, not consumer ones (those are anonymous aggregate
+// signal, not individual applications to action).
 export type SurveyStatus = 'new' | 'contacted' | 'selected' | 'declined';
 
 export interface Database {

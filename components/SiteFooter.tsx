@@ -23,6 +23,11 @@ export function SiteFooter() {
           </a>
           <Link href="/#waitlist">Join the Waitlist</Link>
           <Link href="/for-cafes">For Cafés</Link>
+          {/* Footer-only, deliberately: the header nav is for the three
+              things a visitor came to do, and a fourth item there costs
+              more than careers earns. Footer is where people look for it
+              anyway. */}
+          <Link href="/careers">Careers</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </div>

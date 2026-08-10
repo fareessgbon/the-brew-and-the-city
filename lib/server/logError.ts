@@ -6,8 +6,33 @@ import { createAdminClient } from '@/lib/supabase/server';
 // are queryable later (`select * from error_logs order by created_at desc`)
 // instead of living only in whatever log stream happened to be watched at
 // the time. Still console.errors too — that's free, keep it.
+// Supabase errors are plain objects, not Error instances, so String(error)
+// on the most common input to this function produced the literal text
+// "[object Object]" — every logged database failure recorded that it had
+// happened and nothing about what it was. Reproduced live: a check-
+// constraint violation logged "[object Object]" instead of the constraint
+// name that identified the problem outright.
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') {
+    const { message, code } = error as { message?: unknown; code?: unknown };
+    if (typeof message === 'string') {
+      // Postgres error codes are worth keeping — 23505 (unique violation)
+      // and 23514 (check violation) each say something the message alone
+      // doesn't make obvious.
+      return typeof code === 'string' ? `${code}: ${message}` : message;
+    }
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return String(error);
+    }
+  }
+  return String(error);
+}
+
 export async function logServerError(scope: string, error: unknown, detail?: Record<string, unknown>, userId?: string | null) {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = describeError(error);
   console.error(`[${scope}]`, message, detail ?? '');
 
   try {
