@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Fragment } from 'react';
+import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { ADMIN_COOKIE_NAME, expectedAdminToken } from '@/lib/server/adminAuth';
 import { createAdminClient } from '@/lib/supabase/server';
@@ -51,22 +52,6 @@ const CAFE_FIELD_LABELS: Record<string, string> = {
   freeText: 'What would make them interested',
 };
 
-// Careers (/careers) — see components/JobApplicationForm.tsx for the source
-// field names.
-const JOB_FIELD_LABELS: Record<string, string> = {
-  roleTitle: 'Role',
-  fullName: 'Name',
-  email: 'Email',
-  phone: 'Phone',
-  basedIn: 'Based in',
-  portfolio: 'Portfolio / work',
-  tools: 'Tools they use',
-  availability: 'Availability',
-  pitch: 'Their post pitch',
-  whyYou: 'Anything else',
-  acknowledgedUnpaid: 'Confirmed unpaid',
-};
-
 const CONSUMER_FIELD_LABELS: Record<string, string> = {
   howTheyFindCafes: 'How they find cafés',
   whatMakesThemReturn: 'What makes them return',
@@ -95,19 +80,6 @@ const CAFE_FIELD_ORDER = [
 ];
 
 const CONSUMER_FIELD_ORDER = ['howTheyFindCafes', 'whatMakesThemReturn', 'friendsInfluence', 'tryNewFor', 'pricing', 'freeText'];
-
-// Mirrors the form's own field order (see JobApplicationForm.tsx) so the
-// detail list reads the way the applicant filled it in. roleSlug is left
-// out entirely: roleTitle already says the same thing in words.
-const JOB_FIELD_ORDER = [
-  'portfolio',
-  'pitch',
-  'tools',
-  'availability',
-  'whyYou',
-  'phone',
-  'acknowledgedUnpaid',
-];
 
 function humanizeKey(key: string): string {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
@@ -412,23 +384,24 @@ export default async function AdminPage() {
             const metaBits = [answers.roleTitle, answers.email, answers.basedIn]
               .filter((v): v is string => typeof v === 'string' && v.length > 0)
               .join(' · ');
-            const detailRows = formatAnswerRows(answers, JOB_FIELD_LABELS, JOB_FIELD_ORDER, [
-              'roleSlug',
-              'roleTitle',
-              'fullName',
-              'email',
-              'basedIn',
-              // Rendered as a download button below instead — the stored
-              // object path is meaningless to read and isn't clickable.
-              'resumeFile',
-            ]);
+            // No inline answer list on these cards any more — the full
+            // application has its own page (/admin/applications/[id]), and
+            // a disclosure that duplicates it just makes the queue longer.
             const resumeFile = answers.resumeFile as { name?: unknown; size?: unknown } | null;
             const resumeHref = resumeUrls.get(s.id);
             return (
               <div key={s.id} className="admin-card">
                 <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
                   <div>
-                    <h3 style={{ fontSize: 16.5, margin: 0 }}>{name}</h3>
+                    {/* The name is the link to the full application — a
+                        whole-card link would swallow the meta line, the
+                        status control and the resume button into one
+                        accessible name. */}
+                    <h3 style={{ fontSize: 16.5, margin: 0 }}>
+                      <Link href={`/admin/applications/${s.id}`} className="admin-card-link">
+                        {name}
+                      </Link>
+                    </h3>
                     {metaBits ? <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>{metaBits}</div> : null}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none' }}>
@@ -462,7 +435,9 @@ export default async function AdminPage() {
                     )}
                   </div>
                 ) : null}
-                <AnswerList rows={detailRows} summary="View the full application" />
+                <Link href={`/admin/applications/${s.id}`} className="admin-open-link">
+                  View the full application →
+                </Link>
                 <div className="admin-card-foot">
                   <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
                   <AdminDeleteButton id={s.id} label="application" />

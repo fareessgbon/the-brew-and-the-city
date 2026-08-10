@@ -8,6 +8,7 @@
 // someone log in fresh from a different session).
 
 import { createHash } from 'node:crypto';
+import { cookies } from 'next/headers';
 
 export const ADMIN_COOKIE_NAME = 'admin_session';
 
@@ -25,6 +26,18 @@ export function expectedAdminToken(): string | null {
 export function verifyAdminPin(pin: string): boolean {
   const expected = process.env.ADMIN_PIN;
   return expected != null && pin === expected;
+}
+
+// The server-component counterpart to isAdminRequest below — same cookie,
+// same expected value, read through next/headers instead of a Request.
+// Shared by every admin *page* so the check can't drift between them (it
+// was three inline lines in app/admin/page.tsx before there was a second
+// page to keep in step with).
+export async function isAdminSession(): Promise<boolean> {
+  const expected = expectedAdminToken();
+  if (!expected) return false;
+  const cookieStore = await cookies();
+  return cookieStore.get(ADMIN_COOKIE_NAME)?.value === expected;
 }
 
 // Shared by every /api/admin/* route handler that isn't the login route

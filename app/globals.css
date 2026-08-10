@@ -1697,6 +1697,28 @@ footer {
   box-shadow: 0 2px 8px rgba(58, 44, 36, 0.07);
 }
 
+/* The applicant name as a link into the full application. Underlined only
+   on hover — in a list of cards, a permanently underlined name reads as a
+   row of links rather than a queue of people. */
+.admin-card-link {
+  text-decoration: none;
+  color: var(--ceremony);
+}
+.admin-card-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.admin-open-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--whisk);
+  text-decoration: none;
+}
+.admin-open-link:hover {
+  color: var(--ceremony);
+}
+
 /* Card footer: note control left, delete right, on one line. These were
    two stacked full-width rows, which left a band of empty card between a
    small button and a small link. */

@@ -77,10 +77,20 @@ export function AdminStatusBadge({ id, initialStatus }: { id: string; initialSta
 // notes are the exception, not the default state of a row. Cards that
 // already have a note open showing it, since that note is worth reading
 // without a click.
-export function AdminNotesField({ id, initialNotes }: { id: string; initialNotes: string | null }) {
+export function AdminNotesField({
+  id,
+  initialNotes,
+  // The full application page opens the field outright — you went there to
+  // work one submission, so the note box is the point rather than clutter.
+  alwaysOpen = false,
+}: {
+  id: string;
+  initialNotes: string | null;
+  alwaysOpen?: boolean;
+}) {
   const [notes, setNotes] = useState(initialNotes ?? '');
   const [saved, setSaved] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [open, setOpen] = useState(Boolean(initialNotes));
+  const [open, setOpen] = useState(alwaysOpen || Boolean(initialNotes));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // Only focus when the field was opened by a click, never on mount —
   // otherwise every card with an existing note would fight for focus as
