@@ -1,29 +1,36 @@
 import type { Metadata } from 'next';
-import { Fraunces, Zen_Kaku_Gothic_New, Martian_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
-// Italic is loaded, not synthesised. The careers postings set their group
-// headings in italic display type, and with only the roman loaded the
-// browser fakes it by slanting the upright — which in Fraunces is
-// especially obvious, since its real italic is a differently drawn face,
-// not a sheared version of the same letters.
-const fraunces = Fraunces({
+// Self-hosted rather than next/font/google. That helper fetches Google's
+// CSS at build time and downloads whatever file URLs it names — so a build
+// can only succeed while fonts.gstatic.com is up and serving the exact URLs
+// the cache remembers. Google rotated Fraunces' hashes under a restored
+// Vercel build cache and every deploy 404'd on a font. These are the same
+// files (latin subset, downloaded from Google, open-licensed); they just
+// live in the repo now, where nothing can rotate them out from under a
+// build.
+//
+// Italic is a real file, not synthesised. The careers postings set their
+// group headings in italic display type, and with only the roman loaded the
+// browser fakes it by slanting the upright — especially obvious in
+// Fraunces, whose true italic is a differently drawn face rather than a
+// sheared version of the same letters.
+const fraunces = localFont({
   variable: '--font-fraunces',
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  style: ['normal', 'italic'],
+  display: 'swap',
+  src: [
+    // One variable file per style covers 400–600; the weights the CSS asks
+    // for are instances of it, not separate downloads.
+    { path: './fonts/Fraunces-Variable-latin.woff2', weight: '400 600', style: 'normal' },
+    { path: './fonts/Fraunces-Italic-Variable-latin.woff2', weight: '400 600', style: 'italic' },
+  ],
 });
 
-const zenKakuGothicNew = Zen_Kaku_Gothic_New({
-  variable: '--font-zen-kaku',
-  subsets: ['latin'],
-  weight: ['500'],
-});
-
-const martianMono = Martian_Mono({
+const martianMono = localFont({
   variable: '--font-martian-mono',
-  subsets: ['latin'],
-  weight: ['500'],
+  display: 'swap',
+  src: [{ path: './fonts/MartianMono-Medium-latin.woff2', weight: '500', style: 'normal' }],
 });
 
 // NEXT_PUBLIC_SITE_URL — set this to the real production domain once one
@@ -57,7 +64,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${zenKakuGothicNew.variable} ${martianMono.variable} h-full`}
+      className={`${fraunces.variable} ${martianMono.variable} h-full`}
     >
       <head>
         {/* General Sans is a Fontshare-exclusive typeface, not on Google Fonts */}

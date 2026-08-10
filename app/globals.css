@@ -51,7 +51,10 @@
   --font-display: var(--font-fraunces), serif;
   --font-sans: 'General Sans', sans-serif;
   --font-mono: var(--font-martian-mono), monospace;
-  --font-ja: var(--font-zen-kaku), sans-serif;
+  /* --font-ja / Zen Kaku Gothic New is gone: the only rule that used it was
+     .logo .ja, and no page has ever rendered a .ja element — so every
+     visitor was downloading a Japanese face to set no text at all. If the
+     wordmark gains its Japanese line back, load the font again with it. */
 }
 
 * {
@@ -151,12 +154,6 @@ header .wrap {
   font-weight: 600;
   font-size: 20px;
   color: var(--ceremony);
-}
-.logo .ja {
-  font-family: var(--font-ja);
-  font-size: 11px;
-  color: var(--whisk);
-  margin-top: 2px;
 }
 nav {
   display: flex;
