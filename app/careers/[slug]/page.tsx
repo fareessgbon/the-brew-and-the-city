@@ -61,75 +61,77 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader current="careers" />
+      <main id="content">
 
-      <section style={{ padding: '48px 0 8px' }}>
-        <div className="wrap" style={{ maxWidth: 720 }}>
-          <Link href="/careers" style={{ fontSize: 13.5, color: 'var(--whisk)' }}>
-            ← All open roles
-          </Link>
+        <section style={{ padding: '48px 0 8px' }}>
+          <div className="wrap" style={{ maxWidth: 720 }}>
+            <Link href="/careers" style={{ fontSize: 13.5, color: 'var(--whisk)' }}>
+              ← All open roles
+            </Link>
 
-          <h1 style={{ fontSize: 36, lineHeight: 1.12, letterSpacing: '-0.02em', margin: '16px 0 14px' }}>
-            {role.title}
-          </h1>
-          <div className="role-meta">
-            <span>{role.location}</span>
-            <span>{role.commitment}</span>
-            <span>{role.compensation}</span>
-          </div>
+            <h1 style={{ fontSize: 36, lineHeight: 1.12, letterSpacing: '-0.02em', margin: '16px 0 14px' }}>
+              {role.title}
+            </h1>
+            <div className="role-meta">
+              <span>{role.location}</span>
+              <span>{role.commitment}</span>
+              <span>{role.compensation}</span>
+            </div>
 
-          {/* Leads the posting, ahead of the company paragraph — someone
-              who clicked a job title deserves to know what the days
-              actually look like before they read what we are. */}
-          <p className="role-hook" style={{ margin: '22px 0 0', fontSize: 24 }}>
-            {role.hook}
-          </p>
-
-          {role.intro.map((paragraph) => (
-            <p key={paragraph} style={{ fontSize: 16.5, color: 'var(--ink)', margin: '18px 0 0', maxWidth: '60ch' }}>
-              {paragraph}
+            {/* Leads the posting, ahead of the company paragraph — someone
+                who clicked a job title deserves to know what the days
+                actually look like before they read what we are. */}
+            <p className="role-hook" style={{ margin: '22px 0 0', fontSize: 24 }}>
+              {role.hook}
             </p>
-          ))}
 
-          <Link href={applyHref} className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 24 }}>
-            Apply for this role
-          </Link>
-        </div>
-      </section>
+            {role.intro.map((paragraph) => (
+              <p key={paragraph} style={{ fontSize: 16.5, color: 'var(--ink)', margin: '18px 0 0', maxWidth: '60ch' }}>
+                {paragraph}
+              </p>
+            ))}
 
-      <section style={{ padding: '32px 0 48px' }}>
-        <div className="wrap" style={{ maxWidth: 720 }}>
-          <div className="section-eyebrow label">What you&apos;ll do</div>
-          <SectionGroups sections={role.responsibilities} />
-
-          <div className="section-eyebrow label">Qualifications</div>
-          <p style={{ fontSize: 15.5, color: 'var(--ink)', margin: '0', maxWidth: '60ch' }}>
-            {role.lookingForIntro}
-          </p>
-          <SectionGroups sections={role.lookingFor} />
-
-          {/* The terms sit in their own bordered block rather than as another
-              bullet list — unpaid is the single fact most likely to change
-              someone's mind, and it shouldn't be the ninth line of a list
-              they've stopped reading by. */}
-          <div className="notice-box" style={{ marginBottom: 28 }}>
-            <strong>Commitment and pay.</strong> {role.terms}
-          </div>
-
-          <div className="club-band">
-            <div className="section-eyebrow label">Interested?</div>
-            <h2 style={{ fontSize: 24, marginBottom: 12 }}>{role.closing}</h2>
-            <p style={{ fontSize: 15, color: 'var(--paper)', opacity: 0.85, margin: '0 0 18px', maxWidth: '56ch' }}>
-              Send us your resume and a portfolio, or just examples of content and design work you&apos;ve made.
-              Links are fine — a TikTok account you run counts as a portfolio here.
-            </p>
-            <Link href={applyHref} className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
+            <Link href={applyHref} className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 24 }}>
               Apply for this role
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
 
+        <section style={{ padding: '32px 0 48px' }}>
+          <div className="wrap" style={{ maxWidth: 720 }}>
+            <div className="section-eyebrow label">What you&apos;ll do</div>
+            <SectionGroups sections={role.responsibilities} />
+
+            <div className="section-eyebrow label">Qualifications</div>
+            <p style={{ fontSize: 15.5, color: 'var(--ink)', margin: '0', maxWidth: '60ch' }}>
+              {role.lookingForIntro}
+            </p>
+            <SectionGroups sections={role.lookingFor} />
+
+            {/* The terms sit in their own bordered block rather than as another
+                bullet list — unpaid is the single fact most likely to change
+                someone's mind, and it shouldn't be the ninth line of a list
+                they've stopped reading by. */}
+            <div className="notice-box" style={{ marginBottom: 28 }}>
+              <strong>Commitment and pay.</strong> {role.terms}
+            </div>
+
+            <div className="club-band">
+              <div className="section-eyebrow label">Interested?</div>
+              <h2 style={{ fontSize: 24, marginBottom: 12 }}>{role.closing}</h2>
+              <p style={{ fontSize: 15, color: 'var(--paper)', opacity: 0.85, margin: '0 0 18px', maxWidth: '56ch' }}>
+                Send us your resume and a portfolio, or just examples of content and design work you&apos;ve made.
+                Links are fine — a TikTok account you run counts as a portfolio here.
+              </p>
+              <Link href={applyHref} className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
+                Apply for this role
+              </Link>
+            </div>
+          </div>
+        </section>
+
+      </main>
       <SiteFooter />
     </>
   );

@@ -218,7 +218,13 @@ export async function POST(request: Request) {
   // saved, so a mail failure is never a reason to tell an applicant their
   // submission failed.
   try {
-    const { subject, html } = jobApplicationConfirmationEmail(fullName, role.title);
+    const { subject, html } = jobApplicationConfirmationEmail(
+      fullName,
+      role.title,
+      // A file beats a link when both arrived — it's the copy we hold
+      // ourselves, so it's the one the receipt should speak about.
+      resumeRecord ? 'file' : 'link',
+    );
     await sendEmail({ to: email, subject, html });
   } catch (err) {
     await logServerError('api.careers.apply.confirmation-email', err, { roleSlug: role.slug, email });

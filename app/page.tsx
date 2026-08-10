@@ -54,7 +54,9 @@ export default async function HomePage() {
     <>
       <DemoBanner show={!allVerified} />
       <SiteHeader />
-      <HomeContent cafes={cafes} />
+      <main id="content">
+        <HomeContent cafes={cafes} />
+      </main>
       <SiteFooter />
     </>
   );

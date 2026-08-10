@@ -102,6 +102,24 @@ a {
 }
 
 /* Header */
+/* Off-screen rather than display:none — hiding it outright would take it
+   out of the tab order, which is the one thing it exists for. z-index above
+   the header's own 100 so it isn't covered by the bar it sits in. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 101;
+  padding: 10px 16px;
+  border-radius: 0 0 10px 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 14px;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+}
 header {
   position: sticky;
   top: 0;

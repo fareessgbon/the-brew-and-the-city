@@ -4,9 +4,16 @@ import Link from 'next/link';
 // goes somewhere a visitor can act on without an account. "For Cafés" was
 // previously footer-only; added here too so the café pitch isn't a click
 // a café owner has to already know to look for.
-export function SiteHeader({ current }: { current?: 'for-cafes' | 'make-brew-better' }) {
+export function SiteHeader({ current }: { current?: 'for-cafes' | 'make-brew-better' | 'careers' }) {
   return (
     <header>
+      {/* First focusable thing on every page, and invisible until it's
+          focused — without it a keyboard or screen-reader user tabs the
+          whole nav again on every page before reaching the content. Each
+          page wraps its own content in <main id="content"> as the target. */}
+      <a className="skip-link" href="#content">
+        Skip to content
+      </a>
       <div className="wrap">
         <Link className="logo" href="/">
           <span className="en">Brew and the City</span>
@@ -17,6 +24,12 @@ export function SiteHeader({ current }: { current?: 'for-cafes' | 'make-brew-bet
           </Link>
           <Link href="/make-brew-better" className={current === 'make-brew-better' ? 'current' : undefined} aria-current={current === 'make-brew-better' ? 'page' : undefined}>
             Make Brew Better
+          </Link>
+          {/* Footer-only until now, which put an open role two clicks from
+              anywhere and one of them un-guessable. Still the last item —
+              hiring matters to fewer visitors than either link above it. */}
+          <Link href="/careers" className={current === 'careers' ? 'current' : undefined} aria-current={current === 'careers' ? 'page' : undefined}>
+            Careers
           </Link>
           {/* The visible label no longer names the destination, and this
               leaves the site for Instagram in a new tab. aria-label keeps

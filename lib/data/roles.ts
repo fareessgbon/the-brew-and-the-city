@@ -126,7 +126,10 @@ export const ROLES: Role[] = [
           'Designing in Canva to a consistent, on-brand look',
           'Instagram and TikTok as a maker, not just a viewer',
           'Writing captions that sound like a person wrote them',
-          'Comfortable on camera, or willing to get there',
+          // Matches the application form's own question, which offers Yes,
+          // Somewhat and No — the posting shouldn't invite an answer the
+          // form no longer takes.
+          'Comfortable appearing on camera, at least somewhat',
           'A real grasp of what’s working on social right now, and why',
         ],
       },

@@ -53,12 +53,20 @@ function escapeHtml(value: string): string {
 export function jobApplicationConfirmationEmail(
   applicantName: string,
   roleTitle: string,
+  // The form takes a resume as a file or as a link, and the receipt has to
+  // say which one arrived. Told flatly that they can reply and attach one,
+  // someone who just uploaded a PDF reads it as "you didn't get it".
+  resumeSent: 'file' | 'link',
 ): { subject: string; html: string } {
   const name = escapeHtml(applicantName);
   const role = escapeHtml(roleTitle);
   // First name only in the greeting — "Thanks, Jordan Alvarez-Smith" reads
   // like a form letter, which is the one thing this shouldn't.
   const firstName = name.split(/\s+/)[0];
+  const resumeLine =
+    resumeSent === 'file'
+      ? 'Your resume came through with it. If you&rsquo;d rather we read a different version, reply to this email and attach it — it&rsquo;ll get matched to your application.'
+      : 'We have the resume link you gave us. If it stops working, or you&rsquo;d rather send the file itself, reply to this email and attach it — it&rsquo;ll get matched to your application.';
   return {
     subject: `We got your application — ${role}`,
     html: wrap(`
@@ -68,8 +76,7 @@ export function jobApplicationConfirmationEmail(
         by anything, so give us a little time — we&rsquo;ll reply either way, including if it&rsquo;s a no.
       </p>
       <p style="margin:0 0 16px;">
-        If your resume isn&rsquo;t hosted anywhere, reply to this email and attach it — it&rsquo;ll get matched to
-        your application.
+        ${resumeLine}
       </p>
       <p style="margin:0;">
         Anything you want to add in the meantime? Just reply here.
