@@ -86,6 +86,11 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
               {role.hook}
             </p>
 
+            {/* Answers the question the hook plants — who's paying for all
+                that coffee — before the reader has to go looking for it in
+                the terms block. */}
+            <p className="role-perk">{role.perk}</p>
+
             {role.intro.map((paragraph) => (
               <p key={paragraph} style={{ fontSize: 16.5, color: 'var(--ink)', margin: '18px 0 0', maxWidth: '60ch' }}>
                 {paragraph}

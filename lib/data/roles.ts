@@ -22,6 +22,11 @@ export interface Role {
   // of the formal intro — a job title tells someone almost nothing, and
   // this is the line that makes them keep reading.
   hook: string;
+  // The one thing we can offer an unpaid intern that costs them nothing to
+  // find out. It sits directly under the hook rather than in the terms block
+  // at the bottom, because it's the line that makes the hook's joke land as
+  // an actual offer — and because most people never reach the bottom.
+  perk: string;
   // The straight version of the same thing, for search results and link
   // previews, where a joke with no page around it just reads as noise.
   blurb: string;
@@ -51,6 +56,7 @@ export const ROLES: Role[] = [
     slug: 'marketing-social-media-intern',
     title: 'Marketing & Social Media Intern',
     hook: 'Honestly? The job is to go to cafés, drink coffee and matcha, and make content about it.',
+    perk: 'The coffee’s on us, obviously.',
     blurb:
       'Help build the voice, look and following of a Calgary café-discovery platform from its very first post.',
     location: 'Calgary — hybrid',

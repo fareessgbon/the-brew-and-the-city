@@ -1489,6 +1489,22 @@ section {
   max-width: 34ch;
 }
 
+/* The line under the hook that says who pays for the coffee. A rule in --sky
+   rather than a box: it needs to read as an aside to the hook it follows,
+   not as a second block competing with it. Italic and a step down in size,
+   so the eye takes it as the same voice continuing. */
+.role-perk {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--whisk);
+  margin: 14px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--sky);
+  max-width: 44ch;
+}
+
 /* Careers — a group heading inside a posting section ("Content", "On
    location", "Logistics"). Sits between the mono uppercase section eyebrow
    above it and the bullets below. */
