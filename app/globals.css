@@ -49,7 +49,7 @@
   --color-ink: var(--ink);
 
   --font-display: var(--font-fraunces), serif;
-  --font-sans: 'General Sans', sans-serif;
+  --font-sans: var(--font-general-sans), sans-serif;
   --font-mono: var(--font-martian-mono), monospace;
   /* --font-ja / Zen Kaku Gothic New is gone: the only rule that used it was
      .logo .ja, and no page has ever rendered a .ja element — so every

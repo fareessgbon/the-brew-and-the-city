@@ -33,6 +33,28 @@ const martianMono = localFont({
   src: [{ path: './fonts/MartianMono-Medium-latin.woff2', weight: '500', style: 'normal' }],
 });
 
+// Was two <link> tags to the Fontshare CDN. Those couldn't break a build the
+// way Fraunces did — a stylesheet link is fetched by the browser, not by the
+// bundler — but they put the body text of every page behind a third party
+// being up and quick. Self-hosted, the whole typographic system now ships
+// from one origin and there is no render-blocking request to anyone else.
+//
+// General Sans is Fontshare-exclusive and not on Google Fonts. It's licensed
+// under the ITF Free Font License, which permits self-hosting.
+//
+// Three static weights rather than the variable file: the CSS asks for 400,
+// 500 and 600 only, and three subset instances are smaller than the variable
+// font that would interpolate between them.
+const generalSans = localFont({
+  variable: '--font-general-sans',
+  display: 'swap',
+  src: [
+    { path: './fonts/GeneralSans-Regular-latin.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/GeneralSans-Medium-latin.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/GeneralSans-Semibold-latin.woff2', weight: '600', style: 'normal' },
+  ],
+});
+
 // NEXT_PUBLIC_SITE_URL — set this to the real production domain once one
 // exists (see PRODUCTION_CHECKLIST.md). Falls back to localhost so
 // metadata/OG tags still resolve to *some* absolute URL in dev rather than
@@ -64,13 +86,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${martianMono.variable} h-full`}
+      className={`${fraunces.variable} ${martianMono.variable} ${generalSans.variable} h-full`}
     >
-      <head>
-        {/* General Sans is a Fontshare-exclusive typeface, not on Google Fonts */}
-        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
-        <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet" />
-      </head>
       <body className="min-h-full flex flex-col bg-paper text-ink font-sans relative">{children}</body>
     </html>
   );
