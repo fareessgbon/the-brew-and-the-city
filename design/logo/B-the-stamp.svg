@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" width="460" height="300">
+  <title>Brew and the City — The Stamp (circular badge)</title>
+  <defs>
+    <path id="arcTop" d="M 129 150 a 101 101 0 1 1 202 0" fill="none"/>
+  </defs>
+  <circle cx="230" cy="150" r="128" fill="none" stroke="#3a2c24" stroke-width="5"/>
+  <circle cx="230" cy="150" r="118" fill="none" stroke="#3a2c24" stroke-width="1.6"/>
+  <text font-family="Martian Mono" font-weight="500" font-size="15" letter-spacing="2.85" fill="#3a2c24" text-anchor="middle">
+    <textPath href="#arcTop" startOffset="50%">BREW AND THE CITY</textPath>
+  </text>
+  <text x="230" y="230" font-family="Martian Mono" font-weight="500" font-size="12" letter-spacing="1.92" fill="#3a2c24" text-anchor="middle">CALGARY · ALBERTA</text>
+  <g fill="none" stroke="#3a2c24" stroke-width="5" stroke-linecap="round">
+    <ellipse cx="230" cy="152" rx="32" ry="40" fill="#f4efe4"/>
+    <path d="M230 112 C 220 128, 237 136, 227 152 C 218 166, 235 173, 230 192" stroke-width="4.2"/>
+  </g>
+  <circle cx="219" cy="145" r="3.8" fill="#3a2c24"/>
+  <circle cx="242" cy="143" r="3.8" fill="#3a2c24"/>
+  <path d="M220 162 Q231 170 242 160" stroke="#3a2c24" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+  <path d="M116 152 l4 -11 4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 z" fill="#3a2c24"/>
+  <path d="M336 152 l4 -11 4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 z" fill="#3a2c24"/>
+</svg>

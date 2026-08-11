@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 210" width="620" height="210">
+  <title>Brew and the City — The Full Stop (type-led wordmark)</title>
+  <text x="40" y="92" font-family="Fraunces" font-weight="600" font-size="62" fill="#3a2c24">BREW</text>
+  <text x="40" y="168" font-family="Fraunces" font-weight="600" font-size="62" fill="#3a2c24">AND THE CITY</text>
+  <g transform="translate(545,146)">
+    <circle r="26" fill="none" stroke="#3a2c24" stroke-width="5"/>
+    <circle r="16" fill="#3a2c24"/>
+    <path d="M26 -8 a13 13 0 0 1 0 20" fill="none" stroke="#3a2c24" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g stroke="#3a2c24" stroke-width="3.4" fill="none" stroke-linecap="round" opacity="0.45">
+    <path d="M537 100 c 7 -9, -7 -16, 0 -25"/>
+    <path d="M557 96 c 7 -9, -7 -16, 0 -25"/>
+  </g>
+</svg>

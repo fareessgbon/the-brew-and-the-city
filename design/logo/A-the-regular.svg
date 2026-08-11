@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 200" width="620" height="200">
+  <title>Brew and the City — The Regular (horizontal lockup)</title>
+  <g fill="none" stroke="#3a2c24" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 108 h96 v30 a48 40 0 0 1 -96 0 z" fill="#f4efe4"/>
+    <path d="M158 116 a22 20 0 0 1 0 40"/>
+    <path d="M50 178 h120"/>
+    <ellipse cx="110" cy="78" rx="30" ry="37" fill="#f4efe4"/>
+    <path d="M110 41 C 101 55, 117 63, 108 77 C 100 90, 116 96, 110 115" stroke-width="4"/>
+    <path d="M82 96 L64 112"/>
+    <path d="M138 96 L156 112"/>
+  </g>
+  <circle cx="99" cy="72" r="3.6" fill="#3a2c24"/>
+  <circle cx="121" cy="70" r="3.6" fill="#3a2c24"/>
+  <path d="M100 87 Q110 95 120 85" stroke="#3a2c24" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+  <g stroke="#3a2c24" stroke-width="3.4" fill="none" stroke-linecap="round" opacity="0.5">
+    <path d="M196 62 c 7 -9, -7 -16, 0 -25"/>
+    <path d="M216 70 c 7 -9, -7 -16, 0 -25"/>
+  </g>
+  <text x="256" y="82" font-family="Fraunces" font-weight="600" font-size="46" fill="#3a2c24">BREW</text>
+  <text x="256" y="132" font-family="Fraunces" font-weight="600" font-size="46" fill="#3a2c24">AND THE</text>
+  <text x="256" y="182" font-family="Fraunces" font-weight="600" font-size="46" fill="#3a2c24">CITY</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <title>Brew and the City — The Peek (app icon)</title>
+  <rect x="10" y="10" width="280" height="280" rx="66" fill="#3a2c24"/>
+  <g fill="none" stroke="#f4efe4" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="150" cy="132" rx="46" ry="54"/>
+    <path d="M150 78 C 137 98, 160 110, 147 130 C 135 149, 158 158, 150 186" stroke-width="9"/>
+    <path d="M62 186 h176 v22 a88 66 0 0 1 -176 0 z" fill="#3a2c24"/>
+    <path d="M238 194 a30 26 0 0 1 0 46"/>
+  </g>
+  <circle cx="132" cy="124" r="6.5" fill="#f4efe4"/>
+  <circle cx="170" cy="121" r="6.5" fill="#f4efe4"/>
+</svg>
