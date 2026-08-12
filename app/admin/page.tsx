@@ -88,9 +88,9 @@ function humanizeKey(key: string): string {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
 }
 
-// Booleans exist in the answer blobs now (the careers form's unpaid
-// acknowledgement) — String(false) would print "false" in a column of
-// prose answers.
+// Booleans exist in the answer blobs (the careers form's old unpaid
+// acknowledgement, on applications sent before the role became paid) —
+// String(false) would print "false" in a column of prose answers.
 function formatValue(value: unknown): string {
   if (Array.isArray(value)) return value.join(', ');
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
@@ -496,12 +496,17 @@ export default async function AdminPage() {
             return (
               <div key={s.id} className="admin-card">
                 <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
-                  {/* Name identifies the row; the email (when they gave one)
-                      and the price expectation sit under it — the latter is
-                      the one answer with a number attached, and the reason
+                  {/* Name identifies the row and links to the full response,
+                      same as the application cards; the email (when they gave
+                      one) and the price expectation sit under it — the latter
+                      is the one answer with a number attached, and the reason
                       this survey exists. */}
                   <div>
-                    <h3 style={{ fontSize: 16.5, margin: 0 }}>{name}</h3>
+                    <h3 style={{ fontSize: 16.5, margin: 0 }}>
+                      <Link href={`/admin/consumer/${s.id}`} className="admin-card-link">
+                        {name}
+                      </Link>
+                    </h3>
                     <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>{metaBits}</div>
                   </div>
                   <Timestamp iso={s.created_at} />

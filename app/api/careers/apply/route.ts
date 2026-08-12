@@ -194,7 +194,10 @@ export async function POST(request: Request) {
     availability: text(body.availability, LIMITS.availability),
     pitch: text(body.pitch, LIMITS.pitch),
     whyYou: text(body.whyYou, LIMITS.whyYou),
-    acknowledgedUnpaid: body.acknowledgedUnpaid === true,
+    // acknowledgedUnpaid is no longer collected — the role is paid, so the
+    // form dropped the checkbox and this stops recording it. Rows written
+    // before the change keep theirs; nothing reads the field except the
+    // admin answer list, which renders whatever a row happens to hold.
   };
 
   const { error } = await admin.from('survey_responses').insert({ survey: 'job_application', answers });

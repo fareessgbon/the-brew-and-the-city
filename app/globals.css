@@ -1433,8 +1433,9 @@ section {
 
 /* Sky, not the old grey wash. Body copy here is --ink, which measures
    12.5:1 on this fill — the accent colour reading as "read this bit"
-   rather than as decoration, on the two boxes that most need it (the
-   unpaid terms on a job posting, the pre-launch caveat on the policy). */
+   rather than as decoration, on the two boxes that most need it (the pay
+   and commitment terms on a job posting, the pre-launch caveat on the
+   policy). */
 .notice-box {
   background: var(--sky);
   border-radius: 14px;
@@ -1455,8 +1456,8 @@ section {
 
 /* Careers — the location / commitment / pay row under a role title. Chips
    rather than a comma-joined sentence: these are three independent facts a
-   candidate scans for, and one of them ("Unpaid internship") is the reason
-   the row exists at all. Mono, like every other data-ish label on the site. */
+   candidate scans for, and the pay chip is the reason the row exists at
+   all. Mono, like every other data-ish label on the site. */
 .role-meta {
   display: flex;
   flex-wrap: wrap;

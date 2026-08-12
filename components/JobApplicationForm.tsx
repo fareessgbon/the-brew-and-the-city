@@ -108,7 +108,6 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
   const [availability, setAvailability] = useState('');
   const [pitch, setPitch] = useState('');
   const [whyYou, setWhyYou] = useState('');
-  const [acknowledgedUnpaid, setAcknowledgedUnpaid] = useState(false);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const resumeInputRef = useRef<HTMLInputElement>(null);
 
@@ -167,9 +166,6 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
     if (!portfolio.trim()) {
       return fail('Please share at least one link to work you’ve made — an account you run counts.', 'portfolio');
     }
-    if (!acknowledgedUnpaid) {
-      return fail('Please confirm you’ve read that this internship is unpaid.', 'acknowledgedUnpaid');
-    }
     setError('');
 
     const payload = {
@@ -189,7 +185,6 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
       availability: availability.trim(),
       pitch: pitch.trim(),
       whyYou: whyYou.trim(),
-      acknowledgedUnpaid,
     };
 
     // FormData, not JSON, so the resume travels with the answers in one
@@ -416,37 +411,12 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
         <textarea id="whyYou" name="whyYou" rows={3} value={whyYou} onChange={(e) => setWhyYou(e.target.value)} />
       </div>
 
-      {/* Required, and stated in the first person rather than as fine print.
-          The role page says this too — an unpaid role is the one term
-          nobody should be able to reach the end of a form without having
-          read. */}
-      <label
-        htmlFor="acknowledgedUnpaid"
-        // .cafe-signup-form label is mono/uppercase/tracked — right for a
-        // field caption, wrong for a sentence someone has to read and agree
-        // to, so this one opts back out of all four properties.
-        style={{
-          display: 'flex',
-          gap: 10,
-          alignItems: 'flex-start',
-          fontFamily: 'var(--font-sans)',
-          fontSize: 14,
-          letterSpacing: 'normal',
-          textTransform: 'none',
-          color: 'var(--ink)',
-          marginBottom: 16,
-        }}
-      >
-        <input
-          type="checkbox"
-          id="acknowledgedUnpaid"
-          name="acknowledgedUnpaid"
-          checked={acknowledgedUnpaid}
-          onChange={(e) => setAcknowledgedUnpaid(e.target.checked)}
-          style={{ width: 'auto', marginTop: 3 }}
-        />
-        <span>I&apos;ve read that this internship is currently unpaid.</span>
-      </label>
+      {/* The unpaid acknowledgement that used to sit here is gone with the
+          term it acknowledged — the role is paid now. A tickbox confirming
+          you've read a fact that no longer exists is worse than no tickbox:
+          it's one more required click, and it would have applicants
+          agreeing to the wrong thing. Applications submitted before this
+          still carry the flag; the admin view labels those as historical. */}
 
       {error ? (
         <div style={{ fontSize: 13, color: '#b3402a', marginBottom: 12 }} role="alert">

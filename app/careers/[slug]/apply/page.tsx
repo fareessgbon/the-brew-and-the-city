@@ -50,7 +50,7 @@ export default async function ApplyPage({ params }: { params: Promise<{ slug: st
               <p style={{ fontSize: 14, color: 'var(--whisk)', marginBottom: 24 }}>
                 Haven&apos;t read the posting yet?{' '}
                 <Link href={`/careers/${role.slug}`}>Go back to the role</Link>{' '}
-                — it says what this is, what it isn&apos;t, and that it&apos;s unpaid.
+                — it says what this is, what it isn&apos;t, and what it pays.
               </p>
               <JobApplicationForm roleSlug={role.slug} roleTitle={role.title} />
             </div>

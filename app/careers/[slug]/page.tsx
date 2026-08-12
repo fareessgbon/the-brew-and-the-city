@@ -115,9 +115,9 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
             <SectionGroups sections={role.lookingFor} />
 
             {/* The terms sit in their own bordered block rather than as another
-                bullet list — unpaid is the single fact most likely to change
-                someone's mind, and it shouldn't be the ninth line of a list
-                they've stopped reading by. */}
+                bullet list — pay and schedule are the facts most likely to
+                decide someone either way, and they shouldn't be the ninth
+                line of a list they've stopped reading by. */}
             <div className="notice-box" style={{ marginBottom: 28 }}>
               <strong>Commitment and pay.</strong> {role.terms}
             </div>

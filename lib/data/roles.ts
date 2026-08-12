@@ -22,24 +22,23 @@ export interface Role {
   // of the formal intro — a job title tells someone almost nothing, and
   // this is the line that makes them keep reading.
   hook: string;
-  // The one thing we can offer an unpaid intern that costs them nothing to
-  // find out. It sits directly under the hook rather than in the terms block
-  // at the bottom, because it's the line that makes the hook's joke land as
-  // an actual offer — and because most people never reach the bottom.
+  // The small, concrete offer that makes the hook's joke land as an actual
+  // one. It sits directly under the hook rather than in the terms block at
+  // the bottom, because most people never reach the bottom.
   perk: string;
   // The straight version of the same thing, for search results and link
   // previews, where a joke with no page around it just reads as noise.
   blurb: string;
   // The three facts a candidate scans for before reading anything else.
-  // `compensation` is deliberately not optional: an unpaid role that
-  // doesn't say so on the card is the one omission that wastes a
-  // candidate's time.
+  // `compensation` is deliberately not optional: whatever a role pays, a
+  // card that doesn't say costs the candidate a click to find out and
+  // reads, fairly, as something being hidden.
   location: string;
   commitment: string;
   compensation: string;
   // The same three facts again, in prose, for the terms block on the role
   // page. Written per role rather than assembled from the fields above,
-  // because "unpaid" deserves a sentence rather than a chip.
+  // because pay and commitment deserve a sentence rather than a chip.
   terms: string;
   intro: string[];
   // Grouped rather than one flat list. A twenty-item bullet list is read as
@@ -61,9 +60,9 @@ export const ROLES: Role[] = [
       'Help build the voice, look and following of a Calgary café-discovery platform from its very first post.',
     location: 'Calgary — hybrid',
     commitment: 'Flexible, ongoing',
-    compensation: 'Unpaid internship',
+    compensation: 'Paid position',
     terms:
-      'Flexible — we’re happy to work around your school schedule and availability, and there’s no fixed end date. You’ll need to be in Calgary, since some of the work happens at cafés, but most of it is remote. This is currently an unpaid internship, and we’d rather say that here than after you’ve written an application.',
+      'This is a paid, flexible position designed to work alongside school or other commitments. We’re happy to work around your class schedule and availability, and there’s no fixed end date. You’ll need to be in Calgary, since some of the work happens at cafés, but most of it is remote.',
     intro: [
       'Brew and the City is a new discovery platform helping people find independent cafés, and helping local cafés get discovered. We’re starting in Calgary and building a community around the cafés, people and places that make a city worth exploring.',
       'We’re looking for a creative Marketing & Social Media Intern to help us bring Brew and the City to life online. You’ll work closely with the founder to help build and promote the brand.',
