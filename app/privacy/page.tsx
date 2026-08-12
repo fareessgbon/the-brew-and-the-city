@@ -70,8 +70,8 @@ export default function PrivacyPage() {
                 </tr>
                 <tr>
                   <td>Consumer survey</td>
-                  <td>Your name and your answers to the survey questions — no email is collected</td>
-                  <td>To shape what we build</td>
+                  <td>Your name, your answers to the survey questions, and your email if you choose to give it</td>
+                  <td>To shape what we build, and to follow up if you left an email</td>
                 </tr>
                 {/* Kept in step with components/JobApplicationForm.tsx. A
                     resume is the most sensitive thing this site holds — it's
@@ -113,9 +113,9 @@ export default function PrivacyPage() {
               Under Alberta&apos;s <em>Personal Information Protection Act</em> (PIPA), you can ask us what we hold
               about you and ask us to delete it. Email{' '}
               <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a> — waitlist removal is immediate,
-              and so is deleting a job application and any resume you uploaded with it. Consumer survey responses
-              carry a name but no email, so tell us the name you gave and roughly when you submitted and we&apos;ll
-              find the response and delete it.
+              and so is deleting a job application and any resume you uploaded with it. For a consumer survey
+              response, email us from the address you gave — or, if you left that blank, tell us the name you used
+              and roughly when you submitted — and we&apos;ll find the response and delete it.
             </p>
 
             <h2>5. Changes to this policy</h2>

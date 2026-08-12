@@ -7,11 +7,13 @@ const MAX_SUBMISSIONS_PER_HOUR = 10;
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PAYLOAD_BYTES = 20_000;
 const MAX_NAME_LENGTH = 120;
+const MAX_EMAIL_LENGTH = 254; // RFC 5321's limit on a full address.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // POST /api/surveys/consumer — body is the raw §13.6.2 answer shape,
-// stored as-is. Still no email (unlike the café survey), but a name is
-// required now (see chat), so that's the one field validated here beyond
-// "is this a real, reasonably-sized submission."
+// stored as-is. A name is required and an email is optional (see chat);
+// those are the only fields validated here beyond "is this a real,
+// reasonably-sized submission."
 export async function POST(request: Request) {
   const raw = await request.text();
   if (raw.length > MAX_PAYLOAD_BYTES) {
@@ -37,6 +39,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'That name is too long.' }, { status: 400 });
   }
   body.name = name;
+
+  // Optional, so an empty value is accepted and simply stored empty — but
+  // anything actually typed has to be a plausible address.
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  if (email && (!EMAIL_RE.test(email) || email.length > MAX_EMAIL_LENGTH)) {
+    return NextResponse.json({ error: 'That email doesn’t look right.' }, { status: 400 });
+  }
+  body.email = email;
 
   const admin = createAdminClient();
   const tooMany = !(

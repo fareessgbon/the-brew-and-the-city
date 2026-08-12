@@ -55,6 +55,7 @@ const CAFE_FIELD_LABELS: Record<string, string> = {
 
 const CONSUMER_FIELD_LABELS: Record<string, string> = {
   name: 'Name',
+  email: 'Email',
   howTheyFindCafes: 'How they find cafés',
   whatMakesThemReturn: 'What makes them return',
   friendsInfluence: "Friends' influence",
@@ -81,7 +82,7 @@ const CAFE_FIELD_ORDER = [
   'priceExpectation',
 ];
 
-const CONSUMER_FIELD_ORDER = ['name', 'howTheyFindCafes', 'whatMakesThemReturn', 'friendsInfluence', 'tryNewFor', 'pricing', 'freeText'];
+const CONSUMER_FIELD_ORDER = ['name', 'email', 'howTheyFindCafes', 'whatMakesThemReturn', 'friendsInfluence', 'tryNewFor', 'pricing', 'freeText'];
 
 function humanizeKey(key: string): string {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
@@ -488,18 +489,20 @@ export default async function AdminPage() {
             const answers = s.answers as Record<string, unknown>;
             const name = typeof answers.name === 'string' && answers.name ? answers.name : 'Unnamed respondent';
             const pricing = typeof answers.pricing === 'string' && answers.pricing ? answers.pricing : null;
-            const detailRows = formatAnswerRows(answers, CONSUMER_FIELD_LABELS, CONSUMER_FIELD_ORDER, ['name']);
+            const metaBits = [typeof answers.email === 'string' && answers.email ? answers.email : null, pricing ? `Would pay ${pricing}` : 'No price given']
+              .filter((v): v is string => Boolean(v))
+              .join(' · ');
+            const detailRows = formatAnswerRows(answers, CONSUMER_FIELD_LABELS, CONSUMER_FIELD_ORDER, ['name', 'email']);
             return (
               <div key={s.id} className="admin-card">
                 <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
-                  {/* Name identifies the row; price expectation sits right
-                      under it — it's the one answer with a number attached,
-                      and the reason this survey exists. */}
+                  {/* Name identifies the row; the email (when they gave one)
+                      and the price expectation sit under it — the latter is
+                      the one answer with a number attached, and the reason
+                      this survey exists. */}
                   <div>
                     <h3 style={{ fontSize: 16.5, margin: 0 }}>{name}</h3>
-                    <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>
-                      {pricing ? `Would pay ${pricing}` : 'No price given'}
-                    </div>
+                    <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>{metaBits}</div>
                   </div>
                   <Timestamp iso={s.created_at} />
                 </div>

@@ -6,6 +6,8 @@ import { SurveyProgress } from './SurveyProgress';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const FIND_CAFES_OPTIONS = [
   'Friends or word of mouth',
   'Instagram or TikTok',
@@ -39,7 +41,7 @@ const TRY_NEW_OPTIONS = [
 const PRICING_OPTIONS = ['Around $10–20', 'Around $20–30', '$30+ if the value was there', 'Would need to see the cafés and benefits first'];
 
 const STEP_TITLES = [
-  'Who you are',
+  'Your name and email',
   'How do you usually find new cafés? (Choose up to 3)',
   'What makes you go back to a café? (Choose up to 3)',
   'How much do friends influence where you go?',
@@ -48,10 +50,11 @@ const STEP_TITLES = [
 ];
 const LAST_STEP = STEP_TITLES.length - 1;
 
-// §13.6.2 — the consumer-side validation survey. Still no email (the spec's
-// shape for this one), but it now opens by asking for a name (see chat), so
-// step 0 gates Next the way the café survey's does. Every step after it
-// stays optional. Same step-per-question wizard treatment as
+// §13.6.2 — the consumer-side validation survey. It opens by asking for a
+// name, required, with an optional email beside it (see chat), so step 0
+// gates Next the way the café survey's does — the difference being that
+// here the email only has to be well-formed *if* it's filled in. Every step
+// after it stays optional. Same step-per-question wizard treatment as
 // CafePartnerSurveyForm (see chat) — one <form>, one submit, just gated.
 export function ConsumerSurveyForm() {
   const [status, setStatus] = useState<Status>('idle');
@@ -60,6 +63,7 @@ export function ConsumerSurveyForm() {
   const [stepError, setStepError] = useState('');
 
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [howTheyFindCafes, setHowTheyFindCafes] = useState<string[]>([]);
   const [whatMakesThemReturn, setWhatMakesThemReturn] = useState<string[]>([]);
   const [friendsInfluence, setFriendsInfluence] = useState('');
@@ -67,12 +71,20 @@ export function ConsumerSurveyForm() {
   const [pricing, setPricing] = useState('');
   const [freeText, setFreeText] = useState('');
 
-  // Only step 0 has a required field — the rest are optional, so Next
+  // Only step 0 has anything to check — the rest are optional, so Next
   // advances freely there.
   function goNext() {
-    if (step === 0 && !name.trim()) {
-      setStepError('Your name is required.');
-      return;
+    if (step === 0) {
+      if (!name.trim()) {
+        setStepError('Your name is required.');
+        return;
+      }
+      // Empty is fine — it's optional. A typo'd address isn't: it looks
+      // collected but reaches nobody.
+      if (email.trim() && !EMAIL_RE.test(email.trim())) {
+        setStepError('That email doesn’t look right — fix it or leave it blank.');
+        return;
+      }
     }
     setStepError('');
     setStep((s) => Math.min(s + 1, LAST_STEP));
@@ -86,9 +98,11 @@ export function ConsumerSurveyForm() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!name.trim()) return;
+    if (email.trim() && !EMAIL_RE.test(email.trim())) return;
 
     const payload = {
       name: name.trim(),
+      email: email.trim(),
       howTheyFindCafes,
       whatMakesThemReturn,
       friendsInfluence,
@@ -133,9 +147,15 @@ export function ConsumerSurveyForm() {
       </div>
 
       {step === 0 ? (
-        <div style={{ marginBottom: 16 }}>
-          <label htmlFor="name">Your name</label>
-          <input type="text" id="name" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <div className="field-row" style={{ marginBottom: 16 }}>
+          <div>
+            <label htmlFor="name">Your name</label>
+            <input type="text" id="name" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
+          <div>
+            <label htmlFor="email">Email (optional)</label>
+            <input type="email" id="email" name="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
         </div>
       ) : null}
 

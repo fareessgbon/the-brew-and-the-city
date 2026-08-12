@@ -22,7 +22,7 @@ export default function ConsumerSurveyPage() {
               <div className="eyebrow label">Make Brew Better · Consumer survey</div>
               <h1 style={{ fontSize: 30, marginBottom: 8 }}>How do you actually find cafés?</h1>
               <p style={{ fontSize: 15, color: 'var(--whisk)', marginBottom: 28 }}>
-                Six steps, about two minutes. Just your name — no account, no email required.
+                Six steps, about two minutes. Just your name — email optional, no account needed.
               </p>
               <ConsumerSurveyForm />
             </div>
