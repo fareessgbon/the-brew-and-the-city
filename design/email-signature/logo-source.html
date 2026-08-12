@@ -1,0 +1,88 @@
+<!doctype html>
+<!--
+  Source art for the email-signature logo. Not part of the site build — it
+  exists so the PNG in this folder can be regenerated instead of redrawn:
+
+    node design/email-signature/build.mjs
+
+  The mark is the cup-and-bean from design/logo/A-the-regular.svg, and the
+  wordmark is set in the real Fraunces (loaded from app/fonts) rather than
+  whatever serif a rasteriser happens to have — which is the whole reason
+  this is an HTML page rendered in Chrome and not an SVG with a <text>.
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'Fraunces';
+        src: url('../../app/fonts/Fraunces-Variable-latin.woff2') format('woff2');
+        font-weight: 400 600;
+      }
+      @font-face {
+        font-family: 'Martian Mono';
+        src: url('../../app/fonts/MartianMono-Medium-latin.woff2') format('woff2');
+        font-weight: 500;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+      }
+      /* The page IS the image: Chrome is told to open a window exactly this
+         size, so anything that changes here changes the PNG's aspect ratio.
+         Keep the numbers and build.mjs's --window-size in step. */
+      #logo {
+        width: 200px;
+        height: 150px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      #logo svg {
+        display: block;
+        width: 76px;
+      }
+      .wordmark {
+        font-family: 'Fraunces', serif;
+        font-weight: 600;
+        font-size: 22px;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+        color: #3a2c24;
+        text-align: center;
+      }
+      .locality {
+        font-family: 'Martian Mono', monospace;
+        font-weight: 500;
+        font-size: 7.5px;
+        letter-spacing: 0.18em;
+        color: #5f5f57;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="logo">
+      <svg viewBox="42 32 142 158" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#3a2c24" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M62 108 h96 v30 a48 40 0 0 1 -96 0 z" fill="#f4efe4" />
+          <path d="M158 116 a22 20 0 0 1 0 40" />
+          <path d="M50 178 h120" />
+          <ellipse cx="110" cy="78" rx="30" ry="37" fill="#f4efe4" />
+          <path d="M110 41 C 101 55, 117 63, 108 77 C 100 90, 116 96, 110 115" stroke-width="4" />
+          <path d="M82 96 L64 112" />
+          <path d="M138 96 L156 112" />
+        </g>
+        <circle cx="99" cy="72" r="3.6" fill="#3a2c24" />
+        <circle cx="121" cy="70" r="3.6" fill="#3a2c24" />
+        <path d="M100 87 Q110 95 120 85" stroke="#3a2c24" stroke-width="3.4" fill="none" stroke-linecap="round" />
+      </svg>
+      <div class="wordmark">Brew and<br />the City</div>
+      <div class="locality">CALGARY · ALBERTA</div>
+    </div>
+  </body>
+</html>
