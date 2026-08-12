@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { AdminLoginForm } from '@/components/AdminLoginForm';
 import { AdminStatusBadge, AdminNotesField } from '@/components/AdminSurveyStatus';
 import { AdminDeleteButton } from '@/components/AdminDeleteButton';
+import { AdminRejectButton } from '@/components/AdminRejectButton';
 import type { SurveyStatus } from '@/lib/supabase/types';
 import { RESUME_BUCKET, formatBytes } from '@/lib/careers/resume';
 
@@ -218,7 +219,7 @@ export default async function AdminPage() {
     admin.from('waitlist').select('email, name, go_to_cafes, created_at').order('created_at', { ascending: false }),
     admin
       .from('survey_responses')
-      .select('id, survey, answers, created_at, status, admin_notes')
+      .select('id, survey, answers, created_at, status, admin_notes, rejection_email_sent_at')
       // Soft-deleted rows (migration 0024) never show here — deleted, not
       // just hidden, from the admin's point of view.
       .is('deleted_at', null)
@@ -457,7 +458,18 @@ export default async function AdminPage() {
                 </Link>
                 <div className="admin-card-foot">
                   <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
-                  <AdminDeleteButton id={s.id} label="application" />
+                  {/* Reject is on the card as well as the full application
+                      page: a queue is worked in a pass, and most nos are
+                      decided from what the card already shows. */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 'none' }}>
+                    <AdminRejectButton
+                      id={s.id}
+                      applicantName={name}
+                      sentAt={s.rejection_email_sent_at}
+                      hasEmail={typeof answers.email === 'string' && answers.email.trim().length > 0}
+                    />
+                    <AdminDeleteButton id={s.id} label="application" />
+                  </div>
                 </div>
               </div>
             );

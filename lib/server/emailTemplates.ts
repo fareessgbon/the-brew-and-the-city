@@ -85,6 +85,44 @@ export function jobApplicationConfirmationEmail(
   };
 }
 
+// Sent from the admin queue, by hand, one applicant at a time — the
+// confirmation above promises "we'll reply either way, including if it's a
+// no", and this is the half of that promise that costs something to keep.
+//
+// The tone rules here are the copy, not decoration: say no in the first
+// line rather than burying it under three paragraphs of praise, don't
+// invent a reason (the founder read it; that's all this template can
+// honestly claim), and don't dangle a maybe. "We'll keep it on file" is
+// only in here because it's true — applications are soft-deleted, not
+// destroyed (migration 0024).
+export function jobApplicationRejectionEmail(applicantName: string, roleTitle: string): { subject: string; html: string } {
+  const role = escapeHtml(roleTitle);
+  const firstName = escapeHtml(applicantName).split(/\s+/)[0];
+  return {
+    // Not "Update on your application" — a subject line that hides the
+    // answer just makes someone open it with their stomach in a knot.
+    // Naming the role also keeps it findable months later.
+    subject: `Your application — ${role}`,
+    html: wrap(`
+      <p style="margin:0 0 16px; font-size:19px; font-weight:600; font-family:Georgia,serif;">Thanks for applying, ${firstName}.</p>
+      <p style="margin:0 0 16px;">
+        We&rsquo;re not moving forward with your application for <strong>${role}</strong>. I read it properly, start to
+        finish &mdash; it came down to fit for what this specific role needs right now, and that&rsquo;s a narrow thing
+        rather than a verdict on your work.
+      </p>
+      <p style="margin:0 0 16px;">
+        We&rsquo;re a small team at the very start of this, so roles open up in bursts. Your application stays on file,
+        and if something opens that fits you better, we&rsquo;ll come back to you first &mdash; you won&rsquo;t need to
+        start over.
+      </p>
+      <p style="margin:0;">
+        If it&rsquo;s useful, reply and ask &mdash; I&rsquo;ll tell you what I actually thought. Thanks for the time you
+        put into this one.
+      </p>
+    `),
+  };
+}
+
 export function cafePartnerSurveyConfirmationEmail(cafeName: string): { subject: string; html: string } {
   const safeName = cafeName.replace(/[<>&]/g, ''); // no HTML special chars expected in a café name, but don't trust it
   return {

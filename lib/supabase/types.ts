@@ -101,6 +101,10 @@ export interface Database {
           status: SurveyStatus;
           admin_notes: string | null;
           deleted_at: string | null;
+          // When the applicant was actually told it's a no (migration
+          // 0028) — set only by the reject route, never by the status
+          // badge. Null on café and consumer rows, which have no such mail.
+          rejection_email_sent_at: string | null;
         };
         Insert: {
           id?: string;
@@ -110,6 +114,7 @@ export interface Database {
           status?: SurveyStatus;
           admin_notes?: string | null;
           deleted_at?: string | null;
+          rejection_email_sent_at?: string | null;
         };
         Update: {
           id?: string;
@@ -119,6 +124,7 @@ export interface Database {
           status?: SurveyStatus;
           admin_notes?: string | null;
           deleted_at?: string | null;
+          rejection_email_sent_at?: string | null;
         };
         Relationships: [];
       };

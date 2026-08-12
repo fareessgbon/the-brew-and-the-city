@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { AdminLoginForm } from '@/components/AdminLoginForm';
 import { AdminStatusBadge, AdminNotesField } from '@/components/AdminSurveyStatus';
 import { AdminDeleteButton } from '@/components/AdminDeleteButton';
+import { AdminRejectButton } from '@/components/AdminRejectButton';
 import { RESUME_BUCKET, formatBytes } from '@/lib/careers/resume';
 import type { SurveyStatus } from '@/lib/supabase/types';
 
@@ -82,7 +83,7 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
   const admin = createAdminClient();
   const { data: row } = await admin
     .from('survey_responses')
-    .select('id, survey, answers, created_at, status, admin_notes')
+    .select('id, survey, answers, created_at, status, admin_notes, rejection_email_sent_at')
     .eq('id', id)
     .eq('survey', 'job_application')
     // A soft-deleted application is gone as far as the admin is concerned
@@ -251,7 +252,18 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
             deliberately to work one application, the note field is the
             point, not clutter. */}
         <AdminNotesField id={row.id} initialNotes={row.admin_notes} alwaysOpen />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
+        {/* Reject sits left, delete right — they are not the same kind of
+            act. Rejecting is the normal end of an application and speaks
+            to the applicant; deleting removes it from the queue and says
+            nothing to anyone. Putting them shoulder to shoulder as a pair
+            of red links would invite reaching for the wrong one. */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginTop: 14 }}>
+          <AdminRejectButton
+            id={row.id}
+            applicantName={name}
+            sentAt={row.rejection_email_sent_at}
+            hasEmail={Boolean(email)}
+          />
           <AdminDeleteButton id={row.id} label="application" />
         </div>
       </div>
