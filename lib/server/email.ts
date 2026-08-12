@@ -14,10 +14,22 @@ export function createEmailClient(): Resend {
   return new Resend(apiKey);
 }
 
-// The verified sending domain is the `send` subdomain (see chat) —
-// deliberately not the root domain, so it never competes with the
-// existing Google Workspace MX/SPF records on @.
-const FROM_ADDRESS = 'Brew and the City <hello@send.brewandthecity.com>';
+// The verified sending domain in Resend is the root, brewandthecity.com.
+//
+// This used to read hello@send.brewandthecity.com, on the assumption that
+// the `send.` subdomain was the sending identity — every send failed with
+// "This API key is not authorized to send emails from
+// send.brewandthecity.com" and, because every caller treats mail as
+// best-effort, failed silently: three real applicants were told their
+// application was in and heard nothing.
+//
+// send. is Resend's bounce/return-path subdomain, not an identity. It's
+// where their setup puts the MX and SPF records for a root-domain
+// verification, precisely so neither one collides with the Google
+// Workspace MX on @ — the concern that put this address on the subdomain
+// in the first place is handled by that split, not by the From header.
+// Only the DKIM TXT lands on the root, which Workspace doesn't care about.
+const FROM_ADDRESS = 'Brew and the City <hello@brewandthecity.com>';
 
 export interface SendEmailInput {
   to: string;
