@@ -54,6 +54,7 @@ const CAFE_FIELD_LABELS: Record<string, string> = {
 };
 
 const CONSUMER_FIELD_LABELS: Record<string, string> = {
+  name: 'Name',
   howTheyFindCafes: 'How they find cafés',
   whatMakesThemReturn: 'What makes them return',
   friendsInfluence: "Friends' influence",
@@ -80,7 +81,7 @@ const CAFE_FIELD_ORDER = [
   'priceExpectation',
 ];
 
-const CONSUMER_FIELD_ORDER = ['howTheyFindCafes', 'whatMakesThemReturn', 'friendsInfluence', 'tryNewFor', 'pricing', 'freeText'];
+const CONSUMER_FIELD_ORDER = ['name', 'howTheyFindCafes', 'whatMakesThemReturn', 'friendsInfluence', 'tryNewFor', 'pricing', 'freeText'];
 
 function humanizeKey(key: string): string {
   return key.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
@@ -485,28 +486,26 @@ export default async function AdminPage() {
           ) : null}
           {consumerSurveys.map((s) => {
             const answers = s.answers as Record<string, unknown>;
+            const name = typeof answers.name === 'string' && answers.name ? answers.name : 'Unnamed respondent';
             const pricing = typeof answers.pricing === 'string' && answers.pricing ? answers.pricing : null;
-            const detailRows = formatAnswerRows(answers, CONSUMER_FIELD_LABELS, CONSUMER_FIELD_ORDER);
+            const detailRows = formatAnswerRows(answers, CONSUMER_FIELD_LABELS, CONSUMER_FIELD_ORDER, ['name']);
             return (
               <div key={s.id} className="admin-card">
-                <div className="admin-bar">
-                  {/* Price expectation leads — it's the one answer with a
-                      number attached, and the reason this survey exists. */}
-                  {pricing ? (
-                    <div>
-                      <div className="admin-metric-label" style={{ marginBottom: 3 }}>
-                        Would pay
-                      </div>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--ceremony)' }}>{pricing}</div>
+                <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
+                  {/* Name identifies the row; price expectation sits right
+                      under it — it's the one answer with a number attached,
+                      and the reason this survey exists. */}
+                  <div>
+                    <h3 style={{ fontSize: 16.5, margin: 0 }}>{name}</h3>
+                    <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>
+                      {pricing ? `Would pay ${pricing}` : 'No price given'}
                     </div>
-                  ) : (
-                    <div style={{ fontSize: 13.5, color: 'var(--whisk)' }}>No price given</div>
-                  )}
+                  </div>
                   <Timestamp iso={s.created_at} />
                 </div>
                 <AnswerList rows={detailRows} />
-                {/* No notes control on consumer rows — they're anonymous
-                    aggregate signal, not a queue item to work. */}
+                {/* No notes control on consumer rows — aggregate signal,
+                    not a queue item to work. */}
                 <div className="admin-card-foot" style={{ justifyContent: 'flex-end' }}>
                   <AdminDeleteButton id={s.id} label="consumer survey" />
                 </div>

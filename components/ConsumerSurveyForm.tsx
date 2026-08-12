@@ -39,6 +39,7 @@ const TRY_NEW_OPTIONS = [
 const PRICING_OPTIONS = ['Around $10–20', 'Around $20–30', '$30+ if the value was there', 'Would need to see the cafés and benefits first'];
 
 const STEP_TITLES = [
+  'Who you are',
   'How do you usually find new cafés? (Choose up to 3)',
   'What makes you go back to a café? (Choose up to 3)',
   'How much do friends influence where you go?',
@@ -47,16 +48,18 @@ const STEP_TITLES = [
 ];
 const LAST_STEP = STEP_TITLES.length - 1;
 
-// §13.6.2 — the consumer-side validation survey. Deliberately anonymous —
-// no email field, matching the spec's own shape for this survey, so
-// there's nothing to gate Next on: every step is optional, unlike the
-// café survey's first step. Same step-per-question wizard treatment as
+// §13.6.2 — the consumer-side validation survey. Still no email (the spec's
+// shape for this one), but it now opens by asking for a name (see chat), so
+// step 0 gates Next the way the café survey's does. Every step after it
+// stays optional. Same step-per-question wizard treatment as
 // CafePartnerSurveyForm (see chat) — one <form>, one submit, just gated.
 export function ConsumerSurveyForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
   const [step, setStep] = useState(0);
+  const [stepError, setStepError] = useState('');
 
+  const [name, setName] = useState('');
   const [howTheyFindCafes, setHowTheyFindCafes] = useState<string[]>([]);
   const [whatMakesThemReturn, setWhatMakesThemReturn] = useState<string[]>([]);
   const [friendsInfluence, setFriendsInfluence] = useState('');
@@ -64,18 +67,28 @@ export function ConsumerSurveyForm() {
   const [pricing, setPricing] = useState('');
   const [freeText, setFreeText] = useState('');
 
+  // Only step 0 has a required field — the rest are optional, so Next
+  // advances freely there.
   function goNext() {
+    if (step === 0 && !name.trim()) {
+      setStepError('Your name is required.');
+      return;
+    }
+    setStepError('');
     setStep((s) => Math.min(s + 1, LAST_STEP));
   }
 
   function goBack() {
+    setStepError('');
     setStep((s) => Math.max(s - 1, 0));
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!name.trim()) return;
 
     const payload = {
+      name: name.trim(),
       howTheyFindCafes,
       whatMakesThemReturn,
       friendsInfluence,
@@ -94,7 +107,7 @@ export function ConsumerSurveyForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong.');
       setStatus('sent');
-      setMessage('Thanks — that helps a lot.');
+      setMessage(`Thanks, ${payload.name} — that helps a lot.`);
     } catch (err) {
       setStatus('error');
       setMessage(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -120,18 +133,25 @@ export function ConsumerSurveyForm() {
       </div>
 
       {step === 0 ? (
-        <div className="ratio-box" style={{ marginBottom: 16 }}>
-          <SurveyMultiSelect name="howTheyFindCafes" options={FIND_CAFES_OPTIONS} selected={howTheyFindCafes} onChange={setHowTheyFindCafes} max={3} />
+        <div style={{ marginBottom: 16 }}>
+          <label htmlFor="name">Your name</label>
+          <input type="text" id="name" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required />
         </div>
       ) : null}
 
       {step === 1 ? (
         <div className="ratio-box" style={{ marginBottom: 16 }}>
-          <SurveyMultiSelect name="whatMakesThemReturn" options={RETURN_REASON_OPTIONS} selected={whatMakesThemReturn} onChange={setWhatMakesThemReturn} max={3} />
+          <SurveyMultiSelect name="howTheyFindCafes" options={FIND_CAFES_OPTIONS} selected={howTheyFindCafes} onChange={setHowTheyFindCafes} max={3} />
         </div>
       ) : null}
 
       {step === 2 ? (
+        <div className="ratio-box" style={{ marginBottom: 16 }}>
+          <SurveyMultiSelect name="whatMakesThemReturn" options={RETURN_REASON_OPTIONS} selected={whatMakesThemReturn} onChange={setWhatMakesThemReturn} max={3} />
+        </div>
+      ) : null}
+
+      {step === 3 ? (
         <div className="ratio-box" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {FRIEND_INFLUENCE_OPTIONS.map((option) => (
@@ -151,13 +171,13 @@ export function ConsumerSurveyForm() {
         </div>
       ) : null}
 
-      {step === 3 ? (
+      {step === 4 ? (
         <div className="ratio-box" style={{ marginBottom: 16 }}>
           <SurveyMultiSelect name="tryNewFor" options={TRY_NEW_OPTIONS} selected={tryNewFor} onChange={setTryNewFor} max={3} />
         </div>
       ) : null}
 
-      {step === 4 ? (
+      {step === 5 ? (
         <div className="ratio-box" style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 13.5, marginBottom: 8 }}>
             How much would you realistically spend each month on a coffee membership if it consistently saved you money
@@ -173,6 +193,12 @@ export function ConsumerSurveyForm() {
           </div>
           <label htmlFor="freeText">What would make you genuinely excited to use Brew and the City? (optional)</label>
           <textarea id="freeText" name="freeText" rows={3} style={{ width: '100%' }} value={freeText} onChange={(e) => setFreeText(e.target.value)} />
+        </div>
+      ) : null}
+
+      {stepError ? (
+        <div style={{ fontSize: 13, color: '#b3402a', marginBottom: 12 }} role="alert">
+          {stepError}
         </div>
       ) : null}
 

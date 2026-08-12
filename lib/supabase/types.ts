@@ -11,8 +11,8 @@
 export type SurveyType = 'cafe_partner' | 'consumer' | 'job_application';
 // Admin review workflow (migration 0023) — see chat, "similar to the
 // launch site admin". Exposed in the UI for cafe_partner and
-// job_application rows, not consumer ones (those are anonymous aggregate
-// signal, not individual applications to action).
+// job_application rows, not consumer ones (those are aggregate signal —
+// named, but not individual applications to action).
 export type SurveyStatus = 'new' | 'contacted' | 'selected' | 'declined';
 
 export interface Database {
