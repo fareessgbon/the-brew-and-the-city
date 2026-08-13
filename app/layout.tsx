@@ -76,7 +76,10 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: {
-    card: 'summary',
+    // summary_large_image, not summary: app/opengraph-image.tsx generates a
+    // 1200×630 card and 'summary' crops it to a small square thumbnail,
+    // throwing away the headline it was drawn to carry.
+    card: 'summary_large_image',
     title,
     description,
   },

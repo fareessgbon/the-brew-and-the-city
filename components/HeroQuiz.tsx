@@ -216,14 +216,17 @@ export function HeroQuiz({ cafes, userVector, answeredDims, primaryDrinkCategory
           </div>
 
           <div className="match-disclaimer">
-            Based on flavour alone, against placeholder café data — the full app adds real visits, what you need,
-            and how far you&apos;ll go.
+            A preview, not live recommendations — flavour alone, against placeholder café data.
           </div>
           {trustLine ? <div className="maps-test-line">{trustLine}</div> : null}
 
           <div style={{ marginTop: 16 }}>
+            {/* Was "be first to see all 60", which reads as a promise that
+                60 finished café profiles are sitting behind a signup wall.
+                They aren't — there are 60+ independent cafés in Calgary,
+                which is the ambition, not the current catalogue. */}
             <Link href="#waitlist" className="btn btn-primary">
-              Join the waitlist — be first to see all 60 →
+              Join the waitlist — be first when Brew launches →
             </Link>
           </div>
           <button type="button" className="restart-link" onClick={retake}>

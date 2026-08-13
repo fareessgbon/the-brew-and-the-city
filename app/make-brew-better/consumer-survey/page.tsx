@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ConsumerSurveyForm } from '@/components/ConsumerSurveyForm';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Consumer Survey — Brew and the City',
   description: 'Six steps, about two minutes — tell us how you actually find and choose cafés.',
-  alternates: { canonical: '/make-brew-better/consumer-survey' },
-};
+  canonical: '/make-brew-better/consumer-survey',
+});
 
 export default function ConsumerSurveyPage() {
   return (

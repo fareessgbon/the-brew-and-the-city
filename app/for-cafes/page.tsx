@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
-import { FaqAccordion } from '@/components/FaqAccordion';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'For Cafés — Brew and the City',
   description:
-    "Get discovered by customers who already match your café — real Match %, not a review count. The first 15 approved Calgary cafés also get full Partner access free for six months.",
-  alternates: { canonical: '/for-cafes' },
-};
+    "Get discovered by customers who already match your café — a Match % built on taste, not a review count. The first 15 approved Calgary cafés get full Partner access free for six months.",
+  canonical: '/for-cafes',
+});
 
 // §12.1a — "discovery is a timeline, not a features table": the free,
 // automatic, ongoing half (map, saves, City Picks, friend activity) comes
@@ -18,9 +18,14 @@ export const metadata: Metadata = {
 // café up for anything; §0.4 rules that out entirely at this stage.
 //
 // Positioning pass (see chat): discovery/acquisition leads, City Card is a
-// benefit mentioned after pricing, not the pitch. Awards are stated once,
-// in the firewall banner, as tier-independent — no pricing tier lists
-// "awards eligibility" as a paid perk, because it isn't one.
+// benefit mentioned after pricing, not the pitch.
+//
+// The "What money can never buy" banner that used to close this page is
+// gone (removed on request). Awards are therefore not mentioned anywhere on
+// this page — keep it that way rather than reintroducing them in a pricing
+// tier, since award eligibility has never depended on what a café pays. The
+// homepage's own firewall banner (HowItWorksSection) still states the
+// can't-pay-for-a-better-Match-% rule to consumers.
 export default function ForCafesPage() {
   return (
     <>
@@ -35,9 +40,8 @@ export default function ForCafesPage() {
                 Get discovered by customers who already match your café.
               </h1>
               <p style={{ fontSize: 18, color: 'var(--ink)', margin: '20px 0 0' }}>
-                Real Match %, not a review count — every sign-up runs the same taste quiz, and everyone whose taste
-                actually fits your café sees you. The first 15 approved cafés get full Partner access free for six
-                months to prove it.
+                A Match % built on taste, not a review count — everyone whose taste actually fits your café sees
+                you. The first 15 approved cafés get full Partner access free for six months.
               </p>
               <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 20 }}>
                 Tell us about your café
@@ -133,7 +137,7 @@ export default function ForCafesPage() {
                 <div className="tier-price">Free</div>
                 <ul>
                   <li>Matchable café listing</li>
-                  <li>Real Match % for every customer</li>
+                  <li>A Match % for every customer</li>
                   <li>Profile — hours, photos</li>
                 </ul>
               </div>
@@ -170,7 +174,19 @@ export default function ForCafesPage() {
               <div className="section-eyebrow label" style={{ color: 'var(--sky)' }}>
                 Founding Café Partners · first 15
               </div>
-              <h2 style={{ fontSize: 26 }}>Not a free trial — a founding stake, not just six free months.</h2>
+              {/* "Not a free trial — a founding stake, not just six free
+                  months" argued with itself: it denied the free trial in
+                  the same breath as offering six free months, and said
+                  "not just" about a thing it had just refused to call
+                  free. The offer is unchanged; it's stated instead of
+                  positioned. */}
+              <h2 style={{ fontSize: 26 }}>
+                Six months of Partner access, free — and founding status that doesn&apos;t expire with it.
+              </h2>
+              <p style={{ fontSize: 15, color: 'var(--paper)', opacity: 0.85, margin: '10px 0 0', maxWidth: '58ch' }}>
+                Fifteen Calgary cafés, once. The six months are free; what you keep afterwards is the recognition,
+                the launch visibility, and a rate that doesn&apos;t rise because you were early.
+              </p>
               <div className="club-grid">
                 <div>
                   <ul className="club-list">
@@ -213,25 +229,6 @@ export default function ForCafesPage() {
               receipt and a PIN. You only pay out when someone redeems with you specifically; every other stamp on
               their card was earned, and cost you nothing, elsewhere.
             </p>
-
-            <div className="firewall-banner" style={{ marginBottom: 24 }}>
-              <div className="firewall-mark">✕</div>
-              <div>
-                <div className="firewall-title">What money can never buy</div>
-                <div className="firewall-copy">
-                  A higher Match %, not for any price. A spot in anyone&apos;s top 3 — results are ordered by fit
-                  alone. An award — those come from real head-to-head results, and unpaid cafés win them just as
-                  often. Removal of a competitor from the map. Suppression of a bad Insights report. You cannot buy a
-                  better score here, and that&apos;s exactly why a genuinely good café wants to be on this platform
-                  instead of Yelp.
-                </div>
-              </div>
-            </div>
-
-            <div className="label" style={{ color: 'var(--whisk)', marginBottom: 8 }}>
-              Questions owners ask
-            </div>
-            <FaqAccordion />
 
             <div style={{ marginTop: 24 }}>
               <div className="label" style={{ color: 'var(--whisk)', marginBottom: 8 }}>

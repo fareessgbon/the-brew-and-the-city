@@ -80,17 +80,23 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
               <span className="line">TASTE</span>
             </h1>
             <BeanMascot className="hero-mascot" />
+            {/* "Try the quiz below — it's real" used to end this paragraph.
+                It was written to mean "this isn't a mockup, the matching
+                engine underneath genuinely runs" — but read cold, on a site
+                for a product that hasn't launched, it says "the finished
+                app is live here", which it isn't. The quiz is framed as
+                what it is instead: a working preview. */}
             <p className="lede">
               Coffee, matcha, tea — every good café in Calgary will be in here. Google ranks them by review count. We
-              match you to yours, the way taste, not a star rating, actually works. Try the quiz below — it&apos;s
-              real.
+              match you to yours — your café, not just the highest-rated café. The quiz below is a working preview of
+              that matching; Brew itself is still pre-launch, and the waitlist is how you get in first.
             </p>
             <div className="cta-row">
               <Link href="#waitlist" className="btn btn-primary">
                 Join the waitlist
               </Link>
               <Link href="#how" className="btn btn-ghost">
-                See how matching works
+                See how matching will work
               </Link>
               <Link href="/for-cafes" className="btn btn-ghost">
                 For cafés: partner with us
@@ -146,19 +152,22 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
 
       <section id="sixth-round">
         <div className="wrap club-band">
-          <div className="section-eyebrow label">The City Card · Free, always</div>
-          <h2>Five visits. Your free item is on us.</h2>
+          {/* "Your free item is on us" read as Brew buying the drink. It
+              doesn't: the reward is redeemed at, and given by, the
+              participating café. Saying so costs nothing — the offer is
+              just as good — and it's the difference between a promise we
+              keep and one a café is surprised to be holding. */}
+          <div className="section-eyebrow label">The City Card · At launch, free for you</div>
+          <h2>Five visits. The next one&apos;s free, from a partner café.</h2>
           <div className="club-grid">
             <div>
               <ul className="club-list">
-                <li>One personal card, automatic at signup — not tied to any one café</li>
+                <li>One personal card, automatic when you join at launch — not tied to any one café</li>
                 <li>
-                  One drink purchased at any partner café earns a visit — what you get free is whatever that café
-                  is willing to redeem it for, subject to availability
+                  One drink purchased at any partner café earns a qualifying visit — five of them unlock the reward
                 </li>
                 <li>Max 2 visits from the same café per card, so a completed card always touches at least 3 different spots</li>
-                <li>Try for a 3rd visit somewhere you&apos;ve already used twice and we&apos;ll point you to 2 nearby cafés you haven&apos;t tried yet</li>
-                <li>Partner cafés cover it, not you. No subscription, no cost to you, ever</li>
+                <li>The card itself costs you nothing — no subscription, no fee, ever</li>
                 <li>Visits expire after 90 days of inactivity; your card resets when you redeem</li>
               </ul>
               <Link href="#waitlist" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 8 }}>
@@ -176,8 +185,8 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
                 <div className="stamp reward">Free</div>
               </div>
               <div style={{ fontSize: 13.5, color: 'var(--ink)', marginTop: 14 }}>
-                5 visits unlocks a free item wherever you redeem — subject to what that café offers and has
-                available. Max 2 visits per café, so it&apos;s always at least 3 spots.
+                5 qualifying visits unlock a free item, given by the participating café you redeem at — subject to
+                what they offer and have available. Max 2 visits per café, so it&apos;s always at least 3 spots.
               </div>
               {sixthRoundLine ? <div className="maps-test-line" style={{ marginTop: 12 }}>{sixthRoundLine}</div> : null}
             </div>
@@ -188,8 +197,14 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
       <section id="waitlist">
         <div className="wrap">
           <div className="signup-band">
-            <div className="section-eyebrow label">Save your Taste</div>
-            <h2>Join the list. Keep the matches you just saw.</h2>
+            {/* Was "Save your Taste" / "Keep the matches you just saw" —
+                which the waitlist doesn't do. It stores an email, a first
+                name and your go-to cafés; the quiz result lives in React
+                state and is gone on reload. Promising to keep something we
+                throw away is the one kind of copy that gets found out on
+                day one of launch. */}
+            <div className="section-eyebrow label">Be first in Calgary</div>
+            <h2>Join the list. Be first to try Brew in Calgary.</h2>
             <p className="section-lede">
               We&apos;re building Brew and the City with café lovers. Join us at launch.
             </p>

@@ -6,7 +6,7 @@ const FEATURES = [
   {
     num: '01',
     title: 'Skip the star rating',
-    body: 'Every café gets a real Match % — ranked by fit, not by review count pretending to mean something.',
+    body: 'Every café gets its own Match % — ranked by fit, not by a review count pretending to mean something.',
   },
   {
     num: '02',
@@ -21,7 +21,7 @@ const FEATURES = [
   {
     num: '04',
     title: 'One card, every café',
-    body: 'Five visits anywhere in the network unlock a free item, subject to what that café offers — no loyalty app per café.',
+    body: 'Five visits anywhere in the network unlock a free item from the café you redeem at — no loyalty app per café.',
   },
 ];
 

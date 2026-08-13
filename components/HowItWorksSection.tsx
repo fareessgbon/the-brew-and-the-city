@@ -5,7 +5,7 @@ export function HowItWorksSection({ id }: { id?: string } = {}) {
     <section id={id} className="how-section">
       <div className="wrap">
         <div className="section-eyebrow label">How it works</div>
-        <h2 className="section-title">We stopped ranking cafés. We started matching them.</h2>
+        <h2 className="section-title">We don&apos;t rank cafés. We match them.</h2>
         <p className="section-lede">
           Two people can both be right that a café is a 5 and a 2. Your taste profile — drink, energy, aesthetic,
           pace, adventure, price, food — gets compared to every café&apos;s, need, flavour, distance, and friends, in

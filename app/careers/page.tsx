@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { ROLES } from '@/lib/data/roles';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Careers — Brew and the City',
   description:
     'We’re building a café-discovery platform in Calgary, and we’re small enough that one person’s work is visible in the product. Here’s what’s open.',
-  alternates: { canonical: '/careers' },
-};
+  canonical: '/careers',
+});
 
 // §0.4 holds here too: no account, no login, no résumé portal. A role page,
 // then one form. Every fact a candidate needs to self-select out — pay,
@@ -79,11 +80,16 @@ export default function CareersPage() {
               <div className="label" style={{ marginBottom: 8 }}>
                 Nothing here fits?
               </div>
-              <p style={{ fontSize: 14.5, color: 'var(--ink)', margin: 0, maxWidth: '58ch' }}>
+              {/* No max-width: a 58ch measure is the right call for prose
+                  running down an open page, but this paragraph sits inside
+                  a bordered box that's already narrower than that, so the
+                  cap only stopped the text short of its own container's
+                  right edge. The box does the measuring here. */}
+              <p style={{ fontSize: 14.5, color: 'var(--ink)', margin: 0 }}>
                 We&apos;re a very small team and roles open unpredictably. If you think there&apos;s something you
                 could do for Brew and the City that isn&apos;t listed, email{' '}
                 <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>{' '}
-                and tell us what it is — a short note with your work attached beats a cover letter.
+                and tell us what it is.
               </p>
             </div>
           </div>

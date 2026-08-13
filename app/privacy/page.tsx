@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Privacy Policy — Brew and the City',
   description: "What Brew and the City's pre-launch site collects, why, and how to have it removed.",
-  alternates: { canonical: '/privacy' },
-};
+  canonical: '/privacy',
+});
 
 // §0.4 — deliberately short. This site collects a waitlist email and two
 // optional surveys, nothing else; the full privacy policy the real product

@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Terms — Brew and the City',
   description: 'The terms for using the Brew and the City pre-launch site — the waitlist and the two surveys.',
-  alternates: { canonical: '/terms' },
-};
+  canonical: '/terms',
+});
 
 // §0.4 — this site has no accounts, no matching, and no City Card, so the
 // full product terms don't apply yet. Covers only the waitlist and surveys.
@@ -38,9 +39,19 @@ export default function TermsPage() {
 
             <h2>1. What this site is</h2>
             <p>
-              brewandthecity.com currently hosts a landing page, a Founding Partner pitch for Calgary cafés, and two
-              short surveys. It does not provide café matching, a loyalty program, or any live product — those are
-              planned features, not things you can use today.
+              brewandthecity.com currently hosts a landing page, a Founding Partner pitch for Calgary cafés, two short
+              surveys, and a preview quiz. It does not provide live café matching, a loyalty program, or any other
+              part of the product — those are planned features, not things you can use today.
+            </p>
+            {/* The blanket "does not provide café matching" was written
+                before the homepage quiz shipped. The quiz does run the real
+                engine, so the flat denial is now the inaccurate half of the
+                sentence — and the terms page is the last place that should
+                be the one contradicting the homepage. */}
+            <p>
+              The quiz on the homepage is a preview: it scores real Calgary cafés against placeholder taste data to
+              demonstrate how matching will work. Its results are illustrative, are not saved, are not a
+              recommendation, and imply no relationship with any café named.
             </p>
 
             <h2>2. The waitlist</h2>

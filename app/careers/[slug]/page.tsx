@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -18,11 +19,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const role = getRole(slug);
   if (!role) return { title: 'Careers — Brew and the City' };
-  return {
+  // Its own social card: this is the page that gets pasted into a DM or a
+  // job group, where the homepage's consumer headline says nothing about
+  // the role being offered.
+  return pageMetadata({
     title: `${role.title} — Brew and the City`,
     description: role.blurb,
-    alternates: { canonical: `/careers/${role.slug}` },
-  };
+    canonical: `/careers/${role.slug}`,
+  });
 }
 
 function BulletList({ items }: { items: string[] }) {

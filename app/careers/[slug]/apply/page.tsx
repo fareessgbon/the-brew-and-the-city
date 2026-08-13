@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -16,14 +17,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const role = getRole(slug);
   if (!role) return { title: 'Apply — Brew and the City' };
-  return {
+  return pageMetadata({
     title: `Apply · ${role.title} — Brew and the City`,
     description: `Apply for the ${role.title} role at Brew and the City. One short form, no account, no résumé portal.`,
-    alternates: { canonical: `/careers/${role.slug}/apply` },
+    canonical: `/careers/${role.slug}/apply`,
     // The posting is the page worth ranking; this is its form. Indexing
     // both splits the same role across two results.
     robots: { index: false, follow: true },
-  };
+  });
 }
 
 export default async function ApplyPage({ params }: { params: Promise<{ slug: string }> }) {
