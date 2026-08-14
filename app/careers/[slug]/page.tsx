@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // job group, where the homepage's consumer headline says nothing about
   // the role being offered.
   return pageMetadata({
-    title: `${role.title} — Brew and the City`,
+    title: `${role.title} — ${role.company}`,
     description: role.blurb,
     canonical: `/careers/${role.slug}`,
   });
@@ -78,6 +78,7 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
               {role.title}
             </h1>
             <div className="role-meta">
+              <span>{role.company}</span>
               <span>{role.location}</span>
               <span>{role.commitment}</span>
               <span>{role.compensation}</span>
@@ -117,6 +118,13 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
               {role.lookingForIntro}
             </p>
             <SectionGroups sections={role.lookingFor} />
+
+            {role.benefits && (
+              <>
+                <div className="section-eyebrow label">What you&apos;ll get</div>
+                <BulletList items={role.benefits} />
+              </>
+            )}
 
             {/* The terms sit in their own bordered block rather than as another
                 bullet list — pay and schedule are the facts most likely to

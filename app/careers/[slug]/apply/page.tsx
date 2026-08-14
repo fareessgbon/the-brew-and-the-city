@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const role = getRole(slug);
   if (!role) return { title: 'Apply — Brew and the City' };
   return pageMetadata({
-    title: `Apply · ${role.title} — Brew and the City`,
-    description: `Apply for the ${role.title} role at Brew and the City. One short form, no account, no résumé portal.`,
+    title: `Apply · ${role.title} — ${role.company}`,
+    description: `Apply for the ${role.title} role at ${role.company}. One short form, no account, no résumé portal.`,
     canonical: `/careers/${role.slug}/apply`,
     // The posting is the page worth ranking; this is its form. Indexing
     // both splits the same role across two results.

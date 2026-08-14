@@ -55,6 +55,7 @@ export default function CareersPage() {
                     <Link href={`/careers/${role.slug}`}>{role.title}</Link>
                   </h2>
                   <div className="role-meta">
+                    <span>{role.company}</span>
                     <span>{role.location}</span>
                     <span>{role.commitment}</span>
                     <span>{role.compensation}</span>

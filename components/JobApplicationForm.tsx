@@ -3,10 +3,9 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { SurveyMultiSelect } from './SurveyMultiSelect';
 import { RESUME_ACCEPT, formatBytes, validateResume } from '@/lib/careers/resume';
+import { getFormCopy, type Choice } from '@/lib/careers/formCopy';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
-
-type Choice = { label: string; value: string };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Deliberately loose: a resume lives on Drive, Notion, LinkedIn, a personal
@@ -14,47 +13,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // no spaces. The protocol is optional here and added server-side.
 const LINK_RE = /^(https?:\/\/)?[^\s/]+\.[^\s]{2,}$/i;
 
-// Most of these read the same whether they're the stored answer or the word
-// on screen, so the two are the same string unless there's a reason.
-const choices = (...labels: string[]): Choice[] => labels.map((label) => ({ label, value: label }));
-
-// Was a free-text "Where are you based?". The only thing we actually do
-// with the answer is work out whether someone can get to Calgary cafés, so
-// a yes/no answers it faster and scans cleanly in admin. The stored value
-// is the place, not the word the applicant clicked — admin prints it after
-// a "Based in" label, where "Yes" would say nothing.
-const BASED_IN_OPTIONS: Choice[] = [
-  { label: 'Yes', value: 'Calgary' },
-  { label: 'No', value: 'Outside Calgary' },
-];
-
-const TRAVEL_OPTIONS = choices('Yes', 'No');
-
 // Capped at three, like the surveys' "choose up to N" questions: seven ticks
 // would tell us nothing, and being made to drop the fourth is what turns
 // this into an answer about what they'd rather be doing.
-const INTEREST_OPTIONS = [
-  'Content creation',
-  'Video editing',
-  'Social media strategy',
-  'Photography',
-  'Community building',
-  'Working with local cafés',
-  'Startup experience',
-];
 const MAX_INTERESTS = 3;
-
-// "No" is a full option with its own wording rather than a bare no: the
-// posting says you don't need years of experience, and a list that made the
-// only honest answer sound like a failure would quietly say otherwise.
-const BRAND_CONTENT_OPTIONS = choices(
-  'Yes, professionally',
-  'Yes, for my own project/business',
-  'Yes, for school or volunteer work',
-  "No, but I'm actively learning",
-);
-
-const ON_CAMERA_OPTIONS = choices('Yes', 'Somewhat', 'No');
 
 // What .cafe-signup-form gives a <label>, applied by hand — the form's CSS
 // dresses labels only, and every grouped question here captions itself with
@@ -69,27 +31,13 @@ const LEGEND_STYLE = {
   color: 'var(--whisk)',
 } as const;
 
-// The tools the role actually names, plus "Other" — nothing here is a
-// requirement, and the question is answerable by selecting nothing at all,
-// so there's no "none of these" row to pick.
-const TOOL_OPTIONS = [
-  'CapCut',
-  'Canva',
-  // One row rather than Premiere/Photoshop/Illustrator separately: which
-  // three Adobe apps someone ticks doesn't change the shortlist, and three
-  // near-identical rows made the list read as an experience checklist.
-  'Adobe',
-  'Figma',
-  'Lightroom',
-  'Other',
-];
-
 // One page, not a wizard like the two surveys. A survey is something we
 // asked someone to do for us and can afford to meter out a step at a time;
 // an application is something they want, and hiding how long it is behind
 // "Step 1 of 7" is the wrong trade — they should be able to see the whole
 // thing, and how short it is, before starting.
 export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; roleTitle: string }) {
+  const copy = getFormCopy(roleSlug);
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -244,23 +192,27 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
         </div>
       </div>
 
-      <ChoiceField
-        name="basedIn"
-        legend="Are you currently based in Calgary?"
-        options={BASED_IN_OPTIONS}
-        value={basedIn}
-        onChange={setBasedIn}
-        inline
-      />
+      {copy.basedIn ? (
+        <ChoiceField
+          name="basedIn"
+          legend={copy.basedIn.legend}
+          options={copy.basedIn.options}
+          value={basedIn}
+          onChange={setBasedIn}
+          inline
+        />
+      ) : null}
 
-      <ChoiceField
-        name="canTravel"
-        legend="Are you able to travel around Calgary for café visits and content shoots?"
-        options={TRAVEL_OPTIONS}
-        value={canTravel}
-        onChange={setCanTravel}
-        inline
-      />
+      {copy.canTravel ? (
+        <ChoiceField
+          name="canTravel"
+          legend={copy.canTravel.legend}
+          options={copy.canTravel.options}
+          value={canTravel}
+          onChange={setCanTravel}
+          inline
+        />
+      ) : null}
 
       <div style={{ marginBottom: 12 }}>
         <label htmlFor="resume">Resume</label>
@@ -347,10 +299,10 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
       </div>
 
       <fieldset style={{ border: 0, margin: '0 0 16px', padding: 0, minWidth: 0 }}>
-        <legend style={LEGEND_STYLE}>What interests you most about this role? (Select up to 3)</legend>
+        <legend style={LEGEND_STYLE}>{copy.interestsLegend}</legend>
         <SurveyMultiSelect
           name="interests"
-          options={INTEREST_OPTIONS}
+          options={copy.interestOptions}
           selected={interests}
           onChange={setInterests}
           max={MAX_INTERESTS}
@@ -359,8 +311,8 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
 
       <ChoiceField
         name="brandContent"
-        legend="Have you created content for a brand before?"
-        options={BRAND_CONTENT_OPTIONS}
+        legend={copy.brandContentLegend}
+        options={copy.brandContentOptions}
         value={brandContent}
         onChange={setBrandContent}
       />
@@ -370,14 +322,14 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
           question from the five around it just because its answers are
           checkboxes. */}
       <fieldset style={{ border: 0, margin: '0 0 16px', padding: 0, minWidth: 0 }}>
-        <legend style={LEGEND_STYLE}>Which tools are you comfortable using? (Select all that apply)</legend>
-        <SurveyMultiSelect name="tools" options={TOOL_OPTIONS} selected={tools} onChange={setTools} />
+        <legend style={LEGEND_STYLE}>{copy.toolsLegend}</legend>
+        <SurveyMultiSelect name="tools" options={copy.toolOptions} selected={tools} onChange={setTools} />
       </fieldset>
 
       <ChoiceField
         name="onCamera"
         legend="Are you comfortable appearing on camera?"
-        options={ON_CAMERA_OPTIONS}
+        options={copy.onCameraOptions}
         value={onCamera}
         onChange={setOnCamera}
       />
@@ -388,19 +340,19 @@ export function JobApplicationForm({ roleSlug, roleTitle }: { roleSlug: string; 
           type="text"
           id="availability"
           name="availability"
-          placeholder="Roughly how many hours a week, and when you could start"
+          placeholder={copy.availabilityPlaceholder}
           value={availability}
           onChange={(e) => setAvailability(e.target.value)}
         />
       </div>
 
       <div style={{ marginBottom: 12 }}>
-        <label htmlFor="pitch">Pitch us one post</label>
+        <label htmlFor="pitch">{copy.pitchLabel}</label>
         <textarea
           id="pitch"
           name="pitch"
           rows={3}
-          placeholder="One piece of content you'd make for a Calgary café, in a sentence or two. A rough idea is fine."
+          placeholder={copy.pitchPlaceholder}
           value={pitch}
           onChange={(e) => setPitch(e.target.value)}
         />
