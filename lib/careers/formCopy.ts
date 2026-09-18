@@ -30,14 +30,14 @@ const choices = (...labels: string[]): Choice[] => labels.map((label) => ({ labe
 
 const DEFAULT_COPY: ApplicationFormCopy = {
   basedIn: {
-    legend: 'Are you currently based in Calgary?',
+    legend: 'Are you currently based in Toronto',
     options: [
-      { label: 'Yes', value: 'Calgary' },
-      { label: 'No', value: 'Outside Calgary' },
+      { label: 'Yes', value: 'Yes' },
+      { label: 'Yes', value: 'Yes' },
     ],
   },
   canTravel: {
-    legend: 'Are you able to travel around Calgary for café visits and content shoots?',
+    legend: 'Are you able to travel around your city for café visits and content shoots?',
     options: choices('Yes', 'No'),
   },
   interestsLegend: 'What interests you most about this role? (Select up to 3)',
@@ -62,46 +62,14 @@ const DEFAULT_COPY: ApplicationFormCopy = {
   onCameraOptions: choices('Yes', 'Somewhat', 'No'),
   availabilityPlaceholder: 'Roughly how many hours a week, and when you could start',
   pitchLabel: 'Pitch us one post',
-  pitchPlaceholder: "One piece of content you'd make for a Calgary café, in a sentence or two. A rough idea is fine.",
+  pitchPlaceholder: "One piece of content you'd make for a Calgary or Toronto café, in a sentence or two. A rough idea is fine.",
 };
 
-const HUSH_JEWELS_COPY: ApplicationFormCopy = {
-  // Remote and Canada-wide — there's no city to be based in or travel around.
-  basedIn: null,
-  canTravel: null,
-  interestsLegend: 'What are you most excited about? (Select up to 3)',
-  interestOptions: [
-    'Creating TikToks & Reels',
-    'Being on camera',
-    'Coming up with creative ideas',
-    'Styling & photographing jewelry',
-    'Editing videos',
-    'Social media',
-    'Creating promotional content',
-    "Growing a brand's online presence",
-    'Working with fashion & jewelry',
-    'Trying new trends',
-  ],
-  brandContentLegend: 'Have you created content before?',
-  brandContentOptions: choices(
-    'Yes, for a brand or business',
-    'Yes, for my own project or business',
-    'Yes, for school, clubs, or other projects',
-    'Mostly for fun / personal social media',
-    "Not yet, but I'd love to",
-  ),
-  toolsLegend: 'Which tools are you comfortable using? (Select all that apply)',
-  toolOptions: ['CapCut', 'Canva', 'Instagram', 'TikTok', 'Adobe', 'Lightroom', 'Figma', 'Other'],
-  onCameraOptions: choices('Yes — absolutely', "Yes — I'm comfortable with it", "Somewhat — I'm willing to try", 'No'),
-  availabilityPlaceholder: "When you could start, and roughly how many hours a week you're looking for",
-  pitchLabel: 'Give us one Hush Jewels content idea',
-  pitchPlaceholder:
-    'Imagine you have a piece of Hush Jewels jewelry in your hand — what would you make with it? A TikTok, Reel, "Jewelry of the Day," styling video, promotion, trend, or anything you come up with.',
-};
-
-const OVERRIDES: Record<string, ApplicationFormCopy> = {
-  'hush-jewels-marketing-social-media-intern': HUSH_JEWELS_COPY,
-};
+// No overrides currently in use — the last non-default entry (Hush Jewels)
+// was removed along with its role. Left as a Record rather than deleted
+// outright: getFormCopy's fallback-to-DEFAULT_COPY behavior depends on this
+// existing, and the next per-company role just adds a key here again.
+const OVERRIDES: Record<string, ApplicationFormCopy> = {};
 
 export function getFormCopy(roleSlug: string): ApplicationFormCopy {
   return OVERRIDES[roleSlug] ?? DEFAULT_COPY;

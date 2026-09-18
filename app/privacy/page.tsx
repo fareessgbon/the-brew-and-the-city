@@ -9,23 +9,27 @@ export const metadata: Metadata = pageMetadata({
   canonical: '/privacy',
 });
 
-// §0.4 — deliberately short. This site collects a waitlist email and two
-// optional surveys, nothing else; the full privacy policy the real product
-// needs (location, receipt photos, accounts) doesn't apply yet because
-// none of those features exist at this stage.
+// §0.4 — deliberately short. Everything on this site except Discover still
+// needs no account: a waitlist email, two optional surveys, and (since
+// Discover shipped) a public, read-only look at real Calgary and Toronto cafés. Discover
+// itself is a deliberate, narrow exception (see chat) — a real Supabase Auth
+// sign-in gates the page, but nothing past that gate (your quiz answers,
+// your "I've been here" log) is stored anywhere but your own browser. The
+// full privacy policy the real product needs (location, receipt photos,
+// friend graphs) still doesn't apply — those features don't exist yet.
 export default function PrivacyPage() {
   return (
     <>
       <SiteHeader />
       <main id="content">
-        <section style={{ padding: '56px 0 8px' }}>
+        <section className="stripes-latte scallop-bottom" style={{ padding: '56px 0 48px' }}>
           <div className="wrap" style={{ maxWidth: 760 }}>
             <div className="label" style={{ color: 'var(--whisk)', marginBottom: 10 }}>
               Legal
             </div>
             <h1 style={{ fontSize: 38 }}>Privacy Policy</h1>
             <div style={{ color: 'var(--whisk)', fontSize: 13, marginTop: 10 }}>
-              Last updated August 2026 · Brew and the City, Calgary, Alberta
+              Last updated September 2026 · Brew and the City, Calgary &amp; Toronto
             </div>
           </div>
         </section>
@@ -33,14 +37,17 @@ export default function PrivacyPage() {
         <section className="legal" style={{ padding: '24px 0 72px' }}>
           <div className="wrap" style={{ maxWidth: 760 }}>
             <div className="notice-box">
-              <strong>This is a pre-launch page, not the product.</strong> There is no account, no app, and no café
-              data yet — just a waitlist, two short surveys, and a job application form. This policy covers only what
-              those actually collect. A fuller policy will replace this one once the real product exists.
+              <strong>This is a pre-launch page, not the product.</strong> You can browse real Calgary and Toronto cafés and try
+              a preview of taste-matching without an account — the waitlist, two short surveys, and a job application
+              form all still ask for nothing more than that. The one exception is Discover, which asks you to sign in
+              with an email link before you can browse; nothing you do past that point (quiz answers, cafés you mark
+              as visited) is stored anywhere but your own browser. This policy covers only what this site actually
+              collects. A fuller policy will replace this one once the real product exists.
             </div>
 
             <h2>1. Who we are</h2>
             <p>
-              Brew and the City is a Calgary, Alberta café-matching product currently in development. Questions or
+              Brew and the City is a Calgary and Toronto café-matching product currently in development. Questions or
               requests: <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>.
             </p>
 
@@ -64,6 +71,19 @@ export default function PrivacyPage() {
                   </td>
                   <td>To notify you when the product launches, and to know which cafés to have ready on day one</td>
                 </tr>
+                {/* Kept in step with app/login — Supabase Auth's own
+                    auth.users table, not the real product's public.users/
+                    taste_profiles/saved_cafes/visits (those stay walled off
+                    from this pre-launch phase — see supabase/migrations/0021
+                    and chat). Nothing past sign-in is server-side at all. */}
+                <tr>
+                  <td>Discover (&ldquo;Log in&rdquo;)</td>
+                  <td>Your email address, to send you a one-time sign-in link. No password.</td>
+                  <td>
+                    To confirm you&apos;re a real person before showing Discover — your quiz answers and any cafés
+                    you mark as visited stay in your browser only, never sent to us
+                  </td>
+                </tr>
                 <tr>
                   <td>Café partner survey</td>
                   <td>Café name, contact name, email, city/area, Instagram or website, and your answers to the survey questions</td>
@@ -83,14 +103,18 @@ export default function PrivacyPage() {
                   <td>Job application (&ldquo;Careers&rdquo;)</td>
                   <td>
                     Your name, email and your resume — either the file you upload or the link you give us — plus
-                    anything else you choose to add: phone number, whether you&apos;re in Calgary and can travel for
+                    anything else you choose to add: phone number, which city you&apos;re in and whether you can travel for
                     shoots, links to your work, your availability and written answers
                   </td>
                   <td>To consider you for the role you applied to, and to reply to you about it</td>
                 </tr>
               </tbody>
             </table>
-            <p>Nothing else is collected. There is no location tracking, no analytics, and no cookies beyond what your browser needs to load the page.</p>
+            <p>
+              Nothing else is collected. There is no location tracking and no analytics. The only cookie beyond what
+              your browser needs to load the page is the sign-in cookie Discover sets once you follow an email link —
+              it just proves you&apos;re signed in and holds no personal information itself.
+            </p>
 
             <h2>3. How long it&apos;s kept</h2>
             <p>
@@ -108,6 +132,11 @@ export default function PrivacyPage() {
               generated for us when we review your application. If you gave us a link instead of a file, we only
               store the link; whatever it points to stays wherever you host it, under your own sharing settings.
             </p>
+            <p>
+              A Discover sign-in is kept until you ask us to delete it — there&apos;s no separate retention clock,
+              since the account itself is the only thing on our side; everything it unlocks lives in your browser and
+              is already gone the moment you clear site data.
+            </p>
 
             <h2>4. Your rights</h2>
             <p>
@@ -116,7 +145,8 @@ export default function PrivacyPage() {
               <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a> — waitlist removal is immediate,
               and so is deleting a job application and any resume you uploaded with it. For a consumer survey
               response, email us from the address you gave — or, if you left that blank, tell us the name you used
-              and roughly when you submitted — and we&apos;ll find the response and delete it.
+              and roughly when you submitted — and we&apos;ll find the response and delete it. To delete a Discover
+              account, email us from the address you signed in with.
             </p>
 
             <h2>5. Changes to this policy</h2>
