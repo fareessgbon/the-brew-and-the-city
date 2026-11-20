@@ -21,8 +21,8 @@ export default function CafePartnerSurveyPage() {
                 heading/lede sit flush with the form's edges instead of
                 spanning the full wrap while the form sits narrower. */}
             <div style={{ maxWidth: 640, margin: '0 auto' }}>
-              <div className="eyebrow label">Make Brew Better · Café survey</div>
-              <h1 style={{ fontSize: 30, marginBottom: 8 }}>Tell us about your café</h1>
+              <div className="eyebrow label">Help shape Brew · Café survey</div>
+              <h1 className="page-title page-title-sm">Tell us about your café</h1>
               <p style={{ fontSize: 15, color: 'var(--whisk)', marginBottom: 28 }}>
                 Seven steps, about three minutes. This isn&apos;t an application — nothing here signs your café up for
                 anything.

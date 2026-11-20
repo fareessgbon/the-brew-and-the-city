@@ -31,10 +31,7 @@ const FIELD_LABELS: Record<string, string> = {
   pitch: 'Their post pitch',
   availability: 'Availability',
   whyYou: 'Anything else',
-  // Historical only — the role is paid now and the form no longer asks.
-  // Kept so applications sent under the old terms still read correctly
-  // instead of showing a bare camelCase key.
-  acknowledgedUnpaid: 'Confirmed the role was unpaid (applied under the old terms)',
+  acknowledgedUnpaid: 'Confirmed the role is unpaid',
 };
 
 const FIELD_ORDER = [

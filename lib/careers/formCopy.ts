@@ -29,11 +29,15 @@ export interface ApplicationFormCopy {
 const choices = (...labels: string[]): Choice[] => labels.map((label) => ({ label, value: label }));
 
 const DEFAULT_COPY: ApplicationFormCopy = {
+  // Two cities now, so this asks which one rather than yes/no. (A previous
+  // edit left "based in Toronto" with two identical "Yes" options — same
+  // label and value — which also duplicated a React key.)
   basedIn: {
-    legend: 'Are you currently based in Toronto',
+    legend: 'Which city are you based in?',
     options: [
-      { label: 'Yes', value: 'Yes' },
-      { label: 'Yes', value: 'Yes' },
+      { label: 'Calgary', value: 'Calgary' },
+      { label: 'Toronto', value: 'Toronto' },
+      { label: 'Somewhere else', value: 'Somewhere else' },
     ],
   },
   canTravel: {

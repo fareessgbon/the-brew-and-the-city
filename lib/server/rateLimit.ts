@@ -6,15 +6,16 @@
 // effective limit is "N per window per warm instance", not a hard global
 // cap.
 //
-// This build has no portal PIN or receipt uploads — its three public write
-// endpoints (waitlist, both surveys) are the whole attack surface, and a
-// flood of any of them is exactly the case checkRateLimit() alone doesn't
-// cover on serverless. checkRateLimitPersistent() below closes that gap via
-// the rate_limit_buckets table (migration 0022) — one DB round-trip per
-// request, acceptable here since these are human-triggered form submits,
-// not a hot path. Use it for anything actually exposed to the public
-// internet; keep checkRateLimit() for anything genuinely cheap and
-// low-stakes, or as a synchronous pre-check before the DB round-trip.
+// This build's public write endpoints (waitlist, both surveys, careers
+// apply, and now the City Card's receipt upload) are the whole attack
+// surface, and a flood of any of them is exactly the case checkRateLimit()
+// alone doesn't cover on serverless. checkRateLimitPersistent() below
+// closes that gap via the rate_limit_buckets table (migration 0022) — one
+// DB round-trip per request, acceptable here since these are
+// human-triggered form submits, not a hot path. Use it for anything
+// actually exposed to the public internet; keep checkRateLimit() for
+// anything genuinely cheap and low-stakes, or as a synchronous pre-check
+// before the DB round-trip.
 
 interface Bucket {
   count: number;

@@ -34,6 +34,7 @@ export async function POST(request: Request) {
   }
   const name = optionalText(body?.name, MAX_NAME);
   const goToCafes = optionalText(body?.goToCafes, MAX_CAFES);
+  const city = body?.city === 'calgary' || body?.city === 'toronto' ? (body.city as 'calgary' | 'toronto') : null;
 
   const admin = createAdminClient();
   const tooMany = !(await checkRateLimitPersistent(admin, `waitlist:${clientIp(request)}`, MAX_SIGNUPS_PER_HOUR, WINDOW_MS))
@@ -42,7 +43,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Too many attempts — please try again later.' }, { status: 429 });
   }
 
-  const { error } = await admin.from('waitlist').insert({ email, name, go_to_cafes: goToCafes });
+  let { error } = await admin.from('waitlist').insert({ email, name, go_to_cafes: goToCafes, city });
+  // 42703 = the city column doesn't exist yet (migration 0031 not applied).
+  // A signup without a city beats a signup that fails, so retry without it.
+  if (error?.code === '42703') {
+    ({ error } = await admin.from('waitlist').insert({ email, name, go_to_cafes: goToCafes }));
+  }
 
   if (error) {
     // 23505 = already on the list (unique index on lower(email)) — not a
@@ -53,15 +59,16 @@ export async function POST(request: Request) {
       // name and their cafés, would otherwise have those details dropped on
       // the floor. Fill blanks on the existing row; never overwrite an
       // answer they already gave with a later empty one.
-      const patch: { name?: string; go_to_cafes?: string } = {};
+      const patch: { name?: string; go_to_cafes?: string; city?: 'calgary' | 'toronto' } = {};
       if (name) patch.name = name;
       if (goToCafes) patch.go_to_cafes = goToCafes;
+      if (city) patch.city = city;
       if (Object.keys(patch).length > 0) {
         const { error: updateError } = await admin
           .from('waitlist')
           .update(patch)
           .eq('email', email)
-          .or('name.is.null,go_to_cafes.is.null');
+          .or('name.is.null,go_to_cafes.is.null,city.is.null');
         // A failed top-up isn't worth failing the request over — they're
         // still on the list, which is what they came to do.
         if (updateError) await logServerError('api.waitlist.enrich', updateError, { email });

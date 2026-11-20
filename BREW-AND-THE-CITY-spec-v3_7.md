@@ -1,10 +1,11 @@
-# BREW AND THE CITY — Product Spec v3.6
+# BREW AND THE CITY — Product Spec v3.7
 
 **One line:** A café discovery app that matches you to your next favourite spot the way a dating app matches you to a person — taste profile, mutual friends, and what you're in the mood for right now.
 
-**Status:** Pre-launch spec. No product code written; the pre-launch site (§0.4) is the only thing that should ship first. This document is the input to the build.
+**Status:** Pre-launch spec. No *product* code written — but §0.4's pre-launch site is no longer just a landing page; it's a real Next.js + Supabase app in its own right (see the codebase's own `README.md`), and this revision brings §0.4/§12.1a/§13.6 up to date with what it actually does. The real product (§1–§11, §17+) is still unbuilt. This document is the input to that build.
 **Author:** Reese
 **Date:** August 2026 · **Market:** Calgary, Alberta — Founding Partner launch city (§3.0)
+**v3.7 change:** §0.4/§12.1a/§13.6 revised to match the pre-launch site as actually built, which has grown past what v3.6 scoped for it. Four real deviations, all deliberate, none touching accounts or the real matching engine: (1) the homepage quiz runs the *real* `lib/matching/` engine against real seeded café data, disclosed as a preview rather than faked with placeholders — the opposite of what §12.1a v3.6 said to do; (2) routes live under `/make-brew-better`, not `/help-shape-the-app`; (3) a third survey (§13.6.3) lets a café self-report its taste vector directly; (4) a PIN-gated `/admin/cafes` console — a first, minimal slice of §16's Cafe editor — exists because seeding cafés needs a UI before there are cafés to seed. New in this revision only, not a correction: §0.4d covers `/careers`, a hiring flow with no counterpart anywhere in v3.6. Nothing in §1–§11 or §17+ changed.
 **v3.6 change:** added §0.4, a no-account pre-launch phase (awareness + two validation surveys, modelled on Caught Sipping's live Tampa Bay site) that ships before any signup, quiz, or account exists. Nothing else in the product spec changed — this only inserts the missing step in front of it.
 
 ---
@@ -26,7 +27,7 @@ Anything marked **[DECIDE]** is a real open question that blocks a build decisio
 
 ## 0.4 Pre-launch phase — what ships before any account exists
 
-**This ships first — days, not weeks — and none of it touches auth, the matching engine, or the data model.** Its only two jobs are building social awareness in Calgary and collecting real answers to the open questions in §15. It is modelled directly on the Caught Sipping site, which is running the same play in Tampa Bay right now: no login, no "create account," no live product. A hero, a partner pitch, two surveys, and an Instagram handle doing the actual work.
+**This ships first — days, not weeks — and none of it touches auth, the matching engine, or the data model.** Its only two jobs are building social awareness in Calgary and collecting real answers to the open questions in §15. It is modelled directly on the Caught Sipping site, which is running the same play in Tampa Bay right now: no login, no "create account," no live product. A hero, a partner pitch, three surveys, an Instagram handle doing the actual work — plus, as of v3.7, a hiring page and a founder-only café console that don't trace back to Caught Sipping at all (§0.4c, §0.4d).
 
 **The rule this phase exists to enforce:** nobody signs up for anything. There is no account, no email + magic link (§6.1), no Supabase Auth call, no user row beyond a waitlist email address. The pre-launch site's entire job is to be looked at, shared, and filled out — not logged into.
 
@@ -34,14 +35,16 @@ Anything marked **[DECIDE]** is a real open question that blocks a build decisio
 
 | Page | Purpose | What it is NOT |
 | --- | --- | --- |
-| `/` (hero) | State the idea in one screen — matched to your next favourite Calgary café — and point everywhere else. One email field to **join the list**, stored as a waitlist row, never an account. | Not a live matching quiz resolving to real cafés. You have no seeded cafés yet — that's homework item 1 below. Do not fake a Proximity Map with placeholder pins. |
+| `/` (hero) | State the idea in one screen — matched to your next favourite Calgary café — and point everywhere else. One email field to **join the list**, stored as a waitlist row, never an account. **[REVISED v3.7]** The hero quiz is real, not a mockup — it runs `lib/matching/` against real seeded café rows and shows a genuine top match, with an on-page `DemoBanner` disclosure ("illustrative placeholders... imply no partnership or endorsement") since the seeded set is still small and unverified. v3.6 said not to build this; see the v3.7 change note above for why it shipped anyway. | Still not a Proximity Map, still not an account, still ends at the waitlist. |
 | `/for-cafes` | The Founding Partner pitch (§3.0), the FAQ (§13.7), the "your café doesn't stop getting discovered after the first visit" framing (§12.1b) | Not a portal, not an application that provisions a café account. It ends in the café-side survey (§13.6.1) or a plain "email us" link. |
-| `/help-shape-the-app` | Both validation surveys (§13.6), each on its own step-numbered sub-route — `/help-shape-the-app/cafe-partner-survey` and `/help-shape-the-app/consumer-survey`, matching the URL pattern already visible in the Caught Sipping screenshots | Not gated behind a login. One click from the nav, no account required to answer either survey. |
+| `/make-brew-better` **[renamed from `/help-shape-the-app` in v3.7]** | Links to all three validation surveys (§13.6), each on its own step-numbered sub-route: `/make-brew-better/cafe-partner-survey`, `/make-brew-better/consumer-survey`, and `/make-brew-better/cafe-taste-survey` (§13.6.3, added v3.7) | Not gated behind a login. One click from the nav, no account required to answer any of the three. |
+| `/careers` **[new in v3.7, not in v3.6]** | A hiring flow — see §0.4d below. Not part of the original pre-launch scope; added because a two-person team hiring its first roles needed somewhere to point applicants, and the pre-launch site was the only public surface that existed. | Not an account system for applicants. No dashboard, no status login — an applicant's only path is apply, then wait for an email. |
+| `/admin`, `/admin/cafes/*`, `/admin/consumer/*` **[new in v3.7, not in v3.6]** | Founder-only ops tooling behind a shared PIN (`ADMIN_PIN`), `noindex`, never linked from the public nav — see §0.4c below. A first, minimal slice of §16's Cafe editor, brought forward because seeding cafés needs *some* UI before there are cafés to match against. | Not the real product's admin console (§16) — no bulk CSV import, no vector tuner, no merchant-string mapping. Not reachable or discoverable by a visitor. |
 | Instagram (@brewandthecity) | Where the actual social-awareness work happens — café features, quiz-style polls, behind-the-scenes seeding visits, "why this café scored the way it did" posts | Not a hard-sell funnel. Personality and local presence first; the site does the converting. |
 
 ### The nav, copied because it's correct
 
-Caught Sipping's live nav is two links and a button: **Help Shape the App** · **Catch Us on Instagram**. No "Sign Up," no "Log In," no "Get the App." Use the same restraint — every nav item on the pre-launch site should be something a visitor can do without an account. Footer repeats the same links plus **Join the Waitlist**, **For Cafés**, and the legal pages.
+Caught Sipping's live nav is two links and a button: **Help Shape the App** · **Catch Us on Instagram**. No "Sign Up," no "Log In," no "Get the App." Use the same restraint — every nav item on the pre-launch site should be something a visitor can do without an account. **[REVISED v3.7]** The live nav is now **For Cafés** · **Make Brew Better** · **See What We're Brewing** (Instagram) · **Careers**, in that order, plus a mobile hamburger drawer once the row stopped fitting one line at four items. Still true to the original rule: every item is something a visitor can act on with no account, `/careers` included — applying isn't signing up for anything. Footer repeats the same links plus **Join the Waitlist**, **For Cafés**, and the legal pages.
 
 ### What it proves before you write a line of matching code
 
@@ -53,9 +56,19 @@ Caught Sipping's live nav is two links and a button: **Help Shape the App** · *
 | Which perk framing lands — discovery, savings, or novelty? | Consumer survey steps 5–6 (§13.6.2) — target 100+ responses |
 | Which neighbourhoods and café names come up unprompted? | Free-text fields on both surveys, read manually, not just tallied |
 
-Nothing here is a build risk. It's copy, a form tool (Typeform/Tally, per §13.6), a single waitlist table, and an Instagram account. Ship it, let it run for at least two to three weeks alongside the homework in §0.5, and only start Phase 1 of the v1 cut line once the surveys have real numbers in them — guessing the same four answers this phase is designed to collect is the exact mistake it exists to prevent.
+Nothing here is a build risk. It's copy, a handful of Supabase tables behind real app pages rather than a third-party form tool (§13.6's v3.7 note explains why that changed), and an Instagram account. Ship it, let it run for at least two to three weeks alongside the homework in §0.5, and only start Phase 1 of the v1 cut line once the surveys have real numbers in them — guessing the same four answers this phase is designed to collect is the exact mistake it exists to prevent.
 
 **Alberta privacy note:** even a single email field is a collection of personal information under PIPA (§20). Ship a one-paragraph privacy notice on the waitlist form before the first address is collected — what's stored (email only), why (to notify at launch), and how to unsubscribe. This is a much lighter lift than the full policy §20 requires before the real app collects location and receipt photos, but it isn't optional just because the phase is "just a landing page."
+
+### 0.4c Café admin console — an early slice of §16 **[NEW v3.7]**
+
+`/admin/cafes` (list, search, archive) and `/admin/cafes/[id]` / `/admin/cafes/new` (the Cafe editor — drink categories, all 7 vector dimensions as labelled sliders per §16, price band, hours, verification checkbox) exist today, PIN-gated behind `ADMIN_PIN` and never linked from the public nav. This is not scope creep on the real product — it's the same thing §16 already calls "the first thing built," just built earlier than the v1 order in §0.5 schedules it, because seeding even one café for the homepage's real quiz (§0.4's `/` row above) needed a form before it needed anything else. It is missing everything else §16 specs for the Cafe editor: bulk CSV import, the vector tuner, and merchant-string mapping (those stay real gaps — don't assume they exist because the editor does).
+
+A café can also self-report its own taste vector via a public survey (§13.6.3) that lands in the admin queue and one-click-prefills a new Cafe editor row — an admin still reviews and saves it, so a stranger's submission never writes straight to live café data.
+
+### 0.4d Hiring — `/careers` **[NEW v3.7, no v3.6 counterpart]**
+
+Not in scope anywhere in v3.6 — this is genuinely new, not a correction. A `/careers` listing plus a per-role page and application form (resume upload, a role-specific short application, an emailed confirmation, and an admin accept/reject queue that emails the outcome either way) exist because a two-person team hiring its first roles needed a public place to point applicants, and no other public surface existed yet. Roles are data (`lib/data/roles.ts`), keyed by slug, each carrying its own contact email and its own application-form copy override — built multi-company from the start (a second company's role, Hush Jewels' Marketing & Social Media Intern, ran through it and was later pulled once filled; the machinery stayed generic rather than reverting to single-company). Same no-account rule as everywhere else in §0.4: applying isn't creating anything an applicant can log back into.
 
 ---
 
@@ -98,7 +111,7 @@ If a feature is not in the table above, it does not get built in v1, **including
 
 ### Before the coder starts — your homework, not theirs
 
-0. **Ship the pre-launch site (§0.4).** Hero + waitlist email, `/for-cafes`, `/help-shape-the-app` with both surveys, Instagram live. This is a landing page and two form embeds, not a build — do it first, and let it run in parallel with everything below. Nothing in this list needs to finish before the site goes up.
+0. **Ship the pre-launch site (§0.4).** Hero + waitlist email, `/for-cafes`, `/make-brew-better` with all three surveys, Instagram live. Grew past "a landing page and two form embeds" (see the v3.7 change note) but is still not the real build — do it first, and let it run in parallel with everything below. Nothing in this list needs to finish before the site goes up.
 1. **Seed 60 Calgary cafes in a spreadsheet.** All 7 vector dimensions, all `cafe_attributes`, hours, neighbourhood. Roughly 45 minutes each, in person (§13). This is the gate on Phase 2 and nobody else can do it.
 2. **Test the algorithm in Sheets.** Enter your own vector, compute weighted Euclidean against all 60, look at the top 10. If they aren't cafes you'd actually like, fix the weights *before* the build, not after.
 3. **Register brewandthecity.com and the handles** (§2.1a).
@@ -164,6 +177,8 @@ Calgary is a defensible pick, and better than it looks on paper.
 - **~1.4M metro, but spread thin.** Target the walkable clusters above for the Founding Partner cohort rather than trying to cover the city. Density beats coverage for v1.
 
 **Target for launch:** 60 seeded cafes, 15 Founding Partners, all within the six clusters named above.
+
+**Addendum, 2026-09-18 — Toronto added as a second launch market.** The rationale above still stands for Calgary; it isn't being rewritten. Toronto joins alongside it, not in place of it, with the Founding Partner cohort now a single shared pool of 15 across both cities rather than 15 per city. Neighbourhood/city data model, admin tooling, and marketing copy were updated accordingly; see `supabase/migrations/0030_cafe_city.sql` and `scripts/seed-cafes.mjs`. Toronto-specific walkable-cluster analysis (the equivalent of the density/car-city notes above) hasn't been done yet and should happen before in-person vector seeding starts there.
 
 ---
 
@@ -2286,28 +2301,32 @@ POST   /api/partner-interest      → café application form
 
 ## 12. Screens
 
-### 12.1 Marketing site — two stages, not one **[REVISED v3.6]**
+### 12.1 Marketing site — two stages, not one **[REVISED v3.6, updated v3.7]**
 
 The marketing site ships twice, on purpose. §0.4 already covers why: the pre-launch stage (12.1a) has no cafés seeded and no matching engine to demo, so it doesn't try to fake either — it collects emails and survey answers instead. The public stage (12.1b) is everything this section used to describe as day one, and it only starts once §0.4 has run and the homework in §0.5 is done.
 
 #### 12.1a Pre-launch site — no accounts, awareness + input only
 
 ```
-/                                          Hero → why this is different → join the list (email only)
-/for-cafes                                 Partner pitch → "discovery never stops" → FAQ (§13.7) → application/survey
-/help-shape-the-app                        Links to both surveys below
-/help-shape-the-app/cafe-partner-survey    §13.6.1, 5 steps
-/help-shape-the-app/consumer-survey        §13.6.2, 6 steps
+/                                     Hero, real quiz preview (§0.4) → why this is different → join the list (email only)
+/for-cafes                            Partner pitch → "discovery never stops" → FAQ (§13.7) → application/survey
+/make-brew-better                     Links to all three surveys below
+/make-brew-better/cafe-partner-survey §13.6.1, 5 steps
+/make-brew-better/consumer-survey     §13.6.2, 6 steps
+/make-brew-better/cafe-taste-survey   §13.6.3, 9 steps — added v3.7
+/careers                              Hiring (§0.4d) — added v3.7, no v3.6 counterpart
 /privacy /terms
 ```
 
-Nav: **Help Shape the App** · **Catch Us on Instagram** — copied straight from Caught Sipping's live nav, because it's the right instinct: every link goes somewhere a visitor can act on without an account. No "Sign Up," no "Log In."
+Not on this diagram because a visitor never reaches it: `/admin/*` (§0.4c), PIN-gated and unlinked.
 
-**Hero — no live quiz here, and that's deliberate.** §0.4 already rules this out: a three-question mini-quiz that resolves to "your top match" needs seeded cafés and a working scoring function, and this stage has neither. Faking it with placeholder cafés would be a worse first impression than not showing it at all. Say the idea in one screen instead, and ask for one thing — an email.
+Nav: **For Cafés** · **Make Brew Better** · **See What We're Brewing** (Instagram) · **Careers** — the original Caught Sipping two-item nav this section specced (**Help Shape the App** · **Catch Us on Instagram**) grew two items as the site did, but the instinct it was copied for still holds: every link goes somewhere a visitor can act on without an account. No "Sign Up," no "Log In." Collapses into a mobile drawer once it stopped fitting one line at four items.
+
+**Hero — the quiz is real. [REVISED v3.7, reverses what this said in v3.6]** v3.6 ruled this out here on the reasoning that a live quiz needs seeded cafés and a working scoring function, neither of which this stage was assumed to have, and that faking it with placeholder cafés would be a worse first impression than not showing it. What shipped instead: seed a *few* real cafés early, run the actual `lib/matching/` engine against them for real, and say so on-page (`DemoBanner`: "illustrative placeholders... imply no partnership or endorsement") rather than presenting it as the finished product. That's a materially different move from faking the output with invented cafés — it's genuinely how matching will feel, just against a small, disclosed, unverified set — and it's why §0.4c's admin console exists this early: something has to create those rows.
 
 ```
 ┌────────────────────────────────────────┐
-│  ⟨ logo ⟩          Help Shape the App  Instagram │
+│  ⟨ logo ⟩   For Cafés  Make Brew Better  Instagram  Careers │
 ├────────────────────────────────────────┤
 │                                              │
 │   MATCHED TO YOUR NEXT FAVOURITE CAFÉ,       │
@@ -2318,6 +2337,7 @@ Nav: **Help Shape the App** · **Catch Us on Instagram** — copied straight fro
 │   match you to yours — by taste, not by      │
 │   review count.                              │
 │                                              │
+│   [ real taste quiz → top match, disclosed ] │
 │   [ you@email.com          ] [ Join the list ]│
 │                                              │
 │   Café owner? → /for-cafes                   │
@@ -2579,11 +2599,11 @@ Reasoning:
 
 ---
 
-## 13.6 Pre-launch validation surveys **[NEW v3.5]**
+## 13.6 Pre-launch validation surveys **[NEW v3.5, third survey added v3.7]**
 
 Several `[DECIDE]` items in this document are currently your best guess: the $4 reimbursement rate (§3.0.5), the eventual $89 Partner price (§3.0.1), which perks cafés actually want (§3.1b.1), and what a Calgarian would pay for a consumer tier if one ever returns. Caught Sipping is answering these questions with two short surveys before writing a line of app code, one aimed at cafés and one at coffee drinkers. Run the same play — it is nearly free and it converts four guesses into four answers.
 
-**Ship both as Typeform, Tally, or a plain page — not inside the app.** Neither survey needs the product to exist. They live on the pre-launch site (§0.4) at `/help-shape-the-app/cafe-partner-survey` and `/help-shape-the-app/consumer-survey`, matching the URL pattern already visible in the Caught Sipping screenshots, both reachable from a single `/help-shape-the-app` nav link with no login.
+**Shipped as real app pages, not a form tool — [REVISED v3.7]** this section originally said Typeform/Tally/a plain page precisely because neither survey needed the product to exist yet. Once the pre-launch site became a real Next.js + Supabase app for other reasons (§0.4c, §0.4d), routing survey submissions into the same `survey_responses` table and admin review queue as everything else cost less than standing up a separate tool, so that's what happened. They live on the pre-launch site (§0.4) at `/make-brew-better/cafe-partner-survey`, `/make-brew-better/consumer-survey`, and `/make-brew-better/cafe-taste-survey` (§13.6.3), all three reachable from a single `/make-brew-better` nav link with no login.
 
 ### 13.6.1 Café-side survey — 5 steps, ~3 minutes
 
@@ -2608,6 +2628,12 @@ Several `[DECIDE]` items in this document are currently your best guess: the $4 
 **Why this matters even though the consumer app is currently free (§3.1e).** A consumer subscription is explicitly not in v1 — but this question costs one line in an existing survey, and if a real number comes back (not zero, not "I'd never pay"), that's evidence for the eventual $4.99 convenience tier §3.1e already sketches, gathered before you need it rather than after.
 
 **Distribution:** post both to your own network, the Founding Partner cohort once the first few sign, and Calgary-specific subreddits and Facebook groups for the café-facing one. Target 20–30 café responses and 100+ consumer responses before treating any answer as a real signal — five replies is anecdote, not data.
+
+### 13.6.3 Café taste-vector self-survey — 9 steps, ~2 minutes **[NEW v3.7]**
+
+Not a validation survey like 13.6.1/13.6.2 — this one exists for a café that's already decided it wants to be listed and would rather describe itself than wait for someone to visit and score it by hand. One question per taste dimension (§7.1's seven anchors — drink, energy, pace, aesthetic, and the rest), each answered on the same four-option, absolute-0–100-score scale the admin Cafe editor's sliders use (`lib/data/cafeFields.ts`), plus a price-band question that fills both `price_score` and the separate `price_band` field from one answer instead of asking the same real-world fact twice.
+
+**Never writes straight to `cafes`.** A submission lands in `survey_responses` like the other two and sits in the admin queue until a human reviews it and applies it deliberately via a one-click bridge into `/admin/cafes/new`, pre-filled — same rule as 13.6.1's café-partner survey never auto-creating a Founding Partner. A public form writing directly into live, visitor-facing café data with no one looking at it first is exactly the failure mode this whole project has otherwise been careful to avoid, and this survey doesn't get an exception.
 
 ---
 
@@ -2638,7 +2664,7 @@ Caught Sipping's `/for-cafes` page answers eleven objections in an accordion bef
 | Phase | Scope | Rough effort |
 | --- | --- | --- |
 | **0. Validation** | Name/domain clearance, pick market, walk 20 cafés and ask if they'd partner | 2 weeks, no code |
-| **0.5. Pre-launch site** | Static site, no accounts: hero + waitlist email, `/for-cafes`, `/help-shape-the-app` with both surveys, Instagram live (§0.4, §12.1a) | 3–5 days |
+| **0.5. Pre-launch site** | No accounts: hero (real quiz preview) + waitlist email, `/for-cafes`, `/make-brew-better` with all three surveys, `/careers`, `/admin` café console, Instagram live (§0.4, §12.1a) | 3–5 days, grew from there |
 | **1. Marketing site (public launch)** | Landing + interactive hero quiz + live signup + `/for-cafes` + application form — replaces 0.5 once cafés are seeded (§12.1b) | 1–2 weeks |
 | **2. Data + matching core** | Schema, seed 60 cafés with vectors, `lib/matching/`, unit tests on scoring | 2 weeks |
 | **3. Web app MVP** | Auth, quiz, Today, Discover, Map, Café Profile, check-in, City Picks + Elo, City List, Regulars | 4–6 weeks |
@@ -2659,7 +2685,7 @@ Caught Sipping's `/for-cafes` page answers eleven objections in an accordion bef
 | # | Decision |
 | --- | --- |
 | Name | BREW AND THE CITY |
-| Launch market | Calgary, Alberta — 60 seeded cafes, 15 Founding Partners, six walkable clusters (§1.5) |
+| Launch market | Calgary, Alberta — 60 seeded cafes, 15 Founding Partners, six walkable clusters (§1.5); Toronto added as a second market 2026-09-18, sharing the same 15-slot Founding Partner pool (§1.5 addendum) |
 | Calgary | Free Listed profiles; the first 15 approved Founding Partners receive Partner benefits free for six months (§3.0) |
 | Founding exchange | Six months of Partner benefits plus launch extras; City Card stamps are included, while monthly free-item redemption is optional. Participating cafés contribute approved items within their chosen cap (§3.0.4–3.0.5) |
 | Founding conversion target | ≥10 of 15 choose the $49/month continuation after seeing six months of results (§3.0.7) |
@@ -2682,7 +2708,7 @@ Caught Sipping's `/for-cafes` page answers eleven objections in an accordion bef
 | Post-trial revenue | Brand campaigns → consumer sub → café subs in city two (§3.1c.1) |
 | Accessibility | WCAG 2.2 AA; the Proximity Map's text list is primary, not fallback (§18.5) |
 | Ranking integrity | Payment buys inclusion in promotional surfaces, never position or Match % (§5.1) |
-| Pre-launch | Static site, no accounts — awareness (Instagram) plus two validation surveys, before any code beyond a landing page (§0.4, §12.1a) |
+| Pre-launch | No user accounts — awareness (Instagram) plus two validation surveys, a café self-report survey, hiring, and a founder-only café console; grew into a real app rather than staying a landing page (§0.4, §0.4c, §0.4d, §12.1a) |
 | Signup | Email + magic link, before the quiz — applies to the public launch app, not the pre-launch site (§6.1, §0.4) |
 | Core mechanic | Quiz → flavour-profile proximity, rendered as the Proximity Map (§8.2a) |
 | Ranking | Head-to-head City Picks, per-axis Elo (§8.6) |
@@ -2711,6 +2737,8 @@ Caught Sipping's `/for-cafes` page answers eleven objections in an accordion bef
 ## 16. Admin console — build before the consumer app
 
 Nothing in this product functions without seeded cafes, and nothing stays functional without operational tooling. This is not a phase-6 nicety; it is the first thing built.
+
+**The Cafe editor row below is already partly real** — `/admin/cafes`, built as part of the pre-launch site (§0.4c) rather than waiting for the v1 order in §0.5, because the homepage's real quiz preview (§0.4, §12.1a) needed cafés to seed before it needed anything else. It covers drink categories, the 7 vector-dimension sliders, hours, price band, verification — everything in that cell except bulk CSV import. **Vector tuner and Merchant strings below are still just spec, not built.**
 
 Internal only, behind auth, no design budget. Plain tables and forms.
 

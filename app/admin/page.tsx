@@ -8,6 +8,9 @@ import { AdminLoginForm } from '@/components/AdminLoginForm';
 import { AdminStatusBadge, AdminNotesField } from '@/components/AdminSurveyStatus';
 import { AdminDeleteButton } from '@/components/AdminDeleteButton';
 import { AdminRejectButton } from '@/components/AdminRejectButton';
+import { Timestamp } from '@/lib/format/relativeTime';
+import { cafeCreateHref, DIMS, PRIMARY_DRINK_CATEGORY_LABELS } from '@/lib/data/cafeFields';
+import { cafeTasteVectorCreateHref, describeScore, DIM_QUESTIONS } from '@/lib/data/cafeTasteVectorSurvey';
 import type { SurveyStatus } from '@/lib/supabase/types';
 import { RESUME_BUCKET, formatBytes } from '@/lib/careers/resume';
 
@@ -130,29 +133,6 @@ function countSince(items: { created_at: string }[], daysAgo: number): number {
   return items.filter((i) => new Date(i.created_at).getTime() >= cutoff).length;
 }
 
-// "3h ago" scans in a way "8/7/2026, 9:15:57 PM" doesn't — on a queue the
-// only thing the timestamp answers is "how stale is this?". The exact
-// value stays in the title attribute for when the actual date matters.
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.round(diff / 60_000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function Timestamp({ iso }: { iso: string }) {
-  return (
-    <span style={{ fontSize: 12, color: 'var(--whisk)' }} title={new Date(iso).toLocaleString()}>
-      {relativeTime(iso)}
-    </span>
-  );
-}
-
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="admin-card">
@@ -217,7 +197,7 @@ export default async function AdminPage() {
   }
 
   const admin = createAdminClient();
-  const [{ data: waitlist }, { data: surveys }] = await Promise.all([
+  const [{ data: waitlist }, { data: surveys }, { count: pendingReceiptsCount }] = await Promise.all([
     admin.from('waitlist').select('email, name, go_to_cafes, created_at').order('created_at', { ascending: false }),
     admin
       .from('survey_responses')
@@ -226,10 +206,19 @@ export default async function AdminPage() {
       // just hidden, from the admin's point of view.
       .is('deleted_at', null)
       .order('created_at', { ascending: false }),
+    // A count only — the full rows (receipt photo, café, member) belong to
+    // /admin/visits itself, this page just needs to know whether to say so.
+    admin.from('visits').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
   ]);
+  const pendingReceipts = pendingReceiptsCount ?? 0;
 
   const cafeSurveysRaw = (surveys ?? []).filter((s) => s.survey === 'cafe_partner');
   const cafeSurveys = [...cafeSurveysRaw].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
+  // Same triage sort as the café-partner queue — same status field reused
+  // (see migration 0029), reinterpreted here as unreviewed / followed up /
+  // applied to a real café record / not using this one.
+  const tasteVectorSurveysRaw = (surveys ?? []).filter((s) => s.survey === 'cafe_taste_vector');
+  const tasteVectorSurveys = [...tasteVectorSurveysRaw].sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
   const consumerSurveys = (surveys ?? []).filter((s) => s.survey === 'consumer');
   // Same triage sort as the café queue — these are applications to work
   // through, not a feed to read (migration 0026).
@@ -286,6 +275,17 @@ export default async function AdminPage() {
               .map((line) => `${line}.`)
               .join(' ') || 'Nothing waiting on you — both queues are triaged.'}
           </p>
+        </div>
+        <div style={{ display: 'flex', gap: 10, flex: 'none' }}>
+          {/* The café records are the one thing on this admin that isn't a
+              queue of things other people sent in — it's the list you fill
+              yourself, and nothing else on the page would lead you to it. */}
+          <Link href="/admin/cafes" className="btn btn-ghost" style={{ width: 'auto', fontSize: 13 }}>
+            Café records
+          </Link>
+          <Link href="/admin/visits" className="btn btn-ghost" style={{ width: 'auto', fontSize: 13 }}>
+            City Card receipts{pendingReceipts > 0 ? ` (${pendingReceipts})` : ''}
+          </Link>
         </div>
       </div>
 
@@ -367,9 +367,87 @@ export default async function AdminPage() {
                   </div>
                 </div>
                 <AnswerList rows={detailRows} />
+                {/* The one place this survey and the café catalogue meet —
+                    without it, turning a promising application into an
+                    actual café record means re-typing the name, area,
+                    Instagram and email by hand into a second form. */}
+                <Link href={cafeCreateHref(answers)} className="admin-open-link">
+                  Create a café record from this →
+                </Link>
                 <div className="admin-card-foot">
                   <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
                   <AdminDeleteButton id={s.id} label="café survey" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="admin-section">
+        <SectionHead title="Café taste-vector survey" count={tasteVectorSurveys.length} table="cafe_taste_vector" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {tasteVectorSurveys.length === 0 ? (
+            <EmptyState>No café has answered the taste-vector survey yet.</EmptyState>
+          ) : null}
+          {tasteVectorSurveys.map((s) => {
+            const answers = s.answers as Record<string, unknown>;
+            const cafeName = typeof answers.cafeName === 'string' && answers.cafeName ? answers.cafeName : 'Unnamed café';
+            const metaBits = [answers.neighbourhood, answers.contactName, answers.email]
+              .filter((v): v is string => typeof v === 'string' && v.length > 0)
+              .join(' · ');
+            const scoredDims = DIMS.filter((d) => typeof answers[`${d}_score`] === 'number');
+            const drinkCats = Array.isArray(answers.drinkCategories)
+              ? (answers.drinkCategories as unknown[])
+                  .filter((c): c is string => typeof c === 'string')
+                  .map((c) => PRIMARY_DRINK_CATEGORY_LABELS[c as keyof typeof PRIMARY_DRINK_CATEGORY_LABELS] ?? c)
+                  .join(', ')
+              : '';
+            return (
+              <div key={s.id} className="admin-card">
+                <div className="admin-bar" style={{ alignItems: 'flex-start' }}>
+                  <div>
+                    <h3 style={{ fontSize: 16.5, margin: 0 }}>{cafeName}</h3>
+                    {metaBits ? <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 3 }}>{metaBits}</div> : null}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 'none' }}>
+                    <Timestamp iso={s.created_at} />
+                    <AdminStatusBadge id={s.id} initialStatus={s.status} />
+                  </div>
+                </div>
+                {drinkCats ? <div style={{ fontSize: 12.5, color: 'var(--whisk)', marginTop: 8 }}>Serves: {drinkCats}</div> : null}
+                <details className="admin-details" style={{ marginTop: 10 }}>
+                  <summary>View their taste-vector answers</summary>
+                  <dl className="admin-answers">
+                    {scoredDims.map((d) => (
+                      <Fragment key={d}>
+                        <dt>{DIM_QUESTIONS[d]}</dt>
+                        <dd>{describeScore(d, answers[`${d}_score`] as number)}</dd>
+                      </Fragment>
+                    ))}
+                    {typeof answers.price_band === 'string' && answers.price_band ? (
+                      <Fragment>
+                        <dt>Price band</dt>
+                        <dd>{answers.price_band}</dd>
+                      </Fragment>
+                    ) : null}
+                    {typeof answers.freeText === 'string' && answers.freeText ? (
+                      <Fragment>
+                        <dt>Anything else</dt>
+                        <dd>{answers.freeText}</dd>
+                      </Fragment>
+                    ) : null}
+                  </dl>
+                </details>
+                {/* Carries the actual scores, not just contact info — see
+                    cafeTasteVectorCreateHref, the reason this survey exists
+                    at all instead of just extending the café-partner one. */}
+                <Link href={cafeTasteVectorCreateHref(answers)} className="admin-open-link">
+                  Create a café record with these scores →
+                </Link>
+                <div className="admin-card-foot">
+                  <AdminNotesField id={s.id} initialNotes={s.admin_notes} />
+                  <AdminDeleteButton id={s.id} label="taste-vector survey" />
                 </div>
               </div>
             );

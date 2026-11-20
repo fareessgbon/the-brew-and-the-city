@@ -35,15 +35,26 @@ export interface SendEmailInput {
   to: string;
   subject: string;
   html: string;
+  // The sending identity stays the verified domain regardless of which
+  // company a role belongs to — Resend can only send from an address it's
+  // verified for. A reply should still reach whoever actually owns that
+  // role's inbox, which replyTo does without needing its own verification.
+  replyTo?: string;
 }
 
 // Best-effort by design: callers should treat a failed send as a logged
 // error, never as a reason to fail the user-facing request. The database
 // row (survey response, waitlist entry) is the source of truth; the email
 // is a courtesy on top of it.
-export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<{ id: string } | null> {
+export async function sendEmail({ to, subject, html, replyTo }: SendEmailInput): Promise<{ id: string } | null> {
   const resend = createEmailClient();
-  const { data, error } = await resend.emails.send({ from: FROM_ADDRESS, to, subject, html });
+  const { data, error } = await resend.emails.send({
+    from: FROM_ADDRESS,
+    to,
+    subject,
+    html,
+    ...(replyTo ? { replyTo } : {}),
+  });
   if (error) {
     throw new Error(typeof error === 'object' && 'message' in error ? error.message : 'Resend send failed.');
   }

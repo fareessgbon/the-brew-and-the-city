@@ -4,7 +4,7 @@ import { ImageResponse } from 'next/og';
 // segment defines its own. Kept to system fonts and inline styles only
 // (no font file, no external fetch) so it stays fast, static, and doesn't
 // grow the build's font-loading surface for one image.
-export const alt = 'Brew and the City — matched to your next favourite Calgary café';
+export const alt = 'Brew and the City — matched to your next favourite café';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -34,7 +34,7 @@ export default function Image() {
             marginBottom: 28,
           }}
         >
-          Calgary, Alberta · coming soon
+          Calgary &amp; Toronto · coming soon
         </div>
         <div style={{ display: 'flex', fontSize: 76, fontWeight: 600, lineHeight: 1.08, maxWidth: 920 }}>
           Every good café, matched to your taste.

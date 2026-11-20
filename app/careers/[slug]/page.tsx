@@ -74,7 +74,7 @@ export default async function RolePage({ params }: { params: Promise<{ slug: str
               ← All open roles
             </Link>
 
-            <h1 style={{ fontSize: 36, lineHeight: 1.12, letterSpacing: '-0.02em', margin: '16px 0 14px' }}>
+            <h1 className="page-title">
               {role.title}
             </h1>
             <div className="role-meta">

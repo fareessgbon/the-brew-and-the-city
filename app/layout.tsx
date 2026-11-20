@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { CityProvider, CityPrompt } from '@/components/CityProvider';
 import localFont from 'next/font/local';
 import './globals.css';
 
@@ -33,6 +34,20 @@ const martianMono = localFont({
   src: [{ path: './fonts/MartianMono-Medium-latin.woff2', weight: '500', style: 'normal' }],
 });
 
+// Poster-only display face — the reference design pass (see chat) used it
+// for the biggest headlines (the hero's poster CTA, the City Card, "Find
+// your regular"-scale type) and Fraunces' own expressive axes were used as
+// a stand-in until now. Self-hosted for the same reason as the other three:
+// a next/font/google build depends on fonts.gstatic.com serving the exact
+// URL the build cache remembers, and Google rotating that URL is what broke
+// Fraunces once already (see the note above). One weight — the face has
+// only one — one file, same latin-subset-from-Google source as the rest.
+const bagelFatOne = localFont({
+  variable: '--font-bagel-fat-one',
+  display: 'swap',
+  src: [{ path: './fonts/BagelFatOne-Regular-latin.woff2', weight: '400', style: 'normal' }],
+});
+
 // Was two <link> tags to the Fontshare CDN. Those couldn't break a build the
 // way Fraunces did — a stylesheet link is fetched by the browser, not by the
 // bundler — but they put the body text of every page behind a third party
@@ -61,8 +76,8 @@ const generalSans = localFont({
 // warning on every build; every page's own metadata inherits this via
 // Next's metadataBase resolution instead of each one hardcoding a host.
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
-const title = 'Brew and the City — Matched to your next favourite Calgary café';
-const description = "Calgary has 60+ independent cafés. We're building a way to match you to yours — by taste, not by review count. Join the list.";
+const title = 'Brew and the City — Matched to your next favourite café';
+const description = "Calgary and Toronto have hundreds of independent cafés between them. We're building a way to match you to yours — by taste, not by review count. Join the list.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -87,11 +102,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
+    // The look that shipped: Design B, the cocoa · blue palette, cup stamps
+    // and the printed City Card. These are the attributes the design/palette
+    // blocks at the end of globals.css key off — the dev switcher that used
+    // to flip them is gone.
     <html
       lang="en"
-      className={`${fraunces.variable} ${martianMono.variable} ${generalSans.variable} h-full`}
+      data-design="b"
+      data-palette="cocoa"
+      data-stamps="cups"
+      data-card="printed"
+      className={`${fraunces.variable} ${martianMono.variable} ${generalSans.variable} ${bagelFatOne.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col bg-paper text-ink font-sans relative">{children}</body>
+      <body className="min-h-full flex flex-col bg-paper text-ink font-sans relative">
+        <CityProvider>
+          {children}
+          <CityPrompt />
+        </CityProvider>
+      </body>
     </html>
   );
 }

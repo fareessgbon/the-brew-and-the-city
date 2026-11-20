@@ -194,10 +194,7 @@ export async function POST(request: Request) {
     availability: text(body.availability, LIMITS.availability),
     pitch: text(body.pitch, LIMITS.pitch),
     whyYou: text(body.whyYou, LIMITS.whyYou),
-    // acknowledgedUnpaid is no longer collected — the role is paid, so the
-    // form dropped the checkbox and this stops recording it. Rows written
-    // before the change keep theirs; nothing reads the field except the
-    // admin answer list, which renders whatever a row happens to hold.
+    acknowledgedUnpaid: body.acknowledgedUnpaid === true,
   };
 
   const { error } = await admin.from('survey_responses').insert({ survey: 'job_application', answers });
@@ -227,8 +224,9 @@ export async function POST(request: Request) {
       // A file beats a link when both arrived — it's the copy we hold
       // ourselves, so it's the one the receipt should speak about.
       resumeRecord ? 'file' : 'link',
+      { name: role.company, contactLine: role.contactLine, contactEmail: role.contactEmail },
     );
-    await sendEmail({ to: email, subject, html });
+    await sendEmail({ to: email, subject, html, replyTo: role.contactEmail });
   } catch (err) {
     await logServerError('api.careers.apply.confirmation-email', err, { roleSlug: role.slug, email });
   }

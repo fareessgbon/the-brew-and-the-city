@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { useCity } from '@/components/CityProvider';
+import { CITIES, CITY_LABELS, type City } from '@/lib/data/cafeFields';
+import { track } from '@/lib/analytics';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -16,6 +19,9 @@ export function WaitlistForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState('');
   const [name, setName] = useState('');
+  // Prefilled from the site-wide city; changing it here changes it everywhere.
+  const { city, setCity } = useCity();
+  const [copied, setCopied] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,11 +39,13 @@ export function WaitlistForm() {
           email,
           name: String(data.get('name') ?? ''),
           goToCafes: String(data.get('goToCafes') ?? ''),
+          city: String(data.get('city') ?? ''),
         }),
       });
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.error || 'Something went wrong.');
       setStatus('sent');
+      track('waitlist_joined', { city: String(data.get('city') ?? '') });
       const who = String(data.get('name') ?? '').trim().split(' ')[0];
       setMessage(
         payload.alreadyJoined
@@ -52,6 +60,23 @@ export function WaitlistForm() {
     }
   }
 
+  async function share() {
+    const url = `${window.location.origin}/`;
+    const text = 'Brew and the City matches you to independent cafés by taste. Join the waitlist:';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Brew and the City', text, url });
+        track('waitlist_shared', { method: 'native' });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        track('waitlist_shared', { method: 'copy' });
+      }
+    } catch {
+      // Dismissing the share sheet throws AbortError; nothing to report.
+    }
+  }
+
   if (status === 'sent') {
     return (
       <div className="waitlist-success">
@@ -59,6 +84,14 @@ export function WaitlistForm() {
           ✓
         </div>
         <p>{message}</p>
+        <ol className="waitlist-next">
+          <li>We&apos;ll email you once when Brew opens{city ? ` in ${CITY_LABELS[city]}` : ''} — nothing before then.</li>
+          <li>People on the list get in first.</li>
+          <li>Want it sooner? Tell a friend who loves cafés.</li>
+        </ol>
+        <button type="button" className="btn btn-ghost" onClick={share}>
+          {copied ? 'Link copied ✓' : 'Share Brew with a friend'}
+        </button>
       </div>
     );
   }
@@ -89,6 +122,26 @@ export function WaitlistForm() {
         </div>
 
         <div className="waitlist-field">
+          <label htmlFor="wl-city">City</label>
+          <select
+            id="wl-city"
+            name="city"
+            required
+            value={city ?? ''}
+            onChange={(e) => setCity(e.target.value as City)}
+          >
+            <option value="" disabled>
+              Choose your city
+            </option>
+            {CITIES.map((c) => (
+              <option key={c} value={c}>
+                {CITY_LABELS[c]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="waitlist-field">
           <label htmlFor="wl-cafes">
             Your go-to cafés <span className="waitlist-optional">optional</span>
           </label>
@@ -96,7 +149,7 @@ export function WaitlistForm() {
             id="wl-cafes"
             name="goToCafes"
             type="text"
-            placeholder="Rosso, Phil &amp; Sebastian, that place on 17th…"
+            placeholder="Rosso, Pilot Coffee, that place down the street…"
             maxLength={400}
           />
           <p className="waitlist-hint">Including the ones nobody writes about.</p>

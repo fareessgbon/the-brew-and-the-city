@@ -22,7 +22,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
             <div className="label" style={{ marginBottom: 8, color: 'var(--error, #A8503F)' }}>
               Something went wrong
             </div>
-            <h1 style={{ fontSize: 26, marginBottom: 12 }}>That didn&apos;t work.</h1>
+            <h1 className="page-title page-title-sm">That didn&apos;t work.</h1>
             {/* error.message used to be printed here. Next redacts messages
                 thrown on the server, but a client-side error arrives intact
                 — so a visitor could be shown a stack-shaped string naming

@@ -9,7 +9,23 @@ const BRAND = {
   whisk: '#6b6b63',
 };
 
-function wrap(bodyHtml: string): string {
+// Job-application emails can carry more than one company, so the footer's
+// name and contact address are per-send rather than baked into the markup —
+// an applicant for some other company's role reading "Brew and the City" in
+// their receipt would reasonably wonder who actually has their resume.
+interface EmailBrand {
+  name: string;
+  contactLine: string;
+  contactEmail: string;
+}
+
+const BREW_AND_THE_CITY_BRAND: EmailBrand = {
+  name: 'Brew and the City',
+  contactLine: 'Brew and the City — Calgary &amp; Toronto',
+  contactEmail: 'hello@brewandthecity.com',
+};
+
+function wrap(bodyHtml: string, brand: EmailBrand = BREW_AND_THE_CITY_BRAND): string {
   return `<!doctype html>
 <html>
   <body style="margin:0; padding:0; background:${BRAND.paper}; font-family:-apple-system,Helvetica,Arial,sans-serif;">
@@ -20,7 +36,7 @@ function wrap(bodyHtml: string): string {
             <tr>
               <td style="padding:0 24px 24px;">
                 <div style="font-size:13px; font-weight:600; letter-spacing:0.04em; color:${BRAND.ceremony}; text-transform:uppercase;">
-                  Brew and the City
+                  ${brand.name}
                 </div>
               </td>
             </tr>
@@ -31,8 +47,8 @@ function wrap(bodyHtml: string): string {
             </tr>
             <tr>
               <td style="padding:20px 24px 0; font-size:12.5px; color:${BRAND.whisk};">
-                Brew and the City — Calgary, Alberta ·
-                <a href="mailto:hello@brewandthecity.com" style="color:${BRAND.whisk};">hello@brewandthecity.com</a>
+                ${brand.contactLine} ·
+                <a href="mailto:${brand.contactEmail}" style="color:${BRAND.whisk};">${brand.contactEmail}</a>
               </td>
             </tr>
           </table>
@@ -57,6 +73,10 @@ export function jobApplicationConfirmationEmail(
   // say which one arrived. Told flatly that they can reply and attach one,
   // someone who just uploaded a PDF reads it as "you didn't get it".
   resumeSent: 'file' | 'link',
+  // Which company this role belongs to, and where a reply should land —
+  // defaults to Brew and the City so existing call sites don't need to
+  // change, but every current caller passes the role's own values.
+  brand: EmailBrand = BREW_AND_THE_CITY_BRAND,
 ): { subject: string; html: string } {
   const name = escapeHtml(applicantName);
   const role = escapeHtml(roleTitle);
@@ -69,7 +89,8 @@ export function jobApplicationConfirmationEmail(
       : 'We have the resume link you gave us. If it stops working, or you&rsquo;d rather send the file itself, reply to this email and attach it — it&rsquo;ll get matched to your application.';
   return {
     subject: `We got your application — ${role}`,
-    html: wrap(`
+    html: wrap(
+      `
       <p style="margin:0 0 16px; font-size:19px; font-weight:600; font-family:Georgia,serif;">Thanks, ${firstName} — your application is in.</p>
       <p style="margin:0 0 16px;">
         You applied for <strong>${role}</strong>. Every application is read by the founder directly, not filtered
@@ -81,7 +102,9 @@ export function jobApplicationConfirmationEmail(
       <p style="margin:0;">
         Anything you want to add in the meantime? Just reply here.
       </p>
-    `),
+    `,
+      brand,
+    ),
   };
 }
 
@@ -95,7 +118,11 @@ export function jobApplicationConfirmationEmail(
 // honestly claim), and don't dangle a maybe. "We'll keep it on file" is
 // only in here because it's true — applications are soft-deleted, not
 // destroyed (migration 0024).
-export function jobApplicationRejectionEmail(applicantName: string, roleTitle: string): { subject: string; html: string } {
+export function jobApplicationRejectionEmail(
+  applicantName: string,
+  roleTitle: string,
+  brand: EmailBrand = BREW_AND_THE_CITY_BRAND,
+): { subject: string; html: string } {
   const role = escapeHtml(roleTitle);
   const firstName = escapeHtml(applicantName).split(/\s+/)[0];
   return {
@@ -103,7 +130,8 @@ export function jobApplicationRejectionEmail(applicantName: string, roleTitle: s
     // answer just makes someone open it with their stomach in a knot.
     // Naming the role also keeps it findable months later.
     subject: `Your application — ${role}`,
-    html: wrap(`
+    html: wrap(
+      `
       <p style="margin:0 0 16px; font-size:19px; font-weight:600; font-family:Georgia,serif;">Thanks for applying, ${firstName}.</p>
       <p style="margin:0 0 16px;">
         We&rsquo;re not moving forward with your application for <strong>${role}</strong>. I read it properly, start to
@@ -119,7 +147,9 @@ export function jobApplicationRejectionEmail(applicantName: string, roleTitle: s
         If it&rsquo;s useful, reply and ask &mdash; I&rsquo;ll tell you what I actually thought. Thanks for the time you
         put into this one.
       </p>
-    `),
+    `,
+      brand,
+    ),
   };
 }
 
@@ -136,6 +166,23 @@ export function cafePartnerSurveyConfirmationEmail(cafeName: string): { subject:
       <p style="margin:0 0 16px;">
         If that's you, expect a personal note or call, not another form. If it isn't this round, you'll still be
         first to hear when the next cohort opens.
+      </p>
+      <p style="margin:0;">
+        Questions in the meantime? Just reply to this email.
+      </p>
+    `),
+  };
+}
+
+export function cafeTasteVectorSurveyConfirmationEmail(cafeName: string): { subject: string; html: string } {
+  const safeName = cafeName.replace(/[<>&]/g, '');
+  return {
+    subject: `Got it — ${safeName}'s profile is with us`,
+    html: wrap(`
+      <p style="margin:0 0 16px; font-size:19px; font-weight:600; font-family:Georgia,serif;">Thanks for the read on ${safeName}.</p>
+      <p style="margin:0 0 16px;">
+        We'll go through what you sent and apply it to ${safeName}'s listing — you'll hear from us first if
+        anything you said needs a follow-up question, and nothing goes live without someone actually looking at it.
       </p>
       <p style="margin:0;">
         Questions in the meantime? Just reply to this email.

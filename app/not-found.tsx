@@ -9,12 +9,12 @@ export default function NotFound() {
     <>
       <SiteHeader />
       <main id="content">
-        <section style={{ padding: '64px 0' }}>
+        <section className="page-head" style={{ padding: '96px 0' }}>
           <div className="wrap" style={{ maxWidth: 560 }}>
-            <div className="label" style={{ marginBottom: 8, color: 'var(--whisk)' }}>
+            <div className="label eyebrow">
               Page not found
             </div>
-            <h1 style={{ fontSize: 26, marginBottom: 12 }}>We couldn&apos;t find that.</h1>
+            <h1 className="page-title">We couldn&apos;t find that.</h1>
             <p style={{ color: 'var(--whisk)', fontSize: 14.5, marginBottom: 20 }}>The page you&apos;re looking for doesn&apos;t exist, or may have moved.</p>
             <div style={{ display: 'flex', gap: 10 }}>
               <Link href="/" className="btn btn-primary">

@@ -1,4 +1,4 @@
-import type { Dim, PrimaryDrinkCategory } from '@/lib/matching';
+import { CONTEXTS, CONTEXT_TARGETS, type ContextKey, type Dim, type PrimaryDrinkCategory } from '@/lib/matching';
 
 export interface TasteQuizOption {
   label: string;
@@ -41,7 +41,19 @@ export interface RadiusQuizQuestion {
   options: RadiusQuizOption[];
 }
 
-export type QuizQuestion = CategoryQuizQuestion | TasteQuizQuestion | RadiusQuizQuestion;
+export interface ContextQuizOption {
+  label: string;
+  sub?: string;
+  value: ContextKey;
+}
+
+export interface ContextQuizQuestion {
+  kind: 'context';
+  question: string;
+  options: ContextQuizOption[];
+}
+
+export type QuizQuestion = CategoryQuizQuestion | TasteQuizQuestion | RadiusQuizQuestion | ContextQuizQuestion;
 
 export function tasteOptionsFor(question: TasteQuizQuestion, category: PrimaryDrinkCategory | null): TasteQuizOption[] {
   if (question.optionsByCategory) return question.optionsByCategory[category ?? 'coffee'];
@@ -176,3 +188,32 @@ export const FULL_QUIZ: QuizQuestion[] = [
     ],
   },
 ];
+
+// A quick one-liner per context, in the same casual voice as the option
+// labels above it — not the fuller sentence contextReason() shows on the
+// result card, just enough texture for a quiz option to not read as a bare
+// category name.
+const CONTEXT_SUBS: Record<ContextKey, string | undefined> = {
+  study: 'settle in for a while',
+  date: undefined,
+  quick: 'grab it and go',
+  catchup: 'with a friend',
+};
+
+// Not part of the real product's Q1–Q9 (Appendix A) — contextFit() in
+// lib/matching/context-fit.ts has been sitting fully built and tested with
+// nothing ever feeding it a real context, since no quiz question asked for
+// one. This is that missing input, added to the homepage teaser rather
+// than spliced into FULL_QUIZ, so Appendix A's own numbering stays exactly
+// what the spec says it is. Labels come straight from CONTEXT_TARGETS
+// rather than being retyped here, so the question and the scoring it
+// drives can't drift apart.
+export const CONTEXT_QUESTION: ContextQuizQuestion = {
+  kind: 'context',
+  question: 'What are you here to do?',
+  options: CONTEXTS.map((key) => ({
+    label: CONTEXT_TARGETS[key].label,
+    sub: CONTEXT_SUBS[key],
+    value: key,
+  })),
+};

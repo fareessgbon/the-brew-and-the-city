@@ -196,7 +196,7 @@ export function CafePartnerSurveyForm() {
             </div>
             <div>
               <label htmlFor="cityArea">City / area</label>
-              <input type="text" id="cityArea" name="cityArea" autoComplete="address-level2" placeholder="e.g. Beltline, Calgary" value={cityArea} onChange={(e) => setCityArea(e.target.value)} />
+              <input type="text" id="cityArea" name="cityArea" autoComplete="address-level2" placeholder="e.g. Beltline, Calgary or Ossington, Toronto" value={cityArea} onChange={(e) => setCityArea(e.target.value)} />
             </div>
           </div>
           <div className="field-row" style={{ marginBottom: 16 }}>

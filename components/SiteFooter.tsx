@@ -12,7 +12,7 @@ export function SiteFooter() {
           </span>
         </Link>
         <div className="footer-links">
-          <Link href="/make-brew-better">Make Brew Better</Link>
+          <Link href="/make-brew-better">Help shape Brew</Link>
           <a
             href="https://instagram.com/brewandthecity"
             target="_blank"
@@ -26,10 +26,11 @@ export function SiteFooter() {
           {/* Careers is not repeated here — it lives in the header nav now,
               and a link in both places is one more thing in a row that's
               already eight items long. */}
+          <Link href="/login">Sign in</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </div>
-        <div className="footer-tag">© 2026 Brew and the City · Calgary, AB</div>
+        <div className="footer-tag">© 2026 Brew and the City · Calgary &amp; Toronto</div>
       </div>
     </footer>
   );

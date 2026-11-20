@@ -82,9 +82,9 @@ export const ROLES: Role[] = [
       'Help build the voice, look and following of a Calgary and Toronto café-discovery platform from its very first post.',
     location: 'Calgary & Toronto — hybrid',
     commitment: 'Flexible, ongoing',
-    compensation: 'Paid position',
+    compensation: 'Unpaid internship',
     terms:
-      'This is a paid, flexible position designed to work alongside school or other commitments. We’re happy to work around your class schedule and availability, and there’s no fixed end date. You’ll need to be in Calgary or Toronto, since some of the work happens at cafés, but most of it is remote.',
+      'Flexible — we’re happy to work around your school schedule and availability, and there’s no fixed end date. You’ll need to be in Calgary or Toronto, since some of the work happens at cafés, but most of it is remote. This is currently an unpaid internship, and we’d rather say that here than after you’ve written an application.',
     intro: [
       'Brew and the City is a new discovery platform helping people find independent cafés, and helping local cafés get discovered. We’re starting in Calgary and Toronto and building a community around the cafés, people and places that make a city worth exploring.',
       'We’re looking for a creative Marketing & Social Media Intern to help us bring Brew and the City to life online. You’ll work closely with the founder to help build and promote the brand.',

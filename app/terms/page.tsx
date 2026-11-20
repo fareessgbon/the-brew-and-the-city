@@ -17,14 +17,14 @@ export default function TermsPage() {
     <>
       <SiteHeader />
       <main id="content">
-        <section style={{ padding: '56px 0 8px' }}>
+        <section className="page-head" style={{ paddingBottom: 8 }}>
           <div className="wrap" style={{ maxWidth: 760 }}>
-            <div className="label" style={{ color: 'var(--whisk)', marginBottom: 10 }}>
+            <div className="label eyebrow">
               Legal
             </div>
-            <h1 style={{ fontSize: 38 }}>Terms</h1>
+            <h1 className="page-title">Terms</h1>
             <div style={{ color: 'var(--whisk)', fontSize: 13, marginTop: 10 }}>
-              Last updated August 2026 · Brew and the City, Calgary, Alberta
+              Last updated September 2026 · Brew and the City, Calgary &amp; Toronto
             </div>
           </div>
         </section>
@@ -39,7 +39,7 @@ export default function TermsPage() {
 
             <h2>1. What this site is</h2>
             <p>
-              brewandthecity.com currently hosts a landing page, a Founding Partner pitch for Calgary cafés, two short
+              brewandthecity.com currently hosts a landing page, a Founding Partner pitch for Calgary and Toronto cafés, two short
               surveys, and a preview quiz. It does not provide live café matching, a loyalty program, or any other
               part of the product — those are planned features, not things you can use today.
             </p>
@@ -49,7 +49,7 @@ export default function TermsPage() {
                 sentence — and the terms page is the last place that should
                 be the one contradicting the homepage. */}
             <p>
-              The quiz on the homepage is a preview: it scores real Calgary cafés against placeholder taste data to
+              The quiz on the homepage is a preview: it scores real Calgary and Toronto cafés against placeholder taste data to
               demonstrate how matching will work. Its results are illustrative, are not saved, are not a
               recommendation, and imply no relationship with any café named.
             </p>

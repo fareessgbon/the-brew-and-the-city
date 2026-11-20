@@ -4,6 +4,7 @@ import { isAdminRequest } from '@/lib/server/adminAuth';
 import { logServerError } from '@/lib/server/logError';
 import { sendEmail } from '@/lib/server/email';
 import { jobApplicationRejectionEmail } from '@/lib/server/emailTemplates';
+import { getRole } from '@/lib/data/roles';
 
 // POST /api/admin/survey-responses/[id]/reject — mails the applicant a
 // rejection and closes the row out as declined.
@@ -63,14 +64,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const email = typeof answers.email === 'string' ? answers.email.trim() : '';
   const fullName = typeof answers.fullName === 'string' && answers.fullName.trim() ? answers.fullName.trim() : 'there';
   const roleTitle = typeof answers.roleTitle === 'string' && answers.roleTitle ? answers.roleTitle : 'the role you applied for';
+  // The role may since have closed and dropped out of ROLES — falls back to
+  // Brew and the City's own address rather than failing the send, since a
+  // rejection this old is almost certainly for one of its roles anyway.
+  const role = typeof answers.roleSlug === 'string' ? getRole(answers.roleSlug) : undefined;
+  const brand = role ? { name: role.company, contactLine: role.contactLine, contactEmail: role.contactEmail } : undefined;
 
   if (!email) {
     return NextResponse.json({ error: 'This application has no email address to send to.' }, { status: 422 });
   }
 
   try {
-    const { subject, html } = jobApplicationRejectionEmail(fullName, roleTitle);
-    await sendEmail({ to: email, subject, html });
+    const { subject, html } = jobApplicationRejectionEmail(fullName, roleTitle, brand);
+    await sendEmail({ to: email, subject, html, replyTo: role?.contactEmail });
   } catch (err) {
     await logServerError('api.admin.reject.email', err, { id, email });
     return NextResponse.json({ error: 'The email didn’t send — nothing was changed. Try again.' }, { status: 502 });

@@ -3,11 +3,12 @@ import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
+import { Marquee } from '@/components/Marquee';
 
 export const metadata: Metadata = pageMetadata({
   title: 'For Cafés — Brew and the City',
   description:
-    "Get discovered by customers who already match your café — a Match % built on taste, not a review count. The first 15 approved Calgary cafés get full Partner access free for six months.",
+    "Get discovered by customers who already match your café — a Match % built on taste, not a review count. The first 15 approved Calgary and Toronto cafés get full Partner access free for six months.",
   canonical: '/for-cafes',
 });
 
@@ -20,117 +21,83 @@ export const metadata: Metadata = pageMetadata({
 // Positioning pass (see chat): discovery/acquisition leads, City Card is a
 // benefit mentioned after pricing, not the pitch.
 //
+// Redesign (see chat): the invented friend-activity feed that used to sit
+// beside the headline is gone — it showed made-up people doing things at
+// made-up cafés, which reads as real traction on a page whose whole pitch is
+// trust. It's replaced by the three real steps of how a café gets found.
+//
 // The "What money can never buy" banner that used to close this page is
 // gone (removed on request). Awards are therefore not mentioned anywhere on
 // this page — keep it that way rather than reintroducing them in a pricing
-// tier, since award eligibility has never depended on what a café pays. The
-// homepage's own firewall banner (HowItWorksSection) still states the
-// can't-pay-for-a-better-Match-% rule to consumers.
+// tier, since award eligibility has never depended on what a café pays.
+// The homepage's own firewall banner (HowItWorksSection) also used to
+// state the can't-pay-for-a-better-Match-% rule to consumers — it's gone
+// too (removed on request, see chat), so as of now that rule isn't stated
+// anywhere on the site. Worth knowing before assuming it's covered
+// elsewhere if this page's own silence on it is ever questioned.
 export default function ForCafesPage() {
   return (
     <>
       <SiteHeader current="for-cafes" />
-      <main id="content">
-
-        <section style={{ padding: '56px 0 8px' }}>
-          <div className="wrap forcafe-intro-grid">
+      <main id="content" className="fc">
+        <section className="fc-hero">
+          <div className="wrap fc-hero-grid">
             <div>
-              <div className="label eyebrow">For Calgary cafés</div>
-              <h1 style={{ fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.02em' }}>
-                Get discovered by customers who already match your café.
-              </h1>
-              <p style={{ fontSize: 18, color: 'var(--ink)', margin: '20px 0 0' }}>
-                A Match % built on taste, not a review count — everyone whose taste actually fits your café sees
-                you. The first 15 approved cafés get full Partner access free for six months.
+              <div className="label eyebrow">For Calgary &amp; Toronto cafés</div>
+              <h1>Get discovered by customers who already match your café.</h1>
+              <p className="fc-lede">
+                A Match % built on taste, not a review count — everyone whose taste actually fits your café sees you.
               </p>
-              <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 20 }}>
-                Tell us about your café
-              </Link>
-
-              <div className="section-eyebrow label" style={{ marginTop: 40 }}>
-                Discovery never stops
+              <div className="fc-cta">
+                <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary">
+                  Tell us about your café
+                </Link>
+                <a href="#tiers" className="btn btn-ghost">
+                  See what&apos;s included
+                </a>
               </div>
-              <h2 style={{ fontSize: 26, marginBottom: 12 }}>A directory listing goes stale. Matching doesn&apos;t.</h2>
-              <p style={{ fontSize: 15.5, color: 'var(--ink)' }}>
-                A review-site listing is a one-time snapshot — you rank once, then compete for scroll position forever
-                after. Match % works differently: every new sign-up runs the same taste quiz, and everyone whose taste
-                actually fits your café gets shown you, today and every day after — not just the week you paid to be
-                seen. You don&apos;t get discovered once — you keep getting discovered, for as long as you&apos;re on
-                the map.
-              </p>
             </div>
-
-            {/* Illustrative only — no real friend graph or matching exists yet at this stage (§12.1a). The on-page
-                "Illustrative preview" label that used to sit above these rows was removed on request, so the café
-                names below are now the only thing keeping this from reading as real activity: they are invented,
-                not drawn from the seeded cafés, precisely so no actual Calgary business appears to have had
-                customers it never had. Keep them fictional. */}
-            <div style={{ alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: 26, padding: '18px 20px' }}>
-                {[
-                  ['C', 'var(--sky)', <>
-                    <strong>Carson</strong> just recommended <strong>The Roasted Fox</strong> to a friend
-                  </>, '1h ago', 0],
-                  ['D', 'var(--whisk)', <>
-                    <strong>Donte</strong> just earned a stamp at <strong>Nook &amp; Bean</strong>
-                  </>, 'yesterday', 28],
-                  ['R', 'var(--sky)', <>
-                    <strong>Rayne</strong> rated <strong>Sundial Coffee</strong> best for study vibes
-                  </>, '3h ago', 0],
-                  ['Q', 'var(--blush)', <>
-                    <strong>Quinn</strong> just got an 87% match to <strong>Corner Press Coffee</strong>
-                  </>, '2 days ago', 28],
-                  ['V', 'var(--sky)', <>
-                    <strong>Vanessa</strong> added <strong>The Roasted Fox</strong> to her City List
-                  </>, '2 days ago', 0],
-                  ['K', 'var(--whisk)', <>
-                    <strong>Kai</strong> just earned a stamp at <strong>Nook &amp; Bean</strong>
-                  </>, '3 days ago', 28],
-                ].map(([initial, color, text, when, indent], i) => (
-                  <div
-                    key={i as number}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      marginLeft: indent as number,
-                      background: 'var(--porcelain)',
-                      borderRadius: 14,
-                      padding: '10px 14px',
-                    }}
-                  >
-                    <div
-                      style={{
-                        flexShrink: 0,
-                        width: 26,
-                        height: 26,
-                        borderRadius: '50%',
-                        background: color as string,
-                        // --whisk is the one dark swatch in this set, so the
-                        // default dark initial sat on it at 2.08:1. Light text
-                        // there instead (5.6:1); the rest stay dark-on-light.
-                        color: color === 'var(--whisk)' ? 'var(--paper)' : 'var(--ceremony)',
-                        fontSize: 11,
-                        fontWeight: 700,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {initial}
-                    </div>
-                    <div style={{ fontSize: 13.5, color: 'var(--ink)', flex: 1 }}>{text}</div>
-                    <div style={{ fontSize: 11.5, color: 'var(--whisk)', flexShrink: 0 }}>{when}</div>
-                  </div>
-                ))}
+            <div className="fc-offer-badge" aria-label="Founding offer">
+              <span className="fc-offer-num">6</span>
+              <span className="fc-offer-unit">months free</span>
+              <span className="fc-offer-note">for the first 15 approved cafés</span>
             </div>
           </div>
         </section>
 
-        <section style={{ padding: '32px 0 16px' }}>
+        <Marquee items={['Founding café spots open','First 15 cafés get six months free','Get discovered by taste','Calgary & Toronto','Founding café spots open','First 15 cafés get six months free']} />
+
+        <section className="fc-section">
           <div className="wrap">
-            <div className="label" style={{ color: 'var(--whisk)', marginBottom: 8 }}>
-              What each tier includes
-            </div>
+            <div className="section-eyebrow label">Discovery never stops</div>
+            <h2 className="section-title">A directory listing goes stale. Matching doesn&apos;t.</h2>
+            <p className="section-lede">
+              A review-site listing is a one-time snapshot — you rank once, then compete for scroll position forever
+              after. Match % works differently.
+            </p>
+            <ol className="fc-steps">
+              <li>
+                <span className="fc-step-num">1</span>
+                <h3>Someone takes the quiz</h3>
+                <p>Every new sign-up answers the same short taste quiz, in their own city.</p>
+              </li>
+              <li>
+                <span className="fc-step-num">2</span>
+                <h3>Taste meets taste</h3>
+                <p>Your café has its own taste profile. We compare the two — drinks, room, pace, food.</p>
+              </li>
+              <li>
+                <span className="fc-step-num">3</span>
+                <h3>You show up in their top 3</h3>
+                <p>Everyone whose taste fits yours is shown you, today and every day after — not just the week you paid to be seen.</p>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <section className="fc-section fc-tiers" id="tiers">
+          <div className="wrap">
+            <div className="section-eyebrow label">What each tier includes</div>
             <div className="pricing-grid">
               <div className="price-card">
                 <div className="tier-name">Starter</div>
@@ -168,86 +135,80 @@ export default function ForCafesPage() {
           </div>
         </section>
 
-        <section style={{ padding: '16px 0 48px' }}>
+        <section className="fc-section">
           <div className="wrap">
-            <div className="club-band" style={{ margin: '0 0 40px' }}>
-              <div className="section-eyebrow label" style={{ color: 'var(--sky)' }}>
-                Founding Café Partners · first 15
+            <div className="fc-founding">
+              <div>
+                <div className="section-eyebrow label">Founding Café Partners · first 15</div>
+                {/* "Not a free trial — a founding stake, not just six free
+                    months" argued with itself: it denied the free trial in
+                    the same breath as offering six free months. The offer is
+                    unchanged; it's stated instead of positioned. */}
+                <h2 className="fc-founding-title">
+                  Six months of Partner access, free — and founding status that doesn&apos;t expire with it.
+                </h2>
+                <p className="fc-founding-lede">
+                  Fifteen cafés, once — Calgary and Toronto. The six months are free; what you keep afterwards is the
+                  recognition, the launch visibility, and a rate that doesn&apos;t rise because you were early.
+                </p>
+                <ul className="fc-checks">
+                  <li>Full Partner access, free for the first 6 months</li>
+                  <li>Founding recognition — permanently listed on the Founding Partners page</li>
+                  <li>Launch visibility — priority placement in launch-week features, a dedicated post, and a mini photo session</li>
+                  <li>Product feedback influence — your input shapes the roadmap before anyone else&apos;s does</li>
+                  <li>Locked founding pricing after launch — your rate won&apos;t rise later just because you joined early</li>
+                  <li>No POS integration, no new hardware — a web page and a PIN</li>
+                </ul>
+                <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary">
+                  Tell us about your café
+                </Link>
               </div>
-              {/* "Not a free trial — a founding stake, not just six free
-                  months" argued with itself: it denied the free trial in
-                  the same breath as offering six free months, and said
-                  "not just" about a thing it had just refused to call
-                  free. The offer is unchanged; it's stated instead of
-                  positioned. */}
-              <h2 style={{ fontSize: 26 }}>
-                Six months of Partner access, free — and founding status that doesn&apos;t expire with it.
-              </h2>
-              <p style={{ fontSize: 15, color: 'var(--paper)', opacity: 0.85, margin: '10px 0 0', maxWidth: '58ch' }}>
-                Fifteen Calgary cafés, once. The six months are free; what you keep afterwards is the recognition,
-                the launch visibility, and a rate that doesn&apos;t rise because you were early.
-              </p>
-              <div className="club-grid">
-                <div>
-                  <ul className="club-list">
-                    <li>Full Partner access, free for the first 6 months</li>
-                    <li>Founding recognition — permanently listed on the Founding Partners page</li>
-                    <li>Launch visibility — priority placement in launch-week features, a dedicated post, and a mini photo session</li>
-                    <li>Product feedback influence — your input shapes the roadmap before anyone else&apos;s does</li>
-                    <li>Locked founding pricing after launch — your rate won&apos;t rise later just because you joined early</li>
-                    <li>No POS integration, no new hardware — a web page and a PIN</li>
-                  </ul>
-                  <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block', marginTop: 8 }}>
-                    Tell us about your café
-                  </Link>
-                </div>
-                <div className="round-card">
-                  <div className="label">Interested? Let&apos;s talk.</div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', fontSize: 14.5 }}>
-                    <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>Free for the first 15 approved cafés, 6 months</li>
-                    <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>
-                      Pricing after that is worked out with you directly — reach out and we&apos;ll walk you through it
-                    </li>
-                    <li style={{ padding: '8px 0', borderBottom: '1px solid var(--whisk-10)' }}>No payment method required to say you&apos;re interested</li>
-                    <li style={{ padding: '8px 0' }}>Nothing is binding yet — this page is the pitch, not the agreement</li>
-                  </ul>
-                </div>
-              </div>
+              <aside className="fc-fine">
+                <div className="label">Interested? Let&apos;s talk.</div>
+                <ul>
+                  <li>Free for the first 15 approved cafés, 6 months</li>
+                  <li>Pricing after that is worked out with you directly — reach out and we&apos;ll walk you through it</li>
+                  <li>No payment method required to say you&apos;re interested</li>
+                  <li>Nothing is binding yet — this page is the pitch, not the agreement</li>
+                </ul>
+              </aside>
             </div>
+          </div>
+        </section>
 
+        <section className="fc-section">
+          <div className="wrap">
             <div className="section-eyebrow label">Included with Partner</div>
-            <h2 style={{ fontSize: 26, marginBottom: 12 }}>The City Card — one card, every café, five visits.</h2>
-            {/* No max-width: this paragraph and the firewall banner directly
-                below it are a pair, and a 64ch measure here left the text
-                stopping well short of the banner's edge — two blocks about the
-                same subject, ending in different places. Runs the full wrap
-                width instead, matching the banner. */}
-            <p style={{ fontSize: 15.5, color: 'var(--ink)', marginBottom: 32 }}>
+            <h2 className="section-title">The City Card — one card, every café, five visits.</h2>
+            <p className="section-lede">
               One City Card works everywhere in the network — so customers who discover you show up ready to redeem,
               not just browse. Five stamps (one drink each, max two at any café) unlock a free item, entirely on your
               terms — you decide what, never a blanket &quot;anything on the menu.&quot; No POS, no hardware — just a
               receipt and a PIN. You only pay out when someone redeems with you specifically; every other stamp on
               their card was earned, and cost you nothing, elsewhere.
             </p>
-
-            <div style={{ marginTop: 24 }}>
-              <div className="label" style={{ color: 'var(--whisk)', marginBottom: 8 }}>
-                Not ready to commit to anything? Tell us anyway.
-              </div>
-              <p style={{ fontSize: 14.5, color: 'var(--ink)', maxWidth: '56ch', marginBottom: 12 }}>
-                A five-minute survey — your name, café, and what you&apos;d actually want from something like this. No
-                account, no obligation.
-              </p>
-              <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary" style={{ width: 'auto', display: 'inline-block' }}>
-                Take the café survey
-              </Link>{' '}
-              <span style={{ fontSize: 13.5, color: 'var(--whisk)' }}>
-                or email <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>
-              </span>
-            </div>
           </div>
         </section>
 
+        <section className="fc-section">
+          <div className="wrap">
+            <div className="fc-final">
+              <h2>Not ready to commit to anything? Tell us anyway.</h2>
+              <p>
+                A five-minute survey — your name, café, and what you&apos;d actually want from something like this. No
+                account, no obligation.
+              </p>
+              <div className="fc-cta">
+                <Link href="/make-brew-better/cafe-partner-survey" className="btn btn-primary">
+                  Take the café survey
+                </Link>
+                <span className="fc-mail">
+                  or email <a href="mailto:hello@brewandthecity.com">hello@brewandthecity.com</a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </>

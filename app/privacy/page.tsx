@@ -22,12 +22,12 @@ export default function PrivacyPage() {
     <>
       <SiteHeader />
       <main id="content">
-        <section className="stripes-latte scallop-bottom" style={{ padding: '56px 0 48px' }}>
+        <section className="page-head" style={{ paddingBottom: 8 }}>
           <div className="wrap" style={{ maxWidth: 760 }}>
-            <div className="label" style={{ color: 'var(--whisk)', marginBottom: 10 }}>
+            <div className="label eyebrow">
               Legal
             </div>
-            <h1 style={{ fontSize: 38 }}>Privacy Policy</h1>
+            <h1 className="page-title">Privacy Policy</h1>
             <div style={{ color: 'var(--whisk)', fontSize: 13, marginTop: 10 }}>
               Last updated September 2026 · Brew and the City, Calgary &amp; Toronto
             </div>

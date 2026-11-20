@@ -3,12 +3,13 @@ import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
+import { Marquee } from '@/components/Marquee';
 import { ROLES } from '@/lib/data/roles';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Careers — Brew and the City',
   description:
-    'We’re building a café-discovery platform in Calgary, and we’re small enough that one person’s work is visible in the product. Here’s what’s open.',
+    'We’re building a café-discovery platform in Calgary and Toronto, and we’re small enough that one person’s work is visible in the product. Here’s what’s open.',
   canonical: '/careers',
 });
 
@@ -22,24 +23,23 @@ export default function CareersPage() {
       <SiteHeader current="careers" />
       <main id="content">
 
-        <section style={{ padding: '56px 0 8px' }}>
+        <section className="page-head">
           <div className="wrap" style={{ maxWidth: 760 }}>
             <div className="eyebrow label">Careers</div>
-            <h1 style={{ fontSize: 40, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 16 }}>
-              Small team, real ownership, a city we actually care about.
-            </h1>
-            <p style={{ fontSize: 17, color: 'var(--ink)', maxWidth: '60ch', margin: '0 0 14px' }}>
+            <h1 className="page-title">Small team, real ownership, cities we actually care about.</h1>
+            <p className="page-lede">
               Brew and the City is a discovery platform for independent cafés — matching people to cafés by taste
-              rather than by review count, starting in Calgary. We&apos;re pre-launch, which means nothing here is a
+              rather than by review count, starting in Calgary and Toronto. We&apos;re pre-launch, which means nothing here is a
               finished machine you&apos;d be a cog in. The work is visible: what you make goes out under the brand,
               and you&apos;ll know exactly which part was yours.
             </p>
-            <p style={{ fontSize: 17, color: 'var(--ink)', maxWidth: '60ch', margin: 0 }}>
+            <p className="page-lede">
               We hire the way we approach cafés — honestly, and without wasting your time. Everything you need to
               decide whether a role is worth applying for is on the posting, including whether it pays.
             </p>
           </div>
         </section>
+        <Marquee items={['Small team','Real ownership','Calgary & Toronto','Come build it with us','Small team','Real ownership']} />
 
         <section style={{ padding: '32px 0 56px' }}>
           <div className="wrap" style={{ maxWidth: 760 }}>
