@@ -8,6 +8,8 @@ export const metadata: Metadata = pageMetadata({
   title: 'Log In — Brew and the City',
   description: 'Sign in with a magic link to browse Discover.',
   canonical: '/login',
+  // A sign-in form isn't a page worth ranking.
+  robots: { index: false, follow: true },
 });
 
 // The one account gate on the pre-launch site (see chat, proxy.ts) —

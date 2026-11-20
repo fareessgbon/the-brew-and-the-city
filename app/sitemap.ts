@@ -14,6 +14,7 @@ const ROUTES = [
   '/make-brew-better',
   '/make-brew-better/cafe-partner-survey',
   '/make-brew-better/consumer-survey',
+  '/make-brew-better/cafe-taste-survey',
   '/careers',
   ...ROLES.map((role) => `/careers/${role.slug}`),
   '/privacy',

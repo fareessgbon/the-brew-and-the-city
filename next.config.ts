@@ -10,6 +10,22 @@ const nextConfig: NextConfig = {
   // Both survey sub-routes are listed explicitly rather than using a wildcard
   // — there are exactly two and they are unlikely to grow, and an explicit
   // list can't silently redirect a path that doesn't exist on the new side.
+  // Baseline security headers on every route. Deliberately no
+  // Content-Security-Policy: it needs a per-script audit and a wrong one
+  // breaks the site, which is worse than leaving it out for now.
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
