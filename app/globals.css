@@ -12,7 +12,7 @@
      Every swap below was checked against the same contrast floors the old
      values were tuned to (4.5:1 body text, ~7:1 for the small-text accent)
      rather than carried over on the assumption that "warmer" is safe. */
-  --paper: #ffffff;
+  --paper: #f8f4ea;
   --white: var(--paper);
   /* The soft accent wash — background tints, pale badges, and (in this
      redesign, unlike the old palette) light text set on the dark --ceremony
@@ -45,7 +45,7 @@
   /* Second stripe tone and the sticky header's glass — tokens so a palette
      switch (see the data-palette blocks at the end) reaches them too. */
   --latte-2: #f1e8d6;
-  --paper-glass: rgba(255, 255, 255, 0.92);
+  --paper-glass: rgba(248, 244, 234, 0.92);
   --ink: #2b3127;
   --paper-2: #e7dfcf;
   /* The card surface — lighter than --paper, and the one material every
@@ -3294,7 +3294,7 @@ footer .footer-tag {
    same tokens when <html data-palette="…"> is set — 
    app/layout.tsx sets it on <html> (the shipped palette is "cocoa"). */
 :root[data-palette='cocoa'] {
-  --paper: #ffffff;
+  --paper: #f8f4ea;
   --sky: #fff0b7;
   --harbor: #8e2b2b;
   --harbor-2: #6e1f1f;
@@ -3303,7 +3303,7 @@ footer .footer-tag {
   --whisk-10: rgba(86, 83, 76, 0.1);
   --latte: #c6d8e6;
   --latte-2: #d9e5ef;
-  --paper-glass: rgba(255, 255, 255, 0.9);
+  --paper-glass: rgba(248, 244, 234, 0.92);
   --ink: #2a211b;
   --paper-2: #e6d6bc;
   --porcelain: #faf8f4;
@@ -3312,7 +3312,7 @@ footer .footer-tag {
   --sage: #b9c0a0;
 }
 :root[data-palette='cocoa-pink'] {
-  --paper: #ffffff;
+  --paper: #f8f4ea;
   --sky: #fff0b7;
   --harbor: #8e2b2b;
   --harbor-2: #6e1f1f;
@@ -3321,7 +3321,7 @@ footer .footer-tag {
   --whisk-10: rgba(86, 83, 76, 0.1);
   --latte: #f4c6d0;
   --latte-2: #f9d7df;
-  --paper-glass: rgba(255, 255, 255, 0.9);
+  --paper-glass: rgba(248, 244, 234, 0.92);
   --ink: #2a211b;
   --paper-2: #e6d6bc;
   --porcelain: #faf8f4;
@@ -3332,7 +3332,7 @@ footer .footer-tag {
 /* "Muse" — read off the reference screenshot: cream page, chocolate bars,
    sage panels, periwinkle backdrop, dusty-red type, lilac highlighter. */
 :root[data-palette='muse'] {
-  --paper: #ffffff;
+  --paper: #f8f4ea;
   --sky: #e2e8c4;
   --harbor: #9b2f33;
   --harbor-2: #7a2226;
@@ -3341,7 +3341,7 @@ footer .footer-tag {
   --whisk-10: rgba(90, 74, 64, 0.1);
   --latte: #c9d6ea;
   --latte-2: #dbe4f2;
-  --paper-glass: rgba(255, 255, 255, 0.92);
+  --paper-glass: rgba(248, 244, 234, 0.92);
   --ink: #2e1d16;
   --paper-2: #efe8cf;
   --porcelain: #fffcf0;
@@ -3414,7 +3414,8 @@ footer .footer-tag {
   background: transparent;
   color: var(--ink);
   border-radius: 0;
-  padding: 0;
+  /* Keep .wrap's side gutter — padding: 0 left the text flush to the edge. */
+  padding: 0 24px;
 }
 :root[data-design='b'] .club-band .section-eyebrow {
   color: var(--harbor);
@@ -3510,8 +3511,18 @@ footer .footer-tag {
   max-width: 320px;
 }
 :root[data-design='b'] .hero-badge {
-  width: 88px;
-  height: 88px;
+  width: 132px;
+  height: 132px;
+  top: -40px;
+  right: -22px;
+}
+@media (max-width: 720px) {
+  :root[data-design='b'] .hero-badge {
+    width: 104px;
+    height: 104px;
+    top: -28px;
+    right: -10px;
+  }
 }
 :root[data-design='b'] section {
   padding: 44px 0;
@@ -4553,8 +4564,11 @@ header .city-switch button {
   margin: 0 0 14px;
 }
 /* The wavy marquee tucks up under the section after it; give that section
-   room so its first line isn't sitting on the ribbon. */
-.marquee-wrap + section {
+   room so its first line isn't sitting on the ribbon. The :root[data-design]
+   prefix is load-bearing: `:root[data-design='b'] section` (44px) is more
+   specific than a bare `.marquee-wrap + section` and was winning, which
+   put the For Cafés "Discovery never stops" label under the wave. */
+:root[data-design] .marquee-wrap + section {
   padding-top: calc(0.55 * var(--marquee-h) + 28px);
 }
 /* Careers: the job cards and role page take the same soft, un-outlined
@@ -4593,4 +4607,53 @@ header .city-switch button {
 /* Short pages (404, coming soon) keep the footer at the bottom of the window. */
 main#content {
   flex: 1 0 auto;
+}
+
+/* ── Pinterest-reference palette ─────────────────────────────────────────
+   Same token set as the blocks above. Hexes were read off the pin images,
+   so treat them as close, not exact. Preview with the dev-only picker
+   (components/DevColorPicker.tsx). */
+
+/* "La Buque" — brown, cream, blush, deep red, taupe. */
+:root[data-palette='la-buque'] {
+  --paper: #f8f4ea;
+  --sky: #f3cdc4;
+  --harbor: #7a1414;
+  --harbor-2: #5e0f0f;
+  --ceremony: #4a2a18;
+  --whisk: #5a463c;
+  --whisk-10: rgba(90, 70, 60, 0.1);
+  --latte: #efc5bd;
+  --latte-2: #f5d8d2;
+  --paper-glass: rgba(248, 244, 234, 0.92);
+  --ink: #2a1a14;
+  --paper-2: #f2e8c8;
+  --porcelain: #fffdf4;
+  --ceremony-2: #301b0f;
+  --terracotta: #c8453d;
+  --sage: #ddd6bd;
+}
+
+
+
+
+/* "Blossom & moss" — Burgundy, Cherry Blossom, Moss, Sky Blue, Sand
+   (Feminine Color Palette Guide pin). */
+:root[data-palette='blossom-moss'] {
+  --paper: #f2eae3;
+  --sky: #e0b3b3;
+  --harbor: #4f0518;
+  --harbor-2: #3b0412;
+  --ceremony: #4f0518;
+  --whisk: #5b3a40;
+  --whisk-10: rgba(91, 58, 64, 0.1);
+  --latte: #b8c9d0;
+  --latte-2: #cddbe0;
+  --paper-glass: rgba(242, 234, 227, 0.92);
+  --ink: #2a0a12;
+  --paper-2: #e4d6cc;
+  --porcelain: #f9f3ee;
+  --ceremony-2: #36030f;
+  --terracotta: #b97070;
+  --sage: #9a9660;
 }

@@ -12,6 +12,7 @@ import { HowItWorksSection } from '@/components/HowItWorksSection';
 import { StampIcons } from '@/components/StampIcons';
 import { Marquee } from '@/components/Marquee';
 import { useCity } from '@/components/CityProvider';
+import { BadgeRing } from '@/components/BadgeRing';
 import { CITY_LABELS } from '@/lib/data/cafeFields';
 
 // Has to match HERO_QUIZ's own taste-dim questions exactly (lib/data/quiz.ts)
@@ -40,7 +41,7 @@ function marqueeLines(cityLabel: string | null): string[] {
   return [...lines, ...lines];
 }
 
-const ANSWERED_DIMS: Dim[] = ['drink', 'energy', 'pace'];
+const ANSWERED_DIMS: Dim[] = ['drink', 'adventure', 'aesthetic', 'energy', 'pace', 'food', 'price'];
 
 // The real, interactive quiz + matching engine, restored for the pre-launch
 // homepage so visitors get a genuine idea of what the product will do —
@@ -78,7 +79,9 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
     if (!saved) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time, client-only localStorage read, mirrors the sixthRoundLine effect above.
     setUserVector(saved.vector);
-    setAnsweredDims(saved.answeredDims.length > 0 ? saved.answeredDims : ANSWERED_DIMS);
+    // Union with this quiz's own dims, so a visitor whose saved state predates
+    // the longer quiz still gets every new answer scored.
+    setAnsweredDims([...new Set<Dim>([...ANSWERED_DIMS, ...saved.answeredDims])]);
     setPrimaryDrinkCategory(saved.primaryDrinkCategory);
     setContext(saved.context);
   }, []);
@@ -156,26 +159,13 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
                 semicircle, walked the other way), so both halves read
                 upright rather than one flipping. */}
             <svg className="hero-badge" viewBox="0 0 120 120" aria-hidden="true">
-              <defs>
-                <path id="badge-ring-top" d="M16,60 A44,44 0 0,1 104,60" />
-                <path id="badge-ring-bottom" d="M16,60 A44,44 0 0,0 104,60" />
-              </defs>
               <circle cx="60" cy="60" r="58" fill="currentColor" className="badge-disc" />
-              <text className="badge-text">
-                <textPath href="#badge-ring-top" startOffset="50%" textAnchor="middle">
-                  coming soon · Calgary ·
-                </textPath>
-              </text>
-              <text className="badge-text">
-                <textPath href="#badge-ring-bottom" startOffset="50%" textAnchor="middle">
-                  Toronto · coming soon ·
-                </textPath>
-              </text>
+              <BadgeRing text="Calgary · coming soon · Toronto · coming soon · " />
             </svg>
             <div className="hero-pick-sticker">
               <div className="label">Early preview</div>
               <strong>Try the matching quiz</strong>
-              <span>Six quick questions, below</span>
+              <span>Nine quick questions, below</span>
             </div>
           </div>
         </div>
@@ -197,15 +187,15 @@ export function HomeContent({ cafes }: { cafes: HeroCafe[] }) {
           — it used to sit beside the headline in a 2-column hero row;
           now it gets a proper intro (eyebrow/title/lede, same pattern
           every other section on this page uses) instead of competing with
-          the headline for space. "Six questions" has to stay in sync with
+          the headline for space. "Nine questions" has to stay in sync with
           HERO_QUIZ's real length (lib/data/quiz.ts) — same trap the hero
-          sticker's "Six questions away" text already has to avoid. */}
+          sticker's question-count text already has to avoid. */}
       <section id="quiz" className="scallop-bottom">
         <div className="wrap">
           <div className="section-eyebrow label">The quiz</div>
           <h2 className="section-title">Try a preview.</h2>
           <p className="section-lede">
-            Six questions, no sign-up. The matches below use placeholder cafés — real ones appear as cafés join us.
+            Nine quick questions, no sign-up. The matches below use placeholder cafés — real ones appear as cafés join us.
           </p>
           <div className="quiz-wrap">
             <HeroQuiz

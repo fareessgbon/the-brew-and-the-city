@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CityProvider, CityPrompt } from '@/components/CityProvider';
+import DevColorPicker from '@/components/DevColorPicker';
 import localFont from 'next/font/local';
 import './globals.css';
 
@@ -119,6 +120,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {children}
           <CityPrompt />
         </CityProvider>
+        {process.env.NODE_ENV === 'development' && <DevColorPicker />}
       </body>
     </html>
   );
