@@ -28,6 +28,14 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // www is the same site as the bare domain; send it there so there's
+      // one address (and one set of search rankings), not two.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.brewandthecity.com' }],
+        destination: 'https://brewandthecity.com/:path*',
+        permanent: true,
+      },
       {
         source: '/help-shape-the-app',
         destination: '/make-brew-better',
