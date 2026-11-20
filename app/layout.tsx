@@ -110,7 +110,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang="en"
       data-design="b"
-      data-palette="cocoa"
+      data-palette="blossom-moss"
       data-stamps="cups"
       data-card="printed"
       className={`${fraunces.variable} ${martianMono.variable} ${generalSans.variable} ${bagelFatOne.variable} h-full`}
