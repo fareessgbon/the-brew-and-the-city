@@ -29,7 +29,7 @@ export default function PrivacyPage() {
             </div>
             <h1 className="page-title">Privacy Policy</h1>
             <div style={{ color: 'var(--whisk)', fontSize: 13, marginTop: 10 }}>
-              Last updated September 2026 · Brew and the City, Calgary &amp; Toronto
+              Last updated November 2026 · Brew and the City, Calgary &amp; Toronto
             </div>
           </div>
         </section>
@@ -40,9 +40,9 @@ export default function PrivacyPage() {
               <strong>This is a pre-launch page, not the product.</strong> You can browse real Calgary and Toronto cafés and try
               a preview of taste-matching without an account — the waitlist, two short surveys, and a job application
               form all still ask for nothing more than that. The one exception is Discover, which asks you to sign in
-              with an email link before you can browse; nothing you do past that point (quiz answers, cafés you mark
-              as visited) is stored anywhere but your own browser. This policy covers only what this site actually
-              collects. A fuller policy will replace this one once the real product exists.
+              with an email link before you can browse. Once you&apos;re signed in, we save your taste profile,
+              your café list, and any City Card visits (including the receipt photos you upload) to your account. This
+              policy covers only what this site actually collects. A fuller policy will replace this one once the real product exists.
             </div>
 
             <h2>1. Who we are</h2>
@@ -79,9 +79,18 @@ export default function PrivacyPage() {
                 <tr>
                   <td>Discover (&ldquo;Log in&rdquo;)</td>
                   <td>Your email address, to send you a one-time sign-in link. No password.</td>
+                  <td>To confirm you&apos;re a real person and to let you sign back in</td>
+                </tr>
+                <tr>
+                  <td>Discover account (once signed in)</td>
                   <td>
-                    To confirm you&apos;re a real person before showing Discover — your quiz answers and any cafés
-                    you mark as visited stay in your browser only, never sent to us
+                    Your taste profile (your answers on the seven taste dimensions and your drink type), your saved
+                    café list, and your City Card: for each visit, the café you chose and the photo of the receipt you
+                    upload, plus a fingerprint (a hash) of the photo so the same receipt can&apos;t be used twice
+                  </td>
+                  <td>
+                    To personalise Discover, to track your City Card, and for us to check each receipt by hand before
+                    a visit counts. Receipt photos are stored privately and are only opened by us during that review
                   </td>
                 </tr>
                 <tr>
@@ -111,9 +120,13 @@ export default function PrivacyPage() {
               </tbody>
             </table>
             <p>
-              Nothing else is collected. There is no location tracking and no analytics. The only cookie beyond what
-              your browser needs to load the page is the sign-in cookie Discover sets once you follow an email link —
-              it just proves you&apos;re signed in and holds no personal information itself.
+              Nothing else is collected. There is no location tracking and we don&apos;t use third-party analytics or
+              advertising trackers. We do count a few anonymous steps ourselves — which city was chosen, and whether
+              the quiz was started or finished, the waitlist joined or shared — with no name, email or account
+              attached. Your IP address is used briefly to limit abuse (for example, too many form submissions in a
+              row). The only cookie beyond what your browser needs to load the page is the sign-in cookie Discover
+              sets once you follow an email link — it just proves you&apos;re signed in and holds no personal
+              information itself.
             </p>
 
             <h2>3. How long it&apos;s kept</h2>
@@ -133,9 +146,9 @@ export default function PrivacyPage() {
               store the link; whatever it points to stays wherever you host it, under your own sharing settings.
             </p>
             <p>
-              A Discover sign-in is kept until you ask us to delete it — there&apos;s no separate retention clock,
-              since the account itself is the only thing on our side; everything it unlocks lives in your browser and
-              is already gone the moment you clear site data.
+              A Discover account, and everything saved to it (your taste profile, café list, City Card visits and
+              receipt photos), is kept until you ask us to delete it. Email us and we&apos;ll remove the account and all
+              of that along with it.
             </p>
 
             <h2>4. Your rights</h2>
